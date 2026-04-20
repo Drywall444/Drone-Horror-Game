@@ -7,10 +7,12 @@
 #include "RENDER.h"
 #include "SPRITE.h"
 #include "INPUT.h"
+#include "PLAYER.h"
 
-RENDER R;
-INPUT I;
+INPUT I;//INPUT FIRST HOLDS ALL WINDOW AND CONTROL DATA
+RENDER R(I);
 SPRITE_MANAGER SM;
+PLAYER P(SM, I);
 
 double DT = 0;
 
@@ -20,9 +22,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-
-    R.initializeRENDER(1280, 720);
-    SM.spriteCREATE(HUMAN);
+    I.initializeINPUT(1280, 720);
+    R.initializeRENDER();
+    //SM.spriteCREATE(HUMAN);
+    P.createPLAYER();
 
 
     while (I.RUN)
@@ -35,6 +38,7 @@ int main(int argc, char* argv[]) {
 
         SDL_RenderClear(R.REND);
 
+        P.playerROTATE_TO_MOUSE();
         R.renderSPRITES_ON_SCREEN(SM.spriteREGISTER, I.C);
         SDL_RenderPresent(R.REND);
         Uint64 frameEND = SDL_GetPerformanceCounter();;

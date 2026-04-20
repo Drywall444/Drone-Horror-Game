@@ -6,17 +6,16 @@
 #include "SDL3/SDL.h"
 #include "entt.hpp"
 #include "INPUT.h"
+#include "SPRITE.h"
 
 class RENDER
 {
 public:
+	RENDER(INPUT& I) : IN(I) {}
+
+
 	std::vector<int> INDICIES;
 	std::vector<SDL_Vertex> VERTEXES;
-
-	int WINDOW_W = 0;
-	int WINDOW_H = 0;
-	int WINDOW_CENTER_X = 0;
-	int WINDOW_CENTER_Y = 0;
 
 	float texW, texH;
 
@@ -26,11 +25,14 @@ public:
 
 	//TO DO
 	void renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA camera);
-	void initializeRENDER(int windowH, int windowW);
+	void initializeRENDER();
 
 
 	//OPTIMIZATION
 	void emplaceSPRITES_ON_SCREEN();
+
+private:
+	INPUT& IN;
 
 };
 

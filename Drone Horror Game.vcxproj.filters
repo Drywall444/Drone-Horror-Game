@@ -27,6 +27,9 @@
     <ClCompile Include="SPRITE.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PLAYER.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INPUT.h">
@@ -36,6 +39,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="SPRITE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PLAYER.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

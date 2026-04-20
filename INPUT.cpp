@@ -1,6 +1,22 @@
 #include "INPUT.h"
 #include <algorithm>
 
+SDL_FPoint INPUT::screenTO_WORLD_POS(SDL_FPoint screenPOINT)
+{
+	//(screenPos - camOff) / zoom - Formula, fuck math
+	SDL_FPoint final = { (screenPOINT.x - C.offSET.x) / C.zoom, (screenPOINT.y - C.offSET.y) / C.zoom };
+	return final;
+}
+
+
+void INPUT::initializeINPUT(int windowW, int windowH)
+{
+	 WINDOW_W = windowW;
+	 WINDOW_H = windowH;
+	 WINDOW_CENTER_X = windowW / 2;
+	 WINDOW_CENTER_Y = windowH / 2;
+}
+
 void INPUT::handleINPUT(float dt)
 {
 	SDL_Event input;
@@ -24,12 +40,22 @@ void INPUT::handleINPUT(float dt)
 		}
 	}
 
+	SDL_GetMouseState(&M.screenMOUSE_POS.x, &M.screenMOUSE_POS.y);
+
 	const bool* keys = SDL_GetKeyboardState(nullptr);
 
 
-	if (keys[SDL_SCANCODE_W]) C.y -= cameraSPEED * dt;
-	if (keys[SDL_SCANCODE_S]) C.y += cameraSPEED * dt;
-	if (keys[SDL_SCANCODE_A]) C.x -= cameraSPEED * dt;
-	if (keys[SDL_SCANCODE_D]) C.x += cameraSPEED * dt;
+	if (keys[SDL_SCANCODE_W]) C.camPOS.y -= cameraSPEED * dt;
+	if (keys[SDL_SCANCODE_S]) C.camPOS.y += cameraSPEED * dt;
+	if (keys[SDL_SCANCODE_A]) C.camPOS.x -= cameraSPEED * dt;
+	if (keys[SDL_SCANCODE_D]) C.camPOS.x += cameraSPEED * dt;
 
+}
+
+//CAMERA
+
+void INPUT::getCAM_OFFSET()
+{
+	C.offSET.x = WINDOW_CENTER_X - C.camPOS.x * C.zoom;
+	C.offSET.y = WINDOW_CENTER_Y - C.camPOS.y * C.zoom;
 }
