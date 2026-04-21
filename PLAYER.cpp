@@ -2,7 +2,7 @@
 
 void PLAYER::createPLAYER()//CREATE PLAYER BEFORE ANY OTHER SPRITE
 {
-	gameSPRITES.spriteCREATE(HUMAN, TYPE_PLAYER);
+	gameSPRITES.spriteCREATE(HUMAN, TYPE_PLAYER, {0.0, 0.0});
 	auto view = gameSPRITES.spriteREGISTER.view<playerOBJECT>();
 	thePLAYER = *view.begin();
 }
@@ -58,7 +58,7 @@ void PLAYER::playerMOVEMENT()
     //IN.C.camPOS.x = loc.POS.x + (playerTEX_W / 2);
     //IN.C.camPOS.y = loc.POS.y + (playerTEX_H / 2);
 
-    std::cout << loc.POS.x << " " << loc.POS.y << std::endl;
+    //std::cout << loc.POS.x << " " << loc.POS.y << std::endl;
 }
 
 void PLAYER::cameraFOLLOW_PLAYER()

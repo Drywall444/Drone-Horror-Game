@@ -1,7 +1,66 @@
 #include "RENDER.h"
 #include <SDL3_image/SDL_image.h>
+#include "FastNoiseLite.h"
+
+
+
+
+//MAP CREATION
+void RENDER::createMAP(SPRITE_MANAGER& sprites)
+{
+	// setup noise
+	fnl_state noise = fnlCreateState();
+	noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
+	noise.frequency = 0.03f;  // tweak for region size
+
+	// allocate noise data
+	float* noiseData = (float*)malloc(MAP_W * MAP_H * sizeof(float));
+	int index = 0;
+
+	for (int y = 0; y < MAP_H; y++)
+	{
+		for (int x = 0; x < MAP_W; x++)
+		{
+			noiseData[index++] = fnlGetNoise2D(&noise, x, y);
+		}
+	}
+
+	// use noise data to place tiles
+	index = 0;
+	for (int y = 0; y < MAP_H; y++)
+	{
+		for (int x = 0; x < MAP_W; x++)
+		{
+			float value = (noiseData[index++] + 1.0f) * 0.5f;
+
+			spriteTYPE tileType;
+			if (value > 0.6f) { tileType = TYPE_GRASS; std::cout << "grass\n"; }
+			else if (value > 0.3f) { tileType = TYPE_DIRT;   std::cout << "dirt\n"; }
+			else { tileType = TYPE_TREE;  std::cout << "Tree\n"; }
+
+			sprites.spriteCREATE(NATURE, tileType, { float(x * natureTEX_W), float(y * natureTEX_H) });
+		}
+	}
+}
 
 //RENDER
+
+std::vector<int> returnINDICIES(int size)
+{
+	std::vector<int> final;
+
+	for (int i = 0;i < size; i++)
+	{
+		int base = i * 4;
+		final.push_back(base + 0); // TL
+		final.push_back(base + 1); // TR
+		final.push_back(base + 3); // BL
+		final.push_back(base + 1); // TR
+		final.push_back(base + 2); // BR
+		final.push_back(base + 3); // BL
+	}
+	return final;
+}
 
 SDL_FPoint rotatePOINT(SDL_FPoint pos, SDL_FPoint centerPOINT, ROTATION rot)
 {
@@ -24,9 +83,14 @@ void RENDER::initializeRENDER()
 	//HUMAN TEXTURE LOADED
 	humanTEXTURE = IMG_LoadTexture(REND, "DATA/PLAYER.png");
 	if (!humanTEXTURE) { SDL_Log("Failed to load human texture"); }
-	SDL_SetTextureBlendMode(humanTEXTURE, SDL_BLENDMODE_NONE);
+	SDL_SetTextureBlendMode(humanTEXTURE, SDL_BLENDMODE_BLEND);
+	SDL_GetTextureSize(humanTEXTURE, &humanTEX_W, &humanTEX_H);
 
-	SDL_GetTextureSize(humanTEXTURE, &texW, &texH);
+	//GROUND TEXTURES
+	groundTEXTURE = IMG_LoadTexture(REND, "DATA/GROUND.png");
+	if (!groundTEXTURE) { SDL_Log("Failed to load nature texture"); }
+	SDL_SetTextureBlendMode(groundTEXTURE, SDL_BLENDMODE_NONE);
+	//SDL_GetTextureSize(groundTEXTURE, &natureTEX_W, &natureTEX_H);
 
 	SDL_SetRenderDrawColor(REND, 255, 255, 255, 255);//White
 
@@ -35,8 +99,10 @@ void RENDER::initializeRENDER()
 
 void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA camera)
 {
-	VERTEXES.clear();
-	INDICIES.clear();
+	HUMAN_VERTEXES.clear();
+	HUMAN_INDICIES.clear();
+	NATURE_VERTEXES.clear();
+	NATURE_INDICIES.clear();
 
 	//Get new offset based off input
 	IN.getCAM_OFFSET();
@@ -46,10 +112,10 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 	for (auto& sprite : totalSPRITES)
 	{
 		auto& curSPRITE = totalSPRITES.get<spriteOBJECT>(sprite);
-		if (curSPRITE.textureSHEET_NUM == 0)//USE HUMAN TEXTURE
+		if (curSPRITE.textureSHEET_NUM == HUMAN)//USE HUMAN TEXTURE
 		{
-			float halfW = texW * 0.5f;
-			float halfH = texH * 0.5f;
+			float halfW = humanTEX_W * 0.5f;
+			float halfH = humanTEX_H * 0.5f;
 
 			//Get texture width and height from intizilation and then get top left corner, top right, bottom left, bottom right
 			//GET ROTATION AND APPLY TO ALL POINTS
@@ -60,28 +126,57 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 			SDL_FPoint center = { x + halfW, y + halfH };
 
 			SDL_FPoint Point1 = rotatePOINT({ x, y }, center, curSPRITE.spriteLOCATION.ROT);
-			SDL_FPoint Point2 = rotatePOINT({ x + texW, y }, center, curSPRITE.spriteLOCATION.ROT);
-			SDL_FPoint Point3 = rotatePOINT({ x + texW, y + texH }, center, curSPRITE.spriteLOCATION.ROT);
-			SDL_FPoint Point4 = rotatePOINT({ x, y + texH }, center, curSPRITE.spriteLOCATION.ROT);
+			SDL_FPoint Point2 = rotatePOINT({ x + humanTEX_W, y }, center, curSPRITE.spriteLOCATION.ROT);
+			SDL_FPoint Point3 = rotatePOINT({ x + humanTEX_W, y + humanTEX_H }, center, curSPRITE.spriteLOCATION.ROT);
+			SDL_FPoint Point4 = rotatePOINT({ x, y + humanTEX_H }, center, curSPRITE.spriteLOCATION.ROT);
 
-			VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {0,0} });
-			VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {1,0} });
-			VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {1,1} });
-			VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {0,1} });
+			HUMAN_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {0,0} });
+			HUMAN_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {1,0} });
+			HUMAN_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {1,1} });
+			HUMAN_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {0,1} });
+		}
+		if (curSPRITE.textureSHEET_NUM == NATURE)
+		{
+			float halfW = natureTEX_W * 0.5f;
+			float halfH = natureTEX_H * 0.5f;
+
+			//Get texture width and height from intizilation and then get top left corner, top right, bottom left, bottom right
+			//GET ROTATION AND APPLY TO ALL POINTS
+
+			float x = curSPRITE.spriteLOCATION.POS.x;
+			float y = curSPRITE.spriteLOCATION.POS.y;
+
+			SDL_FPoint center = { x + halfW, y + halfH };
+
+			SDL_FPoint Point1 = rotatePOINT({ x, y }, center, curSPRITE.spriteLOCATION.ROT);
+			SDL_FPoint Point2 = rotatePOINT({ x + natureTEX_W, y }, center, curSPRITE.spriteLOCATION.ROT);
+			SDL_FPoint Point3 = rotatePOINT({ x + natureTEX_W, y + natureTEX_H }, center, curSPRITE.spriteLOCATION.ROT);
+			SDL_FPoint Point4 = rotatePOINT({ x, y + natureTEX_H }, center, curSPRITE.spriteLOCATION.ROT);
+
+			TILE_REGION curTILE;
+			if (curSPRITE.TYPE == TYPE_GRASS) { curTILE = GRASS; }
+			else if (curSPRITE.TYPE == TYPE_DIRT) { curTILE = DIRT; }
+			else if (curSPRITE.TYPE == TYPE_TREE) { curTILE = TREE; }
+
+			NATURE_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE.uMIN,0} });
+			NATURE_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE.uMAX,0} });
+			NATURE_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE.uMAX,1} });
+			NATURE_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE.uMIN,1} });
 		}
 	}
-	INDICIES.reserve(totalSPRITES.size() * 6);
 
-	for (int i = 0;i < totalSPRITES.size(); i++)
-	{
-		int base = i * 4;
-		INDICIES.push_back(base + 0); // TL
-		INDICIES.push_back(base + 1); // TR
-		INDICIES.push_back(base + 3); // BL
-		INDICIES.push_back(base + 1); // TR
-		INDICIES.push_back(base + 2); // BR
-		INDICIES.push_back(base + 3); // BL
-	}
-	SDL_RenderGeometry(REND, humanTEXTURE, VERTEXES.data(), VERTEXES.size(),
-		INDICIES.data(), (VERTEXES.size() / 4) * 6);
+	//INDICIES
+	auto totalHUMAN = spriteREGISTER.view<humanSPRITE>();
+	auto totalNATURE = spriteREGISTER.view<staticSPRITE>();
+
+	HUMAN_INDICIES = returnINDICIES(totalHUMAN.size());
+	NATURE_INDICIES = returnINDICIES(totalNATURE.size());
+
+	SDL_RenderGeometry(REND, groundTEXTURE, NATURE_VERTEXES.data(), NATURE_VERTEXES.size(),
+		NATURE_INDICIES.data(), (NATURE_VERTEXES.size() / 4) * 6);
+
+	SDL_RenderGeometry(REND, humanTEXTURE, HUMAN_VERTEXES.data(), HUMAN_VERTEXES.size(),
+		HUMAN_INDICIES.data(), (HUMAN_VERTEXES.size() / 4) * 6);
+
+
 }

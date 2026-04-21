@@ -32,16 +32,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="INPUT.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RENDER.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="SPRITE.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PLAYER.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="INPUT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RENDER.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

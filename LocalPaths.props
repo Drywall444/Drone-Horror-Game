@@ -5,10 +5,10 @@
 	<PropertyGroup />
 	<ItemDefinitionGroup>
 		<ClCompile>
-			<AdditionalIncludeDirectories>C:\c++\Librarys\SDL3-3.4.4\include;C:\c++\Librarys\SDL3_image-3.4.2\include;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>C:\c++\SDL3\include;C:\c++\SDL3_IMG\include;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
 		<Link>
-			<AdditionalLibraryDirectories>C:\c++\Librarys\SDL3-3.4.4\lib\x64;C:\c++\Librarys\SDL3_image-3.4.2\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+			<AdditionalLibraryDirectories>C:\c++\SDL3\lib\x64;C:\c++\SDL3_IMG\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
 		</Link>
 	</ItemDefinitionGroup>
 	<ItemGroup />

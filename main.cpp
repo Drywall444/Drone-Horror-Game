@@ -26,6 +26,9 @@ int main(int argc, char* argv[]) {
     R.initializeRENDER();
     //SM.spriteCREATE(HUMAN);
     P.createPLAYER();
+    SM.spriteCREATE(NATURE, TYPE_GRASS, {0.0, 0.0});
+
+    R.createMAP(SM);
 
 
     while (I.RUN)

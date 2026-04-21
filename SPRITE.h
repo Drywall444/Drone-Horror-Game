@@ -15,7 +15,10 @@ enum textureATLAS //Keep all human types on one sheet and naturage and foliage o
 enum spriteTYPE //Signfiys what you are specfically will an enum for each atlas
 {
 	TYPE_PLAYER = 0,
-	TYPE_DRONE = 1
+	TYPE_DRONE = 1,
+	TYPE_GRASS = 2,
+	TYPE_DIRT = 3,
+	TYPE_TREE = 4
 };
 
 struct ROTATION
@@ -33,18 +36,24 @@ struct spriteOBJECT//SHIT THAT CAN MOVE
 {
 	LOCATION spriteLOCATION;
 	textureATLAS textureSHEET_NUM; //ADD DEFAULT
+	spriteTYPE TYPE;
 };
 
-struct playerOBJECT
+struct playerOBJECT //make just tag
 {
 	float HP = 100;
 };
+
+//TAGS
+struct staticSPRITE {};
+struct humanSPRITE {};
+
 
 class SPRITE_MANAGER
 {
 	public:
 		entt::registry spriteREGISTER;
-		void spriteCREATE(textureATLAS sheetNUM, spriteTYPE type);
+		void spriteCREATE(textureATLAS sheetNUM, spriteTYPE type, SDL_FPoint pos);
 
 };
 
