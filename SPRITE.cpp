@@ -16,6 +16,15 @@ ROTATION rotationTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB)
 	return { -sinR, cosR };
 }
 
+float distanceTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB)
+{
+	float dX = pointB.x - pointA.x;
+	float dY = pointB.y - pointA.y;
+
+	float length = sqrt(dX * dX + dY * dY);
+	return length;
+}
+
 float dotBETWEEN_ROTS(ROTATION rotA, ROTATION rotB)//RETURNS Dot Product of two rotations
 {
 	float dot = rotA.cosR * rotB.cosR + rotA.sinR * rotB.sinR;

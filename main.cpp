@@ -33,17 +33,17 @@ int main(int argc, char* argv[]) {
 
         // F.companyADVANCE(firstCOMPANY, 0.1);
         Uint64 frameSTART = SDL_GetPerformanceCounter();
-        I.handleINPUT(DT);
-
+        I.handleINPUT(DT);//GET INPUT POLL
+        P.playerMOVEMENT();//HANDLE ANY INPUT
+        P.cameraFOLLOW_PLAYER();
+        P.playerROTATE_TO_MOUSE();
 
         SDL_RenderClear(R.REND);
-
-        P.playerROTATE_TO_MOUSE();
         R.renderSPRITES_ON_SCREEN(SM.spriteREGISTER, I.C);
         SDL_RenderPresent(R.REND);
         Uint64 frameEND = SDL_GetPerformanceCounter();;
         DT = double(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
-        std::cout << 1.0 / DT << std::endl;
+        //std::cout << 1.0 / DT << std::endl;
         frameSTART = frameEND;
     }
 

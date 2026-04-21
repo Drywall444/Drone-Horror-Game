@@ -51,6 +51,7 @@ class SPRITE_MANAGER
 //MATH
 ROTATION rotationTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB);
 float dotBETWEEN_ROTS(ROTATION rotA, ROTATION rotB);
+float distanceTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB);
 
 #endif // !SPRITE_H
 

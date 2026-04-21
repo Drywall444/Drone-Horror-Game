@@ -18,3 +18,65 @@ void PLAYER::playerROTATE_TO_MOUSE()
 	gameSPRITES.spriteREGISTER.get<spriteOBJECT>(thePLAYER).spriteLOCATION.ROT = newROT;
 }
 
+void PLAYER::playerMOVEMENT()
+{
+    auto& loc = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(thePLAYER).spriteLOCATION;
+
+    float forwardX = loc.ROT.sinR;
+    float forwardY = -loc.ROT.cosR;
+    float rightX = loc.ROT.cosR;
+    float rightY = loc.ROT.sinR;
+
+    float speed = playerSPEED_WALK * IN.DT;
+    float moveX = 0, moveY = 0;
+
+    if (IN.KEYS[SDL_SCANCODE_W]) 
+    { 
+        moveX += forwardX * speed; 
+        moveY += forwardY * speed;
+    }
+    if (IN.KEYS[SDL_SCANCODE_S]) 
+    { 
+        moveX -= forwardX * speed * 0.5;
+        moveY -= forwardY * speed * 0.5;
+    }
+    if (IN.KEYS[SDL_SCANCODE_A]) 
+    { 
+        moveX -= rightX * speed / 3;
+        moveY -= rightY * speed / 3;
+    }
+    if (IN.KEYS[SDL_SCANCODE_D]) 
+    { 
+        moveX += rightX * speed / 3;   
+        moveY += rightY * speed /3; 
+    }
+
+    loc.POS.x += moveX;
+    loc.POS.y += moveY;
+
+    // Keep camera locked to player so mouse world pos stays accurate
+    //IN.C.camPOS.x = loc.POS.x + (playerTEX_W / 2);
+    //IN.C.camPOS.y = loc.POS.y + (playerTEX_H / 2);
+
+    std::cout << loc.POS.x << " " << loc.POS.y << std::endl;
+}
+
+void PLAYER::cameraFOLLOW_PLAYER()
+{
+    auto& loc = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(thePLAYER).spriteLOCATION;
+
+        if (distanceTO_POINT(IN.C.camPOS, loc.POS) < 0.1)
+        {
+            //do nothing
+        }
+        else {
+            ROTATION rotTOPLAYER = rotationTO_POINT(IN.C.camPOS, loc.POS);
+
+            float dX = rotTOPLAYER.sinR * (100 * IN.DT);
+            float dY = -rotTOPLAYER.cosR * (100 * IN.DT);
+
+            IN.C.camPOS.x += dX;
+            IN.C.camPOS.y += dY;
+        }
+}
+

@@ -25,9 +25,11 @@ public:
 	int WINDOW_H = 0;
 	int WINDOW_CENTER_X = 0;
 	int WINDOW_CENTER_Y = 0;
+	float DT;
 
 	CAMERA C;
 	MOUSE M;
+	const bool* KEYS = nullptr;
 	bool RUN = true;
 	int fuckASSdegrees = 0;
 	float cameraSPEED = 450;
@@ -38,6 +40,7 @@ public:
 	//CAMERA
 	void getCAM_OFFSET();
 	SDL_FPoint screenTO_WORLD_POS(SDL_FPoint screenPOINT);
+
 
 private:
 };

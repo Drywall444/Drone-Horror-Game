@@ -12,8 +12,17 @@ public:
 	float playerTEX_W = 64.0;
 	float playerTEX_H = 64.0;
 
+	//Movement
+	float playerSPEED_WALK = 250.0;
+
 	void createPLAYER();
+
+	//Player Movement
 	void playerROTATE_TO_MOUSE();
+	void playerMOVEMENT();
+
+	//CAMERA
+	void cameraFOLLOW_PLAYER();
 
 
 private:

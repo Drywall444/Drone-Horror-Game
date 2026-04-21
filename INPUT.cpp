@@ -1,5 +1,6 @@
 #include "INPUT.h"
 #include <algorithm>
+#include "PLAYER.h"
 
 SDL_FPoint INPUT::screenTO_WORLD_POS(SDL_FPoint screenPOINT)
 {
@@ -19,6 +20,7 @@ void INPUT::initializeINPUT(int windowW, int windowH)
 
 void INPUT::handleINPUT(float dt)
 {
+	DT = dt;
 	SDL_Event input;
 	while (SDL_PollEvent(&input))
 	{
@@ -42,13 +44,7 @@ void INPUT::handleINPUT(float dt)
 
 	SDL_GetMouseState(&M.screenMOUSE_POS.x, &M.screenMOUSE_POS.y);
 
-	const bool* keys = SDL_GetKeyboardState(nullptr);
-
-
-	if (keys[SDL_SCANCODE_W]) C.camPOS.y -= cameraSPEED * dt;
-	if (keys[SDL_SCANCODE_S]) C.camPOS.y += cameraSPEED * dt;
-	if (keys[SDL_SCANCODE_A]) C.camPOS.x -= cameraSPEED * dt;
-	if (keys[SDL_SCANCODE_D]) C.camPOS.x += cameraSPEED * dt;
+	KEYS = SDL_GetKeyboardState(nullptr);
 
 }
 
