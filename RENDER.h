@@ -17,8 +17,8 @@ public:
 
 	//MAP SHIT
 	float natureTEX_W = 64.0, natureTEX_H = 64.0;
-	int MAP_W = 300;
-	int MAP_H = 50;
+	int MAP_W = 1000;
+	int MAP_H = 100;
 
 	struct TILE_REGION
 	{
@@ -26,7 +26,7 @@ public:
 		float uMAX;
 	};
 	TILE_REGION GRASS = { 0.0f,  0.33f };
-	TILE_REGION DIRT = { 0.33f, 0.66f };
+	TILE_REGION DIRT = { 0.34f, 0.66f };
 	TILE_REGION TREE = { 0.66f, 1.0f };
 
 	std::vector<int> NATURE_INDICIES;

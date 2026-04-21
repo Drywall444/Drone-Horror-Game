@@ -81,7 +81,7 @@ void RENDER::initializeRENDER()
 	}
 
 	//HUMAN TEXTURE LOADED
-	humanTEXTURE = IMG_LoadTexture(REND, "DATA/PLAYER.png");
+	humanTEXTURE = IMG_LoadTexture(REND, "DATA/SOLDIER_STANDING.png");
 	if (!humanTEXTURE) { SDL_Log("Failed to load human texture"); }
 	SDL_SetTextureBlendMode(humanTEXTURE, SDL_BLENDMODE_BLEND);
 	SDL_GetTextureSize(humanTEXTURE, &humanTEX_W, &humanTEX_H);
@@ -92,7 +92,12 @@ void RENDER::initializeRENDER()
 	SDL_SetTextureBlendMode(groundTEXTURE, SDL_BLENDMODE_NONE);
 	//SDL_GetTextureSize(groundTEXTURE, &natureTEX_W, &natureTEX_H);
 
+		//SDL STUFF
 	SDL_SetRenderDrawColor(REND, 255, 255, 255, 255);//White
+	SDL_SetWindowFullscreenMode(window, NULL); //WHY TF DOES TWO CALLS TO WINDOW FULL SCREEN WORK, FUCK MY LIFE
+	SDL_SetWindowFullscreen(window, true);
+	IN.getWINDOWSIZE(window);
+	SDL_SetRenderVSync(REND, 1);
 
 	std::cout << "Renderer Success!/n";
 }

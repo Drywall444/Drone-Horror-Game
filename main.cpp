@@ -36,12 +36,12 @@ int main(int argc, char* argv[]) {
 
         // F.companyADVANCE(firstCOMPANY, 0.1);
         Uint64 frameSTART = SDL_GetPerformanceCounter();
+        SDL_RenderClear(R.REND);
         I.handleINPUT(DT);//GET INPUT POLL
         P.playerMOVEMENT();//HANDLE ANY INPUT
         P.cameraFOLLOW_PLAYER();
         P.playerROTATE_TO_MOUSE();
 
-        SDL_RenderClear(R.REND);
         R.renderSPRITES_ON_SCREEN(SM.spriteREGISTER, I.C);
         SDL_RenderPresent(R.REND);
         Uint64 frameEND = SDL_GetPerformanceCounter();;

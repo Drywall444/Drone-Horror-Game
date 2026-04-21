@@ -66,9 +66,14 @@ void PLAYER::cameraFOLLOW_PLAYER()
     float cameraPULL = 8.0;
 
     auto& loc = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(thePLAYER).spriteLOCATION;
-    float distance = distanceTO_POINT(IN.C.camPOS, loc.POS);
+    std::cout << loc.POS.x << " " << loc.POS.y << std::endl;
+    std::cout << "CAM: " << IN.C.camPOS.x << " " << IN.C.camPOS.y << std::endl;
 
-        if (distance < 0.1)
+    float distance = distanceTO_POINT(IN.C.camPOS, loc.POS);
+    //std::cout << distance << std::endl;
+
+
+        if (distance < 0.01)
         {
             //do nothing
         }

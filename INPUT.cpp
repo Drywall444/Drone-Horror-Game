@@ -38,7 +38,7 @@ void INPUT::handleINPUT(float dt)
 		}
 		if (input.type == SDL_EVENT_MOUSE_WHEEL)
 		{
-			C.zoom = std::clamp(C.zoom + (0.07 * input.wheel.y), 0.25, 9.0);
+			C.zoom = std::clamp(C.zoom + (0.04 * input.wheel.y), 0.25, 9.0);
 		}
 	}
 
@@ -54,4 +54,15 @@ void INPUT::getCAM_OFFSET()
 {
 	C.offSET.x = WINDOW_CENTER_X - C.camPOS.x * C.zoom;
 	C.offSET.y = WINDOW_CENTER_Y - C.camPOS.y * C.zoom;
+}
+
+void INPUT::getWINDOWSIZE(SDL_Window* window)
+{
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+	WINDOW_W = w;
+	WINDOW_H = h;
+	WINDOW_CENTER_X = w / 2.0f;
+	WINDOW_CENTER_Y = h / 2.0f;
+
 }

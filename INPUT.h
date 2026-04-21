@@ -40,6 +40,7 @@ public:
 	//CAMERA
 	void getCAM_OFFSET();
 	SDL_FPoint screenTO_WORLD_POS(SDL_FPoint screenPOINT);
+	void getWINDOWSIZE(SDL_Window* window);
 
 
 private:
