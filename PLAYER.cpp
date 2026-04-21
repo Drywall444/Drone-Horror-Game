@@ -63,17 +63,20 @@ void PLAYER::playerMOVEMENT()
 
 void PLAYER::cameraFOLLOW_PLAYER()
 {
-    auto& loc = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(thePLAYER).spriteLOCATION;
+    float cameraPULL = 8.0;
 
-        if (distanceTO_POINT(IN.C.camPOS, loc.POS) < 0.1)
+    auto& loc = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(thePLAYER).spriteLOCATION;
+    float distance = distanceTO_POINT(IN.C.camPOS, loc.POS);
+
+        if (distance < 0.1)
         {
             //do nothing
         }
         else {
             ROTATION rotTOPLAYER = rotationTO_POINT(IN.C.camPOS, loc.POS);
 
-            float dX = rotTOPLAYER.sinR * (100 * IN.DT);
-            float dY = -rotTOPLAYER.cosR * (100 * IN.DT);
+            float dX = rotTOPLAYER.sinR * ((cameraPULL * distance) * IN.DT);
+            float dY = -rotTOPLAYER.cosR * ((cameraPULL * distance) * IN.DT);
 
             IN.C.camPOS.x += dX;
             IN.C.camPOS.y += dY;
