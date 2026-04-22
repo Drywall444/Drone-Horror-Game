@@ -27,6 +27,8 @@ public:
 	int WINDOW_CENTER_Y = 0;
 	float DT;
 
+	double scrollWHEEL_SENS = 0.1;
+
 	CAMERA C;
 	MOUSE M;
 	const bool* KEYS = nullptr;

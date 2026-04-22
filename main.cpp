@@ -38,9 +38,8 @@ int main(int argc, char* argv[]) {
         Uint64 frameSTART = SDL_GetPerformanceCounter();
         SDL_RenderClear(R.REND);
         I.handleINPUT(DT);//GET INPUT POLL
-        P.playerMOVEMENT();//HANDLE ANY INPUT
-        P.cameraFOLLOW_PLAYER();
-        P.playerROTATE_TO_MOUSE();
+        P.cameraMOVEMENT();//HANDLE ANY INPUT
+
 
         R.renderSPRITES_ON_SCREEN(SM.spriteREGISTER, I.C);
         SDL_RenderPresent(R.REND);

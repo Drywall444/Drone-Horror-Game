@@ -38,7 +38,7 @@ void INPUT::handleINPUT(float dt)
 		}
 		if (input.type == SDL_EVENT_MOUSE_WHEEL)
 		{
-			C.zoom = std::clamp(C.zoom + (0.04 * input.wheel.y), 0.25, 9.0);
+			C.zoom = std::clamp(C.zoom + (scrollWHEEL_SENS * input.wheel.y), 0.50, 9.0); //clamps to min and max zoom
 		}
 	}
 
