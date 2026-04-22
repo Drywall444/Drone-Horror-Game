@@ -5,7 +5,7 @@
 
 
 
-//MAP CREATION
+//MAP CREATION - DO ON OWN
 void RENDER::createMAP(SPRITE_MANAGER& sprites)
 {
 	// setup noise
@@ -34,9 +34,9 @@ void RENDER::createMAP(SPRITE_MANAGER& sprites)
 			float value = (noiseData[index++] + 1.0f) * 0.5f;
 
 			spriteTYPE tileType;
-			if (value > 0.6f) { tileType = TYPE_GRASS; std::cout << "grass\n"; }
-			else if (value > 0.3f) { tileType = TYPE_DIRT;   std::cout << "dirt\n"; }
-			else { tileType = TYPE_TREE;  std::cout << "Tree\n"; }
+			if (value > 0.8f) { tileType = TYPE_GRASS; }
+			else if (value > 0.3f) { tileType = TYPE_DIRT;}
+			else { tileType = TYPE_TREE; }
 
 			sprites.spriteCREATE(NATURE, tileType, { float(x * natureTEX_W), float(y * natureTEX_H) });
 		}

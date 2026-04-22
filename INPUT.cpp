@@ -1,6 +1,5 @@
 #include "INPUT.h"
 #include <algorithm>
-#include "PLAYER.h"
 
 SDL_FPoint INPUT::screenTO_WORLD_POS(SDL_FPoint screenPOINT)
 {
@@ -33,19 +32,44 @@ void INPUT::handleINPUT(float dt)
 		{
 			if (input.button.button == SDL_BUTTON_LEFT)
 			{
+				frameSTART = SDL_GetPerformanceCounter(); // detect time between clicks and if left click held for certain time we have held left click
+				M.isHELD_DOWN = true;
+				checkLEFTCLICK_RETURN_SPRITE(screenTO_WORLD_POS(M.screenMOUSE_POS));
 				std::cout << "Left Click detetcted... do sum\n";
+
+				//Player checkSELECTION
+			}
+		}
+		if (input.type == SDL_EVENT_MOUSE_BUTTON_UP)
+
+
+		{
+			if (input.button.button == SDL_BUTTON_LEFT)
+			{
+				M.isHELD_DOWN = false;
+				std::cout << "Left Click Let GO\n";
 			}
 		}
 		if (input.type == SDL_EVENT_MOUSE_WHEEL)
 		{
-			C.zoom = std::clamp(C.zoom + (scrollWHEEL_SENS * input.wheel.y), 0.50, 9.0); //clamps to min and max zoom
+			C.zoom = std::clamp(C.zoom + (scrollWHEEL_SENS * input.wheel.y), 0.50, 12.0); //clamps to min and max zoom
+			getCAM_OFFSET();
 		}
+	}
+	frameEND = SDL_GetPerformanceCounter();
+	timeINSEC = double(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
+	//std::cout << timeINSEC << std::endl;
+
+	if (timeINSEC > 0.25 && M.isHELD_DOWN)
+	{
+		std::cout << "Mouse Was held down\n";
+		//Draw box from first held mouse pos to current mouse pos and then get all sprites within bounds. 
 	}
 
 	SDL_GetMouseState(&M.screenMOUSE_POS.x, &M.screenMOUSE_POS.y);
 
 	KEYS = SDL_GetKeyboardState(nullptr);
-
+	//frameSTART = frameEND;
 }
 
 //CAMERA
@@ -65,4 +89,41 @@ void INPUT::getWINDOWSIZE(SDL_Window* window)
 	WINDOW_CENTER_X = w / 2.0f;
 	WINDOW_CENTER_Y = h / 2.0f;
 
+}
+
+//PLAYER INTERACT
+void INPUT::cameraMOVEMENT()
+{
+
+	if (KEYS[SDL_SCANCODE_W])
+	{
+		C.camPOS.y -= (cameraSPEED * DT);
+	}
+	if (KEYS[SDL_SCANCODE_S])
+	{
+		C.camPOS.y += (cameraSPEED * DT);
+	}
+	if (KEYS[SDL_SCANCODE_A])
+	{
+		C.camPOS.x -= (cameraSPEED * DT);
+	}
+	if (KEYS[SDL_SCANCODE_D])
+	{
+		C.camPOS.x += (cameraSPEED * DT);
+	}
+}
+
+void INPUT::checkLEFTCLICK_RETURN_SPRITE(SDL_FPoint globalPOS)
+{
+	auto soldierVIEW = gameSPRITES.spriteREGISTER.view<soldierOBJECT>();
+
+	for (auto& soldier : soldierVIEW)
+	{
+		auto& soldierLOC = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(soldier).spriteLOCATION;
+		if (isPOINT_WITHIN_BOUNDS(globalPOS, soldierLOC.POS, soldierLOC.ROT, 32, 32))
+		{
+			curSELECTED_SOLDIER = soldier;
+			//gameSPRITES.spriteREGISTER.destroy(soldier);
+		}
+	}
 }

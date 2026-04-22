@@ -13,6 +13,7 @@ ROTATION rotationTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB)
 	float cosR = dX / length;
 	float sinR = dY / length;
 
+
 	return { -sinR, cosR };
 }
 
@@ -32,13 +33,31 @@ float dotBETWEEN_ROTS(ROTATION rotA, ROTATION rotB)//RETURNS Dot Product of two 
 	return dot;
 }
 
+bool isPOINT_WITHIN_BOUNDS(SDL_FPoint point, SDL_FPoint spritePOS, ROTATION spriteROT, int texW, int texH)
+{
+	float centerX = spritePOS.x + texW / 2;
+	float centerY = spritePOS.y + texH / 2;
+
+	float localX = point.x - centerX;//Translate that hoe into local space
+	float localY = point.y - centerY;
+
+	float rotatedX = localX * spriteROT.cosR - localY * spriteROT.sinR;
+	float rotatedY = localX * spriteROT.sinR + localY * spriteROT.cosR;
+
+	float halfW = texW / 2.0f;
+	float halfH = texH / 2.0f;
+
+	return (rotatedX >= -halfW && rotatedX <= halfW && rotatedY >= -halfH && rotatedY <= halfH);
+
+}
+
 //SPRITE_MANAGER
 
 void SPRITE_MANAGER::spriteCREATE(textureATLAS sheetNUM, spriteTYPE type, SDL_FPoint pos)
 {
 		entt::entity newSPRITE = spriteREGISTER.create();
 		spriteOBJECT newSPRITE_OBJ;
-		ROTATION newROT = { 0.0f, -1.0f };
+		ROTATION newROT = { 0.0f, 1.0f };
 		LOCATION newLOC = { {pos.x, pos.y}, newROT };
 		newSPRITE_OBJ.spriteLOCATION = newLOC;
 		newSPRITE_OBJ.textureSHEET_NUM = sheetNUM;
@@ -48,14 +67,20 @@ void SPRITE_MANAGER::spriteCREATE(textureATLAS sheetNUM, spriteTYPE type, SDL_FP
 		if (sheetNUM == HUMAN)
 		{
 			spriteREGISTER.emplace<humanSPRITE>(newSPRITE);
-			if (type == TYPE_PLAYER)//check if player, emaplce playerOBJ
+			if (type == TYPE_SOLDIER)//check if soldier, emaplce soldierOBJ
 			{
-				playerOBJECT thePLAYER = { 100.0 };
-				spriteREGISTER.emplace<playerOBJECT>(newSPRITE, thePLAYER);
+				soldierOBJECT thePLAYER = { 100.0 };
+				spriteREGISTER.emplace<soldierOBJECT>(newSPRITE, thePLAYER);
 			}
 		}
-		else if (sheetNUM == NATURE)//check if player, emaplce playerOBJ
+		else if (sheetNUM == NATURE)
 		{
 			spriteREGISTER.emplace<staticSPRITE>(newSPRITE); //emplace static tag for renderer
 		}
+}
+
+//SOLDIER
+ void SPRITE_MANAGER::createSOLDIER(spriteTYPE soldierTYPE, SDL_FPoint pos, bool isENEMY)
+{
+	 spriteCREATE(HUMAN, TYPE_SOLDIER, pos);
 }

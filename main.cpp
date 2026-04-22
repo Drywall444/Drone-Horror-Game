@@ -7,12 +7,10 @@
 #include "RENDER.h"
 #include "SPRITE.h"
 #include "INPUT.h"
-#include "PLAYER.h"
 
-INPUT I;//INPUT FIRST HOLDS ALL WINDOW AND CONTROL DATA
+SPRITE_MANAGER SM; //SM FIRST
+INPUT I(SM);
 RENDER R(I);
-SPRITE_MANAGER SM;
-PLAYER P(SM, I);
 
 double DT = 0;
 
@@ -25,8 +23,9 @@ int main(int argc, char* argv[]) {
     I.initializeINPUT(1280, 720);
     R.initializeRENDER();
     //SM.spriteCREATE(HUMAN);
-    P.createPLAYER();
-    SM.spriteCREATE(NATURE, TYPE_GRASS, {0.0, 0.0});
+    SM.createSOLDIER(TYPE_SOLDIER, { 0.0, 0.0 }, true);
+    SM.createSOLDIER(TYPE_SOLDIER, { 0.0, 100.0 }, true);
+    SM.createSOLDIER(TYPE_SOLDIER, { 0.0, 200.0 }, true);
 
     R.createMAP(SM);
 
@@ -38,12 +37,13 @@ int main(int argc, char* argv[]) {
         Uint64 frameSTART = SDL_GetPerformanceCounter();
         SDL_RenderClear(R.REND);
         I.handleINPUT(DT);//GET INPUT POLL
-        P.cameraMOVEMENT();//HANDLE ANY INPUT
+        //GROUP ALL PLAYER INPUT INTO ONE FUNCTION
+        I.cameraMOVEMENT();//HANDLE ANY INPUT
 
 
         R.renderSPRITES_ON_SCREEN(SM.spriteREGISTER, I.C);
         SDL_RenderPresent(R.REND);
-        Uint64 frameEND = SDL_GetPerformanceCounter();;
+        Uint64 frameEND = SDL_GetPerformanceCounter();
         DT = double(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
         //std::cout << 1.0 / DT << std::endl;
         frameSTART = frameEND;

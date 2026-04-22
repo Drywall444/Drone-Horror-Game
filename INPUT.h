@@ -4,6 +4,7 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_keyboard.h>
+#include "SPRITE.h"
 
 struct CAMERA
 {
@@ -15,11 +16,24 @@ struct CAMERA
 struct MOUSE
 {
 	SDL_FPoint screenMOUSE_POS;
+	bool isHELD_DOWN = false;
 };
 
 class INPUT
 {
 public:
+	INPUT(SPRITE_MANAGER& sm) : gameSPRITES(sm) {}
+	//PLAYER STUFF
+	entt::entity curSELECTED_SOLDIER;
+
+
+	//Camera Movement
+	void cameraMOVEMENT();
+
+	//INTERACTION
+	void checkLEFTCLICK_RETURN_SPRITE(SDL_FPoint globalPOS);
+	void orderSELECTED_SOLDIER_TO_POINT(SDL_FPoint globalPOINT);
+
 
 	int WINDOW_W = 0;
 	int WINDOW_H = 0;
@@ -30,11 +44,11 @@ public:
 	double scrollWHEEL_SENS = 0.1;
 
 	CAMERA C;
+	float cameraSPEED = 450;
 	MOUSE M;
 	const bool* KEYS = nullptr;
 	bool RUN = true;
 	int fuckASSdegrees = 0;
-	float cameraSPEED = 450;
 	float deg = 0;
 	void handleINPUT(float dt);
 	void initializeINPUT(int windowW, int windowH);
@@ -46,6 +60,11 @@ public:
 
 
 private:
+	SPRITE_MANAGER& gameSPRITES;
+	Uint64 frameSTART = 0;
+	Uint64 frameEND = 0;
+	double timeINSEC;
+
 };
 
 #endif // !INPUT_H

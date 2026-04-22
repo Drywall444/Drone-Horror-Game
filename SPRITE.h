@@ -14,11 +14,12 @@ enum textureATLAS //Keep all human types on one sheet and naturage and foliage o
 
 enum spriteTYPE //Signfiys what you are specfically will an enum for each atlas
 {
-	TYPE_PLAYER = 0,
-	TYPE_DRONE = 1,
-	TYPE_GRASS = 2,
-	TYPE_DIRT = 3,
-	TYPE_TREE = 4
+	TYPE_SOLDIER = 0,
+	TYPE_SOLDIER_ENEMY = 1,
+	TYPE_DRONE = 2,
+	TYPE_GRASS = 3,
+	TYPE_DIRT = 4,
+	TYPE_TREE = 5
 };
 
 struct ROTATION
@@ -39,7 +40,7 @@ struct spriteOBJECT//SHIT THAT CAN MOVE
 	spriteTYPE TYPE;
 };
 
-struct playerOBJECT //make just tag
+struct soldierOBJECT 
 {
 	float HP = 100;
 };
@@ -55,12 +56,17 @@ class SPRITE_MANAGER
 		entt::registry spriteREGISTER;
 		void spriteCREATE(textureATLAS sheetNUM, spriteTYPE type, SDL_FPoint pos);
 
+		//SOLDIER MANAGER
+		void createSOLDIER(spriteTYPE soldierTYPE, SDL_FPoint pos, bool isENEMY); 
+		void soldierMOVE_TO_POINT(SDL_FPoint point, entt::entity soldier);
+
 };
 
 //MATH
 ROTATION rotationTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB);
 float dotBETWEEN_ROTS(ROTATION rotA, ROTATION rotB);
 float distanceTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB);
+bool isPOINT_WITHIN_BOUNDS(SDL_FPoint point, SDL_FPoint spritePOS, ROTATION spriteROT, int texW, int texH);
 
 #endif // !SPRITE_H
 

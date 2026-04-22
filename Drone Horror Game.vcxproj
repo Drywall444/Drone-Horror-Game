@@ -135,13 +135,11 @@
   <ItemGroup>
     <ClCompile Include="INPUT.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PLAYER.cpp" />
     <ClCompile Include="RENDER.cpp" />
     <ClCompile Include="SPRITE.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INPUT.h" />
-    <ClInclude Include="PLAYER.h" />
     <ClInclude Include="RENDER.h" />
     <ClInclude Include="SPRITE.h" />
   </ItemGroup>
