@@ -151,15 +151,18 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 
 			TILE_REGION curTEX_REGION;
 			if (curSPRITE.TYPE == TYPE_SOLDIER_STANDING) { curTEX_REGION = SOLDIER_STANDING; }
+			else if (curSPRITE.TYPE == TYPE_SOLDIER_ENEMY_STANDING) { curTEX_REGION = ENEMY_SOLDIER_STANDING; }
 			else if (curSPRITE.TYPE == TYPE_SOLDIER_SHOOTING) { curTEX_REGION = SOLDIER_SHOOTING; }
-			else if (curSPRITE.TYPE == TYPE_SOLDIER_ENEMY_STANDING) { curTEX_REGION = SOLDIER_STANDING; }
+			else if (curSPRITE.TYPE == TYPE_SOLDIER_ENEMY_SHOOTING) { curTEX_REGION = ENEMY_SOLDIER_SHOOTING; }
 			else if (curSPRITE.TYPE == DEAD_1) { curTEX_REGION = SOLDIER_DEAD_1; }
 			else if (curSPRITE.TYPE == DEAD_2) { curTEX_REGION = SOLDIER_DEAD_2; }
+			else if (curSPRITE.TYPE == E_DEAD_1) { curTEX_REGION = ENEMY_SOLDIER_DEAD_1; }
+			else if (curSPRITE.TYPE == E_DEAD_2) { curTEX_REGION = ENEMY_SOLDIER_DEAD_2; }
 
-			HUMAN_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMIN,0} });
-			HUMAN_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMAX,0} });
-			HUMAN_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMAX,1} });
-			HUMAN_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMIN,1} });
+			HUMAN_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMIN, curTEX_REGION.vMIN} });
+			HUMAN_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMAX, curTEX_REGION.vMIN} });
+			HUMAN_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMAX, curTEX_REGION.vMAX} });
+			HUMAN_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMIN, curTEX_REGION.vMAX} });
 		}
 	}
 	auto totalTILE = spriteREGISTER.view<TILE>();
@@ -191,8 +194,8 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 
 			NATURE_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMIN,0} });
 			NATURE_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMAX,0} });
-			NATURE_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMAX,1} });
-			NATURE_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMIN,1} });
+			NATURE_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMAX,1.0} });
+			NATURE_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMIN,1.0} });
 		}
 
 	}

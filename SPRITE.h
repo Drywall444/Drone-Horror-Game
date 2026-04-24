@@ -19,7 +19,9 @@ enum spriteTYPE //Signfiys what you are specfically will an enum for each atlas
 	TYPE_SOLDIER_ENEMY_STANDING = 2,
 	TYPE_SOLDIER_ENEMY_SHOOTING = 3,
 	DEAD_1,
-	DEAD_2
+	DEAD_2,
+	E_DEAD_1,
+	E_DEAD_2
 };
 enum natureTYPE_TILE
 {
@@ -61,11 +63,10 @@ struct soldierOBJECT
 	float HP = 100.0;
 	float speed = 150.0;
 	bool isSHOOTING = false;
-	bool hasTARGET = false;
 
 	//WEAPON INFO
-	float weaponEFFECTIVE_RANGE = 4000.0;
-	float weaponRPM = 400;
+	float weaponEFFECTIVE_RANGE = 3000.0;
+	float weaponRPM = 100;
 	float weaponDMG = 75.0; 
 	int magSIZE = 30;
 
@@ -80,9 +81,6 @@ struct MOVING
 	SDL_FPoint targetLOC;
 };
 
-struct selectedNOTHING{};
-struct friendlySOLDIER{};
-struct enemySOLDIER{};
 struct FIRING
 {
 	float TIME_SINCE_LAST_SHOT = 0.0;
@@ -92,7 +90,10 @@ struct FIRING
 struct hasTARGET
 {
 	entt::entity enemySOLDIER;
+	bool targetDEAD = false; //quit firing
 };
+
+struct selectedNOTHING {};
 
 
 class SPRITE_MANAGER
@@ -120,8 +121,9 @@ class SPRITE_MANAGER
 		void soldierSHOOT_AT_TARGET(entt::entity soldier);
 		void fireWEAPON(entt::entity solder, hasTARGET target);
 		void soldierRELOAD(entt::entity soldier);
-		void soldierTAKE_DAMAGE(entt::entity soldier);
-		void soldierDIE(entt::entity soldier);
+
+		//VFX
+		void spawnBULLET();
 
 };
 

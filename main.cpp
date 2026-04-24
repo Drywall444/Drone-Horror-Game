@@ -26,11 +26,16 @@ int main(int argc, char* argv[]) {
     ROTATION testROT = { 0.0, 1.0 };
 
     SM.createSOLDIER({ 0.0, 100.0 }, testROT, false);
-    SM.createSOLDIER({ 0.0, 150.0 }, testROT, false);
-    SM.createSOLDIER({ 0.0, 170.0 }, testROT, false);
+    SM.createSOLDIER({ 100.0, 150.0 }, testROT, false);
+    SM.createSOLDIER({ 150.0, 150.0 }, testROT, false);
+    SM.createSOLDIER({ 200.0, 150.0 }, testROT, false);
+    //SM.createSOLDIER({ 0.0, 170.0 }, testROT, false);
 
     SM.createSOLDIER({ 250.0, 2000.0 }, testROT, true);
-    SM.createSOLDIER({ 100.0, 2000.0 }, testROT, true);
+    SM.createSOLDIER({ 150.0, 2000.0 }, testROT, true);
+    SM.createSOLDIER({ 200.0, 2000.0 }, testROT, true);
+    SM.createSOLDIER({ 300.0, 2500.0 }, testROT, true);
+    SM.createSOLDIER({ 300.0, 2600.0 }, testROT, true);
 
     R.createMAP(SM);
 

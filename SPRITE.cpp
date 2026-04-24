@@ -71,7 +71,7 @@ SDL_FPoint getCENTER(SDL_FPoint pos, float texW, float texH)
 	return { pos.x + texW * 0.5f, pos.y + texH * 0.5f };
 }
 
-float randBETWEEN_100(float min, float max)
+float randBETWEEN(float min, float max)
 {
 	static std::mt19937 rng(std::random_device{}());
 	std::uniform_real_distribution<float> dist(min, max);
@@ -99,14 +99,13 @@ void SPRITE_MANAGER::spriteCREATE(textureATLAS sheetNUM, spriteTYPE type, SDL_FP
 				newSOLDIER.friendly = true;
 				newSOLDIER.HP = 100.0;
 				spriteREGISTER.emplace<soldierOBJECT>(newSPRITE, newSOLDIER);
-				spriteREGISTER.emplace<friendlySOLDIER>(newSPRITE);
 			}
 			if (type == TYPE_SOLDIER_ENEMY_STANDING)//ENEMY
 			{
 				soldierOBJECT newSOLDIER;
+				newSOLDIER.friendly = false;
 				newSOLDIER.HP = 100.0;
 				spriteREGISTER.emplace<soldierOBJECT>(newSPRITE, newSOLDIER);
-				spriteREGISTER.emplace<enemySOLDIER>(newSPRITE);
 			}
 		} // can add more sheets for vehicles
 }
@@ -145,7 +144,6 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 		 auto& soldierSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(sprite);
 		 auto& soldierMOVING_INFO = spriteREGISTER.get<MOVING>(sprite);
 		 float dist = distanceTO_POINT(getCENTER(soldierSPRITE_INFO.spriteLOCATION.POS, soldierTEXW, soldierTEXH), soldierMOVING_INFO.targetLOC);
-		 std::cout << dist << std::endl;
 
 
 		 if (dist < 10.0) // this needs to be fixed sprites will move over their distance sometimes.
@@ -166,33 +164,48 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 	 }
 
 	 //CHECK LOS - Friendly
-	 auto soldiersFRIENDLY = spriteREGISTER.view<soldierOBJECT>(entt::exclude<enemySOLDIER>);
+	 auto soldiersFRIENDLY = spriteREGISTER.view<soldierOBJECT>();
 	 for (auto& SOLDIER : soldiersFRIENDLY)
 	 {
+		 bool isFRIEND = false;
 		 auto& soldierSPRITE_INFO = spriteREGISTER.get<soldierOBJECT>(SOLDIER);
-		 checkLOS(SOLDIER, 0);;
-
-	 }
-	 auto soldiersENEMY = spriteREGISTER.view<soldierOBJECT>(entt::exclude<friendlySOLDIER>);
-	 for (auto& SOLDIER : soldiersENEMY)
-	 {
-		 auto& soldierSPRITE_INFO = spriteREGISTER.get<soldierOBJECT>(SOLDIER);
-		 checkLOS(SOLDIER, 1);;
+		 if (soldierSPRITE_INFO.friendly) { isFRIEND = true; }
+		 checkLOS(SOLDIER, isFRIEND);
 
 	 }
 
-	 //SHOOTING
+	 //SHOOTING - HAS TARGET
 	 auto soldiersSHOOTING = spriteREGISTER.view<hasTARGET>();
+	 std::vector<entt::entity> removeTARGET_LIST;
 	 for (auto& shootingSOLDIER : soldiersSHOOTING)
 	 {
 		 auto& soldierSPRITE_INFO = spriteREGISTER.get<hasTARGET>(shootingSOLDIER); //CRASHES GAME: When you remove hasTARGET mid iteration ENTT dosent like that. hasTARGET and isFIRING could be combined
-		 //SOLDIER AIMS AT TARGET AND SHOOTS if within range, if out of range remove "hasTARGET"
-		 //Shooting: If out of ammo reload otherwise face target and shoot
-		 //if dead stop shooting and remove target
-		 soldierSHOOT_AT_TARGET(shootingSOLDIER);
+		 if (soldierSPRITE_INFO.targetDEAD == false)
+		 {
+			 if (spriteREGISTER.valid(soldierSPRITE_INFO.enemySOLDIER)) //If sprites been removed as a corpse dont use it, we will crash
+			 {
+				 std::cout << "target not dead, shoot\n";
+				 soldierSHOOT_AT_TARGET(shootingSOLDIER);
+			 }
+			 else {
+				 std::cout << "Target Died from someone else\n";
+				 soldierSPRITE_INFO.enemySOLDIER = entt::null; //set nothing
+				 removeTARGET_LIST.push_back(shootingSOLDIER);
+			 }
+		 }
+		 else {
+			 std::cout << "remove target, he dead\n";
+			 removeTARGET_LIST.push_back(shootingSOLDIER);
+		 }
+	 }
+	 //remove all from list
+	 for (auto noTARGET : removeTARGET_LIST) //cleanup
+	 {
+		 spriteREGISTER.remove<hasTARGET>(noTARGET);
+		 auto& solOBJ = spriteREGISTER.get<soldierOBJECT>(noTARGET);
 	 }
 
-	 //HEALTH
+	 //HEALTH - STATE
 	 auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
 	 std::vector<entt::entity> toDESTROY;
 
@@ -202,17 +215,34 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 		 if (curS.HP < 0.0) //DEAD
 		 {
 			 auto& curS_SPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(S);
-			 curS_SPRITE_INFO.TYPE = DEAD_1;
+			 float rnd = randBETWEEN(0, 1);
+			 spriteTYPE corpseTYPE;
 			 if (curS.friendly)
 			 {
 				 //replace w corpse
-				 spriteCREATE(HUMAN, DEAD_1, curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT);
+				 if (rnd > 0.5){ corpseTYPE = DEAD_1;}
+				 else { corpseTYPE = DEAD_2; }
+				 spriteCREATE(HUMAN, corpseTYPE, curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT);
 			 }
 			 else
 			 {
-				 spriteCREATE(HUMAN, DEAD_1, curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT);
+				 if (rnd > 0.5) { corpseTYPE = E_DEAD_1; }
+				 else { corpseTYPE = E_DEAD_1; }
+				 spriteCREATE(HUMAN, E_DEAD_1, curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT);
 			 }
 			 toDESTROY.push_back(S);
+		 }
+
+		 auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(S);
+
+		 if (spriteREGISTER.all_of<hasTARGET>(S)) {
+			 spriteINFO.TYPE = curS.friendly ? TYPE_SOLDIER_SHOOTING : TYPE_SOLDIER_ENEMY_SHOOTING;
+		 }
+		 else if (spriteREGISTER.all_of<MOVING>(S)) {
+			 spriteINFO.TYPE = curS.friendly ? TYPE_SOLDIER_STANDING : TYPE_SOLDIER_ENEMY_STANDING;
+		 }
+		 else {
+			 spriteINFO.TYPE = curS.friendly ? TYPE_SOLDIER_STANDING : TYPE_SOLDIER_ENEMY_STANDING;
 		 }
 	 }
 
@@ -233,8 +263,6 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 
 	 if (!spriteREGISTER.all_of<FIRING>(soldier))
 	 {
-		 std::cout << "within range to fire\n";
-		 soldierSPRITE_INFO.TYPE = TYPE_SOLDIER_SHOOTING;
 		 FIRING newFIRE;
 		 newFIRE.secPER_BULLET = (1.0f / (soldierINFO.weaponRPM / 60.0f));
 		 newFIRE.TIME_SINCE_LAST_SHOT = newFIRE.secPER_BULLET; // ready to fire immediately
@@ -252,6 +280,8 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 
  void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target)
  {
+	 float baseMISS = 80.0;
+
 	 auto& fireINFO = spriteREGISTER.get<FIRING>(soldier);
 	 auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(soldier);
 	 if (fireINFO.TIME_SINCE_LAST_SHOT > fireINFO.secPER_BULLET)
@@ -262,12 +292,14 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 		 float dist = distanceTO_POINT(soldierSPRITE_INFO.spriteLOCATION.POS, enemySPRITE_INFO.spriteLOCATION.POS);
 		 float soldierSKILL = soldierINFO.soldierSKILL;
 
-		 float skillRANGE = dist + (dist - soldierINFO.weaponEFFECTIVE_RANGE) / soldierSKILL;
-		 float missCHANCE = (skillRANGE / 500.0) + 70.0;
-		 float max = 100.0;
-		 if (missCHANCE > 100.0) { max = missCHANCE + 1; } //never impossible lmao, 1 reprsents the margin after we surpass 100% miss chance
-		 float randNUMBER = randBETWEEN_100(0.0, max);
-		 if (randNUMBER > missCHANCE)
+		 float rangeFACTOR = dist / soldierINFO.weaponEFFECTIVE_RANGE; // 0=close, 1=effective, 2=double range
+		 float baseHIT = 0.95f - (rangeFACTOR * rangeFACTOR) * 0.85f;  // quadratic falloff
+		 float finalHIT = baseHIT * soldierINFO.soldierSKILL;           // skill scales it
+		 finalHIT = std::clamp(finalHIT, 0.01f, 0.99f);                 // never impossible
+
+		 float randNUMBER = randBETWEEN(0.0f, 1.0f);
+
+		 if (randNUMBER < finalHIT)
 		 {
 			 //we hit
 			 std::cout << "hit target\n";
@@ -275,9 +307,9 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 			 if (enemySPRITE.HP < 0.0)
 			 {
 				 //stop firing when dead, nolonger have target
-				 soldierSPRITE_INFO.TYPE = TYPE_SOLDIER_STANDING;
+				 spriteREGISTER.get<hasTARGET>(soldier).targetDEAD = true;
 				 spriteREGISTER.remove<FIRING>(soldier);
-				 spriteREGISTER.remove<hasTARGET>(soldier);
+
 				 return;
 			 }
 		 }
@@ -311,63 +343,37 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 	 spriteREGISTER.emplace_or_replace<MOVING>(soldier, newMOVING_ORDER); //if already ordered delete previous and replace, god i love entt
  }
 
- void SPRITE_MANAGER::checkLOS(entt::entity soldier, bool isENEMY)
+ void SPRITE_MANAGER::checkLOS(entt::entity soldier, bool friendly)
  {
 
-	 float losRANGE = 2500.0;
+	 float losRANGE = 1500.0;
 
-	 //FRIENDLY CHECK
-	 if (!isENEMY)
-	 {
-		 auto enemySOLDIERS = spriteREGISTER.view<enemySOLDIER>();
+		 auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
 
 		 auto& curSOLDIER = spriteREGISTER.get<spriteOBJECT>(soldier);
 		 auto& curSOLDIER_INFO = spriteREGISTER.get<soldierOBJECT>(soldier);
 
-		 for (auto& enemy : enemySOLDIERS)
+		 for (auto& enemy : allSOLDIER)
 		 {
 			 auto& curENEMY = spriteREGISTER.get<spriteOBJECT>(enemy);
+			 auto& curENEMY_INFO = spriteREGISTER.get<soldierOBJECT>(enemy);
+			 //Skip friendly checks
+			 if (friendly == true && curENEMY_INFO.friendly == true) { continue; }
+			 if (friendly == false && curENEMY_INFO.friendly == false) { continue; }
+
+
 			 float dis = distanceTO_POINT(curSOLDIER.spriteLOCATION.POS, curENEMY.spriteLOCATION.POS);
 
 			 if (dis > losRANGE) //WILL Need OBB for tracking rotational squares
 			 {
 				 continue;
 			 }
-			 else if (curSOLDIER_INFO.hasTARGET == false)
+			 else if (!spriteREGISTER.all_of<hasTARGET>(soldier))
 			 {
-				 std::cout << "Dont have target\n";
-				 curSOLDIER_INFO.hasTARGET = true;
-				 hasTARGET newTARGET = { enemy };
+				 hasTARGET newTARGET = { enemy, false };
 				 spriteREGISTER.emplace<hasTARGET>(soldier, newTARGET);
 			 }
 		 }
-	 }
-
-	 else
-	 {
-		 auto friendlySOLDIERS = spriteREGISTER.view<friendlySOLDIER>();
-
-		 auto& curSOLDIER = spriteREGISTER.get<spriteOBJECT>(soldier);
-		 auto& curSOLDIER_INFO = spriteREGISTER.get<soldierOBJECT>(soldier);
-
-		 for (auto& friendly : friendlySOLDIERS)
-		 {
-			 auto& curFRIENDLY = spriteREGISTER.get<spriteOBJECT>(friendly);
-			 float dis = distanceTO_POINT(curSOLDIER.spriteLOCATION.POS, curFRIENDLY.spriteLOCATION.POS);
-
-			 if (dis > losRANGE) //WILL Need OBB for tracking rotational squares
-			 {
-				 continue;
-			 }
-			 else if (curSOLDIER_INFO.hasTARGET == false)
-			 {
-				 std::cout << "Dont have target\n";
-				 curSOLDIER_INFO.hasTARGET = true;
-				 hasTARGET newTARGET = { friendly };
-				 spriteREGISTER.emplace<hasTARGET>(soldier, newTARGET);
-			 }
-		 }
-	 }
 
 	 //horrible and bad and horrible
  }
