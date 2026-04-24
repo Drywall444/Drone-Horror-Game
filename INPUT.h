@@ -24,7 +24,9 @@ class INPUT
 public:
 	INPUT(SPRITE_MANAGER& sm) : gameSPRITES(sm) {}
 	//PLAYER STUFF
+	bool seclectedSOLDIER = false;
 	entt::entity curSELECTED_SOLDIER;
+	entt::entity nothing;;
 
 
 	//Camera Movement
@@ -32,7 +34,6 @@ public:
 
 	//INTERACTION
 	void checkLEFTCLICK_RETURN_SPRITE(SDL_FPoint globalPOS);
-	void orderSELECTED_SOLDIER_TO_POINT(SDL_FPoint globalPOINT);
 
 
 	int WINDOW_W = 0;
@@ -44,7 +45,7 @@ public:
 	double scrollWHEEL_SENS = 0.1;
 
 	CAMERA C;
-	float cameraSPEED = 450;
+	float cameraSPEED = 650;
 	MOUSE M;
 	const bool* KEYS = nullptr;
 	bool RUN = true;

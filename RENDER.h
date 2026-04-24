@@ -25,9 +25,16 @@ public:
 		float uMIN;
 		float uMAX;
 	};
-	TILE_REGION GRASS = { 0.0f,  0.33f };
-	TILE_REGION DIRT = { 0.34f, 0.66f };
-	TILE_REGION TREE = { 0.66f, 1.0f };
+	TILE_REGION GRASS_1 = { 0.0f,  0.25f };
+	TILE_REGION GRASS_2 = { 0.25f,  0.50f };
+	TILE_REGION WOODS_1 = { 0.50f,  0.75f };
+	TILE_REGION WOODS_2 = { 0.75f,  1.0f };
+
+	TILE_REGION SOLDIER_STANDING = { 0.0f, 0.20f };
+	TILE_REGION SOLDIER_SHOOTING = { 0.20f, 0.40f };
+	TILE_REGION SOLDIER_DEAD_1 = { 0.60f, 0.80f };
+	TILE_REGION SOLDIER_DEAD_2 = { 0.80f, 1.0f };
+
 
 	std::vector<int> NATURE_INDICIES;
 	std::vector<SDL_Vertex> NATURE_VERTEXES;
@@ -43,7 +50,6 @@ public:
 	SDL_Texture* humanTEXTURE;
 	SDL_Texture* groundTEXTURE;
 
-	//TO DO
 	void renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA camera);
 	void initializeRENDER();
 

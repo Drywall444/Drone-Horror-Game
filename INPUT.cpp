@@ -15,6 +15,10 @@ void INPUT::initializeINPUT(int windowW, int windowH)
 	 WINDOW_H = windowH;
 	 WINDOW_CENTER_X = windowW / 2;
 	 WINDOW_CENTER_Y = windowH / 2;
+
+	 curSELECTED_SOLDIER = gameSPRITES.spriteREGISTER.create();
+	 gameSPRITES.spriteREGISTER.emplace<selectedNOTHING>(curSELECTED_SOLDIER);
+	 nothing = curSELECTED_SOLDIER;
 }
 
 void INPUT::handleINPUT(float dt)
@@ -39,6 +43,14 @@ void INPUT::handleINPUT(float dt)
 
 				//Player checkSELECTION
 			}
+			if (input.button.button == SDL_BUTTON_RIGHT)
+			{
+				if (seclectedSOLDIER)
+				{
+					gameSPRITES.ORDER_soldierMOVE_TO_POINT(curSELECTED_SOLDIER, screenTO_WORLD_POS(M.screenMOUSE_POS));
+				}
+
+			}
 		}
 		if (input.type == SDL_EVENT_MOUSE_BUTTON_UP)
 
@@ -54,6 +66,13 @@ void INPUT::handleINPUT(float dt)
 		{
 			C.zoom = std::clamp(C.zoom + (scrollWHEEL_SENS * input.wheel.y), 0.50, 12.0); //clamps to min and max zoom
 			getCAM_OFFSET();
+		}
+		if (input.type == SDL_EVENT_KEY_DOWN)
+		{
+			if (input.key.key == SDLK_ESCAPE) {
+				std::cout << "hit escape\n";
+				RUN = false;
+			}
 		}
 	}
 	frameEND = SDL_GetPerformanceCounter();
@@ -116,14 +135,21 @@ void INPUT::cameraMOVEMENT()
 void INPUT::checkLEFTCLICK_RETURN_SPRITE(SDL_FPoint globalPOS)
 {
 	auto soldierVIEW = gameSPRITES.spriteREGISTER.view<soldierOBJECT>();
+	seclectedSOLDIER = false;
 
 	for (auto& soldier : soldierVIEW)
 	{
 		auto& soldierLOC = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(soldier).spriteLOCATION;
-		if (isPOINT_WITHIN_BOUNDS(globalPOS, soldierLOC.POS, soldierLOC.ROT, 32, 32))
+		if (isPOINT_WITHIN_BOUNDS(globalPOS, soldierLOC.POS, soldierLOC.ROT, 64, 64))
 		{
 			curSELECTED_SOLDIER = soldier;
+			seclectedSOLDIER = true;
 			//gameSPRITES.spriteREGISTER.destroy(soldier);
 		}
+	}
+		
+	if (!seclectedSOLDIER)//If nothing found we select nothing
+	{
+		curSELECTED_SOLDIER = nothing;
 	}
 }

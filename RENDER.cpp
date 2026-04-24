@@ -33,12 +33,18 @@ void RENDER::createMAP(SPRITE_MANAGER& sprites)
 		{
 			float value = (noiseData[index++] + 1.0f) * 0.5f;
 
-			spriteTYPE tileType;
-			if (value > 0.8f) { tileType = TYPE_GRASS; }
-			else if (value > 0.3f) { tileType = TYPE_DIRT;}
-			else { tileType = TYPE_TREE; }
+			natureTYPE_TILE tileType;
+			if (value > 0.8f) 
+			{ 
+				tileType = TYPE_GRASS; 
+			}
+			else if (value > 0.3f) 
+			{ 
+				tileType = TYPE_GRASS1;
+			}
+			else { tileType = TYPE_WOODS; }
 
-			sprites.spriteCREATE(NATURE, tileType, { float(x * natureTEX_W), float(y * natureTEX_H) });
+			sprites.tileCREATE(NATURE, tileType, { float(x * natureTEX_W), float(y * natureTEX_H) });
 		}
 	}
 }
@@ -81,10 +87,11 @@ void RENDER::initializeRENDER()
 	}
 
 	//HUMAN TEXTURE LOADED
-	humanTEXTURE = IMG_LoadTexture(REND, "DATA/SOLDIER_STANDING.png");
+	humanTEXTURE = IMG_LoadTexture(REND, "DATA/SPRITE.png");
 	if (!humanTEXTURE) { SDL_Log("Failed to load human texture"); }
 	SDL_SetTextureBlendMode(humanTEXTURE, SDL_BLENDMODE_BLEND);
-	SDL_GetTextureSize(humanTEXTURE, &humanTEX_W, &humanTEX_H);
+	humanTEX_W = 64;
+	humanTEX_H = 128;
 
 	//GROUND TEXTURES
 	groundTEXTURE = IMG_LoadTexture(REND, "DATA/GROUND.png");
@@ -135,46 +142,65 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 			SDL_FPoint Point3 = rotatePOINT({ x + humanTEX_W, y + humanTEX_H }, center, curSPRITE.spriteLOCATION.ROT);
 			SDL_FPoint Point4 = rotatePOINT({ x, y + humanTEX_H }, center, curSPRITE.spriteLOCATION.ROT);
 
-			HUMAN_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {0,0} });
-			HUMAN_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {1,0} });
-			HUMAN_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {1,1} });
-			HUMAN_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {0,1} });
+			SDL_FColor color = { 1, 1, 1, 1 };
+
+			if (sprite == IN.curSELECTED_SOLDIER)
+			{
+				color = { 1, 1, 0, 1 };
+			}
+
+			TILE_REGION curTEX_REGION;
+			if (curSPRITE.TYPE == TYPE_SOLDIER_STANDING) { curTEX_REGION = SOLDIER_STANDING; }
+			else if (curSPRITE.TYPE == TYPE_SOLDIER_SHOOTING) { curTEX_REGION = SOLDIER_SHOOTING; }
+			else if (curSPRITE.TYPE == TYPE_SOLDIER_ENEMY_STANDING) { curTEX_REGION = SOLDIER_STANDING; }
+			else if (curSPRITE.TYPE == DEAD_1) { curTEX_REGION = SOLDIER_DEAD_1; }
+			else if (curSPRITE.TYPE == DEAD_2) { curTEX_REGION = SOLDIER_DEAD_2; }
+
+			HUMAN_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMIN,0} });
+			HUMAN_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMAX,0} });
+			HUMAN_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMAX,1} });
+			HUMAN_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMIN,1} });
 		}
-		if (curSPRITE.textureSHEET_NUM == NATURE)
+	}
+	auto totalTILE = spriteREGISTER.view<TILE>();
+
+	for (auto& tile : totalTILE)
+	{
+
+		auto& curTILE = totalTILE.get<TILE>(tile);
+
+		if (curTILE.textureSHEET_NUM == NATURE)
 		{
 			float halfW = natureTEX_W * 0.5f;
 			float halfH = natureTEX_H * 0.5f;
 
-			//Get texture width and height from intizilation and then get top left corner, top right, bottom left, bottom right
-			//GET ROTATION AND APPLY TO ALL POINTS
-
-			float x = curSPRITE.spriteLOCATION.POS.x;
-			float y = curSPRITE.spriteLOCATION.POS.y;
+			float x = curTILE.pos.x;
+			float y = curTILE.pos.y;
 
 			SDL_FPoint center = { x + halfW, y + halfH };
 
-			SDL_FPoint Point1 = rotatePOINT({ x, y }, center, curSPRITE.spriteLOCATION.ROT);
-			SDL_FPoint Point2 = rotatePOINT({ x + natureTEX_W, y }, center, curSPRITE.spriteLOCATION.ROT);
-			SDL_FPoint Point3 = rotatePOINT({ x + natureTEX_W, y + natureTEX_H }, center, curSPRITE.spriteLOCATION.ROT);
-			SDL_FPoint Point4 = rotatePOINT({ x, y + natureTEX_H }, center, curSPRITE.spriteLOCATION.ROT);
+			SDL_FPoint Point1 = { x, y };
+			SDL_FPoint Point2 = { x + natureTEX_W, y };
+			SDL_FPoint Point3 = { x + natureTEX_W, y + natureTEX_H };
+			SDL_FPoint Point4 = { x, y + natureTEX_H };
 
-			TILE_REGION curTILE;
-			if (curSPRITE.TYPE == TYPE_GRASS) { curTILE = GRASS; }
-			else if (curSPRITE.TYPE == TYPE_DIRT) { curTILE = DIRT; }
-			else if (curSPRITE.TYPE == TYPE_TREE) { curTILE = TREE; }
+			TILE_REGION curTILE_REGION;
+			if (curTILE.TYPE == TYPE_GRASS) { curTILE_REGION = GRASS_1; }
+			else if (curTILE.TYPE == TYPE_GRASS1) { curTILE_REGION = GRASS_2; }
+			else if (curTILE.TYPE == TYPE_WOODS) { curTILE_REGION = WOODS_1; }
 
-			NATURE_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE.uMIN,0} });
-			NATURE_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE.uMAX,0} });
-			NATURE_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE.uMAX,1} });
-			NATURE_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE.uMIN,1} });
+			NATURE_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMIN,0} });
+			NATURE_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMAX,0} });
+			NATURE_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMAX,1} });
+			NATURE_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMIN,1} });
 		}
+
 	}
 
 	//INDICIES
-	auto totalHUMAN = spriteREGISTER.view<humanSPRITE>();
-	auto totalNATURE = spriteREGISTER.view<staticSPRITE>();
+	auto totalNATURE = spriteREGISTER.view<TILE>();
 
-	HUMAN_INDICIES = returnINDICIES(totalHUMAN.size());
+	HUMAN_INDICIES = returnINDICIES(totalSPRITES.size());
 	NATURE_INDICIES = returnINDICIES(totalNATURE.size());
 
 	SDL_RenderGeometry(REND, groundTEXTURE, NATURE_VERTEXES.data(), NATURE_VERTEXES.size(),

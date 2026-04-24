@@ -22,10 +22,15 @@ int main(int argc, char* argv[]) {
 
     I.initializeINPUT(1280, 720);
     R.initializeRENDER();
-    //SM.spriteCREATE(HUMAN);
-    SM.createSOLDIER(TYPE_SOLDIER, { 0.0, 0.0 }, true);
-    SM.createSOLDIER(TYPE_SOLDIER, { 0.0, 100.0 }, true);
-    SM.createSOLDIER(TYPE_SOLDIER, { 0.0, 200.0 }, true);
+
+    ROTATION testROT = { 0.0, 1.0 };
+
+    SM.createSOLDIER({ 0.0, 100.0 }, testROT, false);
+    SM.createSOLDIER({ 0.0, 150.0 }, testROT, false);
+    SM.createSOLDIER({ 0.0, 170.0 }, testROT, false);
+
+    SM.createSOLDIER({ 250.0, 2000.0 }, testROT, true);
+    SM.createSOLDIER({ 100.0, 2000.0 }, testROT, true);
 
     R.createMAP(SM);
 
@@ -39,12 +44,14 @@ int main(int argc, char* argv[]) {
         I.handleINPUT(DT);//GET INPUT POLL
         //GROUP ALL PLAYER INPUT INTO ONE FUNCTION
         I.cameraMOVEMENT();//HANDLE ANY INPUT
+        SM.updateGAME();
 
 
         R.renderSPRITES_ON_SCREEN(SM.spriteREGISTER, I.C);
         SDL_RenderPresent(R.REND);
         Uint64 frameEND = SDL_GetPerformanceCounter();
         DT = double(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
+        SM.updateDT(DT);
         //std::cout << 1.0 / DT << std::endl;
         frameSTART = frameEND;
     }
