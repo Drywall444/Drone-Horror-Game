@@ -44,7 +44,7 @@ void RENDER::createMAP(SPRITE_MANAGER& sprites)
 			}
 			else { tileType = TYPE_WOODS; }
 
-			sprites.tileCREATE(NATURE, tileType, { float(x * natureTEX_W), float(y * natureTEX_H) });
+			sprites.tileCREATE(tileType, { float(x * natureTEX_W), float(y * natureTEX_H) });
 		}
 	}
 }
@@ -90,8 +90,6 @@ void RENDER::initializeRENDER()
 	humanTEXTURE = IMG_LoadTexture(REND, "DATA/SPRITE.png");
 	if (!humanTEXTURE) { SDL_Log("Failed to load human texture"); }
 	SDL_SetTextureBlendMode(humanTEXTURE, SDL_BLENDMODE_BLEND);
-	humanTEX_W = 64;
-	humanTEX_H = 128;
 
 	//GROUND TEXTURES
 	groundTEXTURE = IMG_LoadTexture(REND, "DATA/GROUND.png");
@@ -126,8 +124,8 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 		auto& curSPRITE = totalSPRITES.get<spriteOBJECT>(sprite);
 		if (curSPRITE.textureSHEET_NUM == HUMAN)//USE HUMAN TEXTURE
 		{
-			float halfW = humanTEX_W * 0.5f;
-			float halfH = humanTEX_H * 0.5f;
+			float halfW = curSPRITE.texW * 0.5f;
+			float halfH = curSPRITE.texH * 0.5f;
 
 			//Get texture width and height from intizilation and then get top left corner, top right, bottom left, bottom right
 			//GET ROTATION AND APPLY TO ALL POINTS
@@ -138,9 +136,9 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 			SDL_FPoint center = { x + halfW, y + halfH };
 
 			SDL_FPoint Point1 = rotatePOINT({ x, y }, center, curSPRITE.spriteLOCATION.ROT);
-			SDL_FPoint Point2 = rotatePOINT({ x + humanTEX_W, y }, center, curSPRITE.spriteLOCATION.ROT);
-			SDL_FPoint Point3 = rotatePOINT({ x + humanTEX_W, y + humanTEX_H }, center, curSPRITE.spriteLOCATION.ROT);
-			SDL_FPoint Point4 = rotatePOINT({ x, y + humanTEX_H }, center, curSPRITE.spriteLOCATION.ROT);
+			SDL_FPoint Point2 = rotatePOINT({ x + curSPRITE.texW, y }, center, curSPRITE.spriteLOCATION.ROT);
+			SDL_FPoint Point3 = rotatePOINT({ x + curSPRITE.texW, y + curSPRITE.texH }, center, curSPRITE.spriteLOCATION.ROT);
+			SDL_FPoint Point4 = rotatePOINT({ x, y + curSPRITE.texH }, center, curSPRITE.spriteLOCATION.ROT);
 
 			SDL_FColor color = { 1, 1, 1, 1 };
 
@@ -158,6 +156,9 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 			else if (curSPRITE.TYPE == DEAD_2) { curTEX_REGION = SOLDIER_DEAD_2; }
 			else if (curSPRITE.TYPE == E_DEAD_1) { curTEX_REGION = ENEMY_SOLDIER_DEAD_1; }
 			else if (curSPRITE.TYPE == E_DEAD_2) { curTEX_REGION = ENEMY_SOLDIER_DEAD_2; }
+			//VFX
+			else if (curSPRITE.TYPE == VFX_BULLET_TRACER) { curTEX_REGION = VFX_BULLET; }
+			else if (curSPRITE.TYPE == VFX_MUZZLE_FLASH_3) { curTEX_REGION = VFX_MUZZ_FLASH_3; }
 
 			HUMAN_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMIN, curTEX_REGION.vMIN} });
 			HUMAN_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMAX, curTEX_REGION.vMIN} });
@@ -172,8 +173,6 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 
 		auto& curTILE = totalTILE.get<TILE>(tile);
 
-		if (curTILE.textureSHEET_NUM == NATURE)
-		{
 			float halfW = natureTEX_W * 0.5f;
 			float halfH = natureTEX_H * 0.5f;
 
@@ -196,7 +195,6 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 			NATURE_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMAX,0} });
 			NATURE_VERTEXES.push_back({ { Point3.x * camera.zoom + camera.offSET.x,  Point3.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMAX,1.0} });
 			NATURE_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMIN,1.0} });
-		}
 
 	}
 

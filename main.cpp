@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     I.initializeINPUT(1280, 720);
     R.initializeRENDER();
 
-    ROTATION testROT = { 0.0, 1.0 };
+    ROTATION testROT = { 1.0, 0.0 };
 
     SM.createSOLDIER({ 0.0, 100.0 }, testROT, false);
     SM.createSOLDIER({ 100.0, 150.0 }, testROT, false);
@@ -31,11 +31,11 @@ int main(int argc, char* argv[]) {
     SM.createSOLDIER({ 200.0, 150.0 }, testROT, false);
     //SM.createSOLDIER({ 0.0, 170.0 }, testROT, false);
 
-    SM.createSOLDIER({ 250.0, 2000.0 }, testROT, true);
-    SM.createSOLDIER({ 150.0, 2000.0 }, testROT, true);
-    SM.createSOLDIER({ 200.0, 2000.0 }, testROT, true);
-    SM.createSOLDIER({ 300.0, 2500.0 }, testROT, true);
-    SM.createSOLDIER({ 300.0, 2600.0 }, testROT, true);
+    //SM.createSOLDIER({ 250.0, 2000.0 }, testROT, true);
+    //SM.createSOLDIER({ 150.0, 2000.0 }, testROT, true);
+    //SM.createSOLDIER({ 200.0, 2000.0 }, testROT, true);
+    //SM.createSOLDIER({ 300.0, 2500.0 }, testROT, true);
+    //SM.createSOLDIER({ 300.0, 2600.0 }, testROT, true);
 
     R.createMAP(SM);
 
@@ -43,22 +43,19 @@ int main(int argc, char* argv[]) {
     while (I.RUN)
     {
 
-        // F.companyADVANCE(firstCOMPANY, 0.1);
         Uint64 frameSTART = SDL_GetPerformanceCounter();
+
         SDL_RenderClear(R.REND);
-        I.handleINPUT(DT);//GET INPUT POLL
-        //GROUP ALL PLAYER INPUT INTO ONE FUNCTION
-        I.cameraMOVEMENT();//HANDLE ANY INPUT
+        I.handleINPUT(DT);
+        I.cameraMOVEMENT();
         SM.updateGAME();
-
-
         R.renderSPRITES_ON_SCREEN(SM.spriteREGISTER, I.C);
-        SDL_RenderPresent(R.REND);
+        SDL_RenderPresent(R.REND); // blocks here if vsync on
+
         Uint64 frameEND = SDL_GetPerformanceCounter();
-        DT = double(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
+        DT = (double)(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
         SM.updateDT(DT);
-        //std::cout << 1.0 / DT << std::endl;
-        frameSTART = frameEND;
+        //std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
     }
 
     // Clean

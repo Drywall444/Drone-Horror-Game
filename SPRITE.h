@@ -9,7 +9,7 @@
 enum textureATLAS //Keep all human types on one sheet and naturage and foliage on another
 {
 	HUMAN = 0,
-	NATURE = 1
+	VFX = 1
 };
 
 enum spriteTYPE //Signfiys what you are specfically will an enum for each atlas
@@ -21,7 +21,11 @@ enum spriteTYPE //Signfiys what you are specfically will an enum for each atlas
 	DEAD_1,
 	DEAD_2,
 	E_DEAD_1,
-	E_DEAD_2
+	E_DEAD_2,
+	VFX_MUZZLE_FLASH_1,
+	VFX_MUZZLE_FLASH_2,
+	VFX_MUZZLE_FLASH_3,
+	VFX_BULLET_TRACER
 };
 enum natureTYPE_TILE
 {
@@ -47,12 +51,13 @@ struct spriteOBJECT//SHIT THAT CAN MOVE
 	LOCATION spriteLOCATION;
 	textureATLAS textureSHEET_NUM; //ADD DEFAULT
 	spriteTYPE TYPE; //what is drawn
+	int texW = 64;
+	int texH = 128;
 };
 
 struct TILE//SHIT THAT CAN MOVE
 {
 	SDL_FPoint pos;
-	textureATLAS textureSHEET_NUM; //ADD DEFAULT
 	natureTYPE_TILE TYPE;
 };
 
@@ -66,7 +71,7 @@ struct soldierOBJECT
 
 	//WEAPON INFO
 	float weaponEFFECTIVE_RANGE = 3000.0;
-	float weaponRPM = 100;
+	float weaponRPM = 300;
 	float weaponDMG = 75.0; 
 	int magSIZE = 30;
 
@@ -79,6 +84,7 @@ struct MOVING
 {
 	float dX, dY;
 	SDL_FPoint targetLOC;
+	float movementSPEED = 150.0;
 };
 
 struct FIRING
@@ -93,6 +99,11 @@ struct hasTARGET
 	bool targetDEAD = false; //quit firing
 };
 
+struct tempSPRITE
+{
+	float timeLEFT;
+};
+
 struct selectedNOTHING {};
 
 
@@ -104,13 +115,9 @@ class SPRITE_MANAGER
 		void updateDT(float newDT);
 		void updateGAME();
 
-
-		int soldierTEXW = 64;
-		int soldierTEXH = 128;
-
 		entt::registry spriteREGISTER;
 		void spriteCREATE(textureATLAS sheetNUM, spriteTYPE type, SDL_FPoint pos, ROTATION ROT);
-		void tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL_FPoint pos);
+		void tileCREATE(natureTYPE_TILE type, SDL_FPoint pos);
 
 		//SOLDIER MANAGER
 		void createSOLDIER(SDL_FPoint pos, ROTATION rot, bool isENEMY); 
@@ -122,8 +129,8 @@ class SPRITE_MANAGER
 		void fireWEAPON(entt::entity solder, hasTARGET target);
 		void soldierRELOAD(entt::entity soldier);
 
-		//VFX
-		void spawnBULLET();
+		//VFX - Include sound here
+		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
 
 };
 

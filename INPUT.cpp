@@ -140,7 +140,7 @@ void INPUT::checkLEFTCLICK_RETURN_SPRITE(SDL_FPoint globalPOS)
 	for (auto& soldier : soldierVIEW)
 	{
 		auto& soldierLOC = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(soldier).spriteLOCATION;
-		if (isPOINT_WITHIN_BOUNDS(globalPOS, soldierLOC.POS, soldierLOC.ROT, 64, 64))
+		if (isPOINT_WITHIN_BOUNDS(globalPOS, soldierLOC.POS, soldierLOC.ROT, 64, 128))
 		{
 			curSELECTED_SOLDIER = soldier;
 			seclectedSOLDIER = true;

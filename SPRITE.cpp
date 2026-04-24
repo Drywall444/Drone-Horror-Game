@@ -78,6 +78,20 @@ float randBETWEEN(float min, float max)
 	return dist(rng);
 }
 
+MOVING newMOVEMENT(float speed, ROTATION dirTO, SDL_FPoint targetLOC)
+{
+	float dx = dirTO.cosR * speed;
+	float dy = dirTO.sinR * speed;
+
+	MOVING newMOVING_ORDER;
+	newMOVING_ORDER.dX = dx;
+	newMOVING_ORDER.dY = dy;
+	newMOVING_ORDER.targetLOC = targetLOC;
+	newMOVING_ORDER.movementSPEED = speed;
+
+	return newMOVING_ORDER;
+}
+
 //SPRITE_MANAGER
 
 void SPRITE_MANAGER::spriteCREATE(textureATLAS sheetNUM, spriteTYPE type, SDL_FPoint pos, ROTATION ROT)
@@ -107,15 +121,21 @@ void SPRITE_MANAGER::spriteCREATE(textureATLAS sheetNUM, spriteTYPE type, SDL_FP
 				newSOLDIER.HP = 100.0;
 				spriteREGISTER.emplace<soldierOBJECT>(newSPRITE, newSOLDIER);
 			}
-		} // can add more sheets for vehicles
+		} 
+		else if (sheetNUM == VFX)
+		{
+			if (type == VFX_BULLET_TRACER)
+			{
+
+			}
+		}
 }
 
-void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL_FPoint pos)
+void SPRITE_MANAGER::tileCREATE(natureTYPE_TILE type, SDL_FPoint pos)
 {
 	entt::entity newTILE_ENT = spriteREGISTER.create();
 	TILE newTILE;
 	newTILE.pos = pos;
-	newTILE.textureSHEET_NUM = NATURE;
 	newTILE.TYPE = type;
 	spriteREGISTER.emplace<TILE>(newTILE_ENT, newTILE);
 }
@@ -136,29 +156,68 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 
  void SPRITE_MANAGER::updateGAME()
  {
+	 std::vector<entt::entity> toDESTROY;
+
+	 //TEMP SPRITES
+	 auto tempSPRITES = spriteREGISTER.view<tempSPRITE>();
+	 for (auto temp : tempSPRITES)
+	 {
+		 auto& tempINFO = spriteREGISTER.get<tempSPRITE>(temp);
+		 if (tempINFO.timeLEFT < 0.0)
+		 {
+			 toDESTROY.push_back(temp);
+		 }
+		 else {
+			 tempINFO.timeLEFT -= DT;
+		 }
+	 }
 
 	 //MOVEMENT
 	 auto movingSPRITES = spriteREGISTER.view<MOVING>();
+	 bool continueMOVING = true;
+
+
 	 for (auto& sprite : movingSPRITES)
 	 {
 		 auto& soldierSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(sprite);
 		 auto& soldierMOVING_INFO = spriteREGISTER.get<MOVING>(sprite);
-		 float dist = distanceTO_POINT(getCENTER(soldierSPRITE_INFO.spriteLOCATION.POS, soldierTEXW, soldierTEXH), soldierMOVING_INFO.targetLOC);
+		 float dist = distanceTO_POINT(getCENTER(soldierSPRITE_INFO.spriteLOCATION.POS, soldierSPRITE_INFO.texW, soldierSPRITE_INFO.texH), soldierMOVING_INFO.targetLOC);
+
+		SDL_FPoint bulletCENETR = getCENTER(soldierSPRITE_INFO.spriteLOCATION.POS, soldierSPRITE_INFO.texW, soldierSPRITE_INFO.texH);
+
+		float pX = soldierMOVING_INFO.targetLOC.x - bulletCENETR.x;
+		float pY = soldierMOVING_INFO.targetLOC.y - bulletCENETR.y;
+
+		float DOT = (soldierMOVING_INFO.dX * pX) + (soldierMOVING_INFO.dY * pY);
 
 
-		 if (dist < 10.0) // this needs to be fixed sprites will move over their distance sometimes.
-		 {
-			 //arrived
-			 spriteREGISTER.remove<MOVING>(sprite);
+		std::cout << "DOT: " << DOT << std::endl;
 
-		 }
-		 else {
-			 SDL_FPoint pos = soldierSPRITE_INFO.spriteLOCATION.POS;
-			 pos.x += soldierMOVING_INFO.dX * DT;
-			 pos.y += soldierMOVING_INFO.dY * DT;
-			 soldierSPRITE_INFO.spriteLOCATION.POS = pos;
-			 //move sprite according to their speed
-		 }
+		if (DOT < 0.0f)
+		{
+			if (!(soldierSPRITE_INFO.TYPE == VFX_BULLET_TRACER))
+			{
+				continueMOVING = false;
+				spriteREGISTER.remove<MOVING>(sprite);
+			}
+			else
+			{
+				continueMOVING = false;
+				std::cout << "destroyed bullet\n";
+				toDESTROY.push_back(sprite); //If add to destroy list
+			}
+		}
+
+		if (continueMOVING)
+		{
+			SDL_FPoint pos = soldierSPRITE_INFO.spriteLOCATION.POS;
+			pos.x += soldierMOVING_INFO.dX * DT;
+			pos.y += soldierMOVING_INFO.dY * DT;
+			soldierSPRITE_INFO.spriteLOCATION.POS = pos;
+		}
+
+
+
 
 		 //ADD: If new enemy is closer switch targets
 	 }
@@ -184,17 +243,14 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 		 {
 			 if (spriteREGISTER.valid(soldierSPRITE_INFO.enemySOLDIER)) //If sprites been removed as a corpse dont use it, we will crash
 			 {
-				 std::cout << "target not dead, shoot\n";
 				 soldierSHOOT_AT_TARGET(shootingSOLDIER);
 			 }
 			 else {
-				 std::cout << "Target Died from someone else\n";
 				 soldierSPRITE_INFO.enemySOLDIER = entt::null; //set nothing
 				 removeTARGET_LIST.push_back(shootingSOLDIER);
 			 }
 		 }
 		 else {
-			 std::cout << "remove target, he dead\n";
 			 removeTARGET_LIST.push_back(shootingSOLDIER);
 		 }
 	 }
@@ -207,7 +263,6 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 
 	 //HEALTH - STATE
 	 auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
-	 std::vector<entt::entity> toDESTROY;
 
 	 for (auto& S : allSOLDIER)
 	 {
@@ -269,8 +324,8 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 		 spriteREGISTER.emplace<FIRING>(soldier, newFIRE);
 	 }
 	 //I should really store center in the sprite
-	 SDL_FPoint center = getCENTER(soldierSPRITE_INFO.spriteLOCATION.POS, soldierTEXW, soldierTEXH);
-	 SDL_FPoint enemyCENTER = getCENTER(enemySPRITE.spriteLOCATION.POS, soldierTEXW, soldierTEXH);
+	 SDL_FPoint center = getCENTER(soldierSPRITE_INFO.spriteLOCATION.POS, soldierSPRITE_INFO.texW, soldierSPRITE_INFO.texH);
+	 SDL_FPoint enemyCENTER = getCENTER(enemySPRITE.spriteLOCATION.POS, enemySPRITE.texW, enemySPRITE.texH);
 	 ROTATION newROT = rotationTO_POINT(center, enemyCENTER);
 	 soldierSPRITE_INFO.spriteLOCATION.ROT = newROT; //aim at target
 	 fireWEAPON(soldier, soldiersSHOOTING);
@@ -286,6 +341,7 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 	 auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(soldier);
 	 if (fireINFO.TIME_SINCE_LAST_SHOT > fireINFO.secPER_BULLET)
 	 {
+
 		 auto& soldierSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(soldier);
 		 auto& enemySPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(target.enemySOLDIER);
 		 auto& enemySPRITE = spriteREGISTER.get<soldierOBJECT>(target.enemySOLDIER);
@@ -302,8 +358,7 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 		 if (randNUMBER < finalHIT)
 		 {
 			 //we hit
-			 std::cout << "hit target\n";
-			 enemySPRITE.HP -= soldierINFO.weaponDMG;
+			 //enemySPRITE.HP -= soldierINFO.weaponDMG;
 			 if (enemySPRITE.HP < 0.0)
 			 {
 				 //stop firing when dead, nolonger have target
@@ -313,6 +368,10 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 				 return;
 			 }
 		 }
+
+		 //VFX
+		 spawnBULLET(soldier, enemySPRITE_INFO.spriteLOCATION.POS);
+
 		 fireINFO.TIME_SINCE_LAST_SHOT = 0.0;
 	 }
 	 fireINFO.TIME_SINCE_LAST_SHOT += DT; //increase by secs
@@ -321,24 +380,18 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 
  void SPRITE_MANAGER::ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS)
  {
-	 std::cout << "Moving to: " << globalPOS.x << ", " << globalPOS.y << std::endl;
 
 	 auto& selcSOLDIER = spriteREGISTER.get<spriteOBJECT>(soldier);
 	 auto& selcSOLDIER_INFO = spriteREGISTER.get<soldierOBJECT>(soldier);
 
-	 SDL_FPoint center = getCENTER(selcSOLDIER.spriteLOCATION.POS, soldierTEXW, soldierTEXH);
+	 SDL_FPoint center = getCENTER(selcSOLDIER.spriteLOCATION.POS, selcSOLDIER.texW, selcSOLDIER.texH);
 
 	 ROTATION newROT = rotationTO_POINT(center, globalPOS);
 	 selcSOLDIER.spriteLOCATION.ROT = newROT;
+
 	 ROTATION dirTOPOINT = directionTO_POINT(center, globalPOS);
 
-	 float dx = dirTOPOINT.cosR * selcSOLDIER_INFO.speed;
-	 float dy = dirTOPOINT.sinR * selcSOLDIER_INFO.speed;
-
-	 MOVING newMOVING_ORDER;
-	 newMOVING_ORDER.dX = dx;
-	 newMOVING_ORDER.dY = dy;
-	 newMOVING_ORDER.targetLOC = globalPOS;
+	 MOVING newMOVING_ORDER = newMOVEMENT(selcSOLDIER_INFO.speed, dirTOPOINT, globalPOS);
 
 	 spriteREGISTER.emplace_or_replace<MOVING>(soldier, newMOVING_ORDER); //if already ordered delete previous and replace, god i love entt
  }
@@ -346,7 +399,7 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
  void SPRITE_MANAGER::checkLOS(entt::entity soldier, bool friendly)
  {
 
-	 float losRANGE = 1500.0;
+	 float losRANGE = 2000.0;
 
 		 auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
 
@@ -374,6 +427,53 @@ void SPRITE_MANAGER::tileCREATE(textureATLAS sheetNUM, natureTYPE_TILE type, SDL
 				 spriteREGISTER.emplace<hasTARGET>(soldier, newTARGET);
 			 }
 		 }
+ }
 
-	 //horrible and bad and horrible
+ void SPRITE_MANAGER::spawnBULLET(entt::entity soldier, SDL_FPoint target)
+ {
+	 float bulletSPEED = 2400.0;
+
+	 auto& soldierINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
+	 SDL_FPoint soldierCENTER = getCENTER(soldierINFO.spriteLOCATION.POS, soldierINFO.texW, soldierINFO.texH);
+	 float xOFF = 18.0f;
+	 float yOFF = 10.0f;
+	 SDL_FPoint bulletPOS = { soldierCENTER.x + (xOFF * soldierINFO.spriteLOCATION.ROT.cosR - yOFF * soldierINFO.spriteLOCATION.ROT.sinR), soldierCENTER.y + (-xOFF * soldierINFO.spriteLOCATION.ROT.sinR + yOFF * soldierINFO.spriteLOCATION.ROT.cosR )};
+
+	 entt::entity newBULLET = spriteREGISTER.create();
+	 spriteOBJECT newSPRITE_OBJ;
+	 ROTATION newROT = soldierINFO.spriteLOCATION.ROT;
+	 LOCATION newLOC = { bulletPOS, newROT };
+	 newSPRITE_OBJ.spriteLOCATION = newLOC;
+	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
+	 newSPRITE_OBJ.texW = 32;
+	 newSPRITE_OBJ.texH = 64;
+	 newSPRITE_OBJ.TYPE = VFX_BULLET_TRACER;
+
+	 ROTATION dirTOPOINT = directionTO_POINT(soldierCENTER, target);
+
+	 MOVING bulletMOVEMENT = newMOVEMENT(bulletSPEED, dirTOPOINT, target);
+	 spriteREGISTER.emplace<spriteOBJECT>(newBULLET, newSPRITE_OBJ);
+	 spriteREGISTER.emplace<MOVING>(newBULLET, bulletMOVEMENT);
+
+	 //MUZZLE FLASH
+	 float yOFF_FLASH = 50.0f;
+	 float xOFF_FLASH = 18.0f;
+	 SDL_FPoint newFLASH_POS = {
+		 soldierCENTER.x + dirTOPOINT.cosR * yOFF_FLASH - dirTOPOINT.sinR * xOFF,
+		 soldierCENTER.y + dirTOPOINT.sinR * yOFF_FLASH + dirTOPOINT.cosR * xOFF
+	 };
+	 entt::entity newFLASH = spriteREGISTER.create();
+	 spriteOBJECT newFLASH_OBJ = newSPRITE_OBJ;
+	 newFLASH_OBJ.TYPE = VFX_MUZZLE_FLASH_3;
+	 newFLASH_OBJ.spriteLOCATION.POS = newFLASH_POS;
+	 newFLASH_OBJ.texW = 32;
+	 newFLASH_OBJ.texH = 32;
+
+	 spriteREGISTER.emplace<spriteOBJECT>(newFLASH, newFLASH_OBJ);
+	 float randFLASH = randBETWEEN(0.02f, 0.08f);
+	 spriteREGISTER.emplace<tempSPRITE>(newFLASH, randFLASH);
+
+
+
+	 //CREATE FUNCTION FOR VFX
  }
