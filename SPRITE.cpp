@@ -359,7 +359,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 			 if (randNUMBER < finalHIT / 6)
 			 {
 				 //we hit
-				 enemySPRITE.HP -= soldierINFO.weaponDMG;
+				 soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weaponDMG);
 				 //VFX
 				 spawnBULLET(soldier, enemySPRITE_INFO.spriteLOCATION.POS);
 				 if (enemySPRITE.HP < 0.0)
@@ -374,7 +374,11 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 			 else {
 				 //VFX
 				 std::cout << "Missed\n";
-				 SDL_FPoint missPOINT = { enemySPRITE_INFO.spriteLOCATION.POS.x + randBETWEEN(-50.0, 50.0), enemySPRITE_INFO.spriteLOCATION.POS.y + randBETWEEN(-150.0, 250.0) };
+				 float randX = randBETWEEN(enemySPRITE_INFO.texW / 2, 90.0);
+				 float randY = randBETWEEN(enemySPRITE_INFO.texH / 2, 90.0);
+				 if (randBETWEEN(0.0, 1.0) > 0.5) { randX = -randX; }
+				 if (randBETWEEN(0.0, 1.0) > 0.5) { randY = -randY; }
+				 SDL_FPoint missPOINT = { enemySPRITE_INFO.spriteLOCATION.POS.x + randX, enemySPRITE_INFO.spriteLOCATION.POS.y + randY };
 				 spawnBULLET(soldier, missPOINT);
 			 }
 
@@ -386,6 +390,27 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 {
 		 fireINFO.aimTIME -= DT;
 	 }
+
+ }
+
+ void SPRITE_MANAGER::soldierTAKE_DAMAGE(entt::entity soldier, float damage)
+ {
+	 spriteREGISTER.get<soldierOBJECT>(soldier).HP -= damage;
+	 auto& curSOLDIER = spriteREGISTER.get<spriteOBJECT>(soldier);
+	 float randX = randBETWEEN(5, 25);
+	 float randY = randBETWEEN(5, 25);
+	 if (randBETWEEN(0.0, 1.0) > 0.5) { randX = -randX; }
+	 if (randBETWEEN(0.0, 1.0) > 0.5) { randY = -randY; }
+	 SDL_FPoint bloodPOINT = { curSOLDIER.spriteLOCATION.POS.x + randX, curSOLDIER.spriteLOCATION.POS.y + randY };
+
+	 UV_REGION bloodTEX_TYPE;
+	 float randBETWEEN4 = randBETWEEN(0.0, 4.0);
+	 if (randBETWEEN4 > 3.0) { bloodTEX_TYPE = VFX_BLOOD_1; }
+	 else if (randBETWEEN4 > 2.0) { bloodTEX_TYPE = VFX_BLOOD_2; }
+	 else if (randBETWEEN4 > 1.0) { bloodTEX_TYPE = VFX_BLOOD_3; }
+	 else { bloodTEX_TYPE = VFX_BLOOD_4; }
+
+	 spawnBLOOD(bloodPOINT, curSOLDIER.spriteLOCATION.ROT, bloodTEX_TYPE);
 
  }
 
@@ -539,6 +564,21 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 
 
 	 //CREATE FUNCTION FOR VFX
+ }
+
+ void SPRITE_MANAGER::spawnBLOOD(SDL_FPoint pos, ROTATION rot, UV_REGION bloodTEX_TYPE)
+ {
+	 entt::entity newBLOOD = spriteREGISTER.create();
+	 spriteOBJECT newSPRITE_OBJ;
+	 ROTATION newROT = rot;
+	 LOCATION newLOC = { pos, newROT };
+	 newSPRITE_OBJ.spriteLOCATION = newLOC;
+	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
+	 newSPRITE_OBJ.texW = 16;
+	 newSPRITE_OBJ.texH = 16;
+	 newSPRITE_OBJ.TYPE = bloodTEX_TYPE;
+
+	 spriteREGISTER.emplace<spriteOBJECT>(newBLOOD, newSPRITE_OBJ);
  }
 
 

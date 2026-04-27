@@ -157,6 +157,11 @@ class SPRITE_MANAGER
 		UV_REGION VFX_MUZZ_FLASH_2 = { T_VFX_MUZZLE_FLASH_2, 0.05f, 0.10f, 0.8f, 0.85f };
 		UV_REGION VFX_MUZZ_FLASH_1 = { T_VFX_MUZZLE_FLASH_3, 0.0f, 0.05f, 0.8f, 0.85f };
 
+		UV_REGION VFX_BLOOD_1 = { T_BLOOD_1, 0.15f, 0.2f, 0.85f, 0.90f };
+		UV_REGION VFX_BLOOD_2 = { T_BLOOD_2, 0.10f, 0.15f, 0.85f, 0.90f };
+		UV_REGION VFX_BLOOD_3 = { T_BLOOD_3, 0.05f, 0.10f, 0.85f, 0.90f };
+		UV_REGION VFX_BLOOD_4 = { T_BLOOD_4, 0.0f, 0.05f, 0.85f, 0.90f };
+
 		//GAME LOOP
 		float DT = 0.0;
 		void updateDT(float newDT);
@@ -179,7 +184,7 @@ class SPRITE_MANAGER
 
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
-		void spawnBLOOD(SDL_FPoint pos, ROTATION rot, uvTYPE bloodTEX_TYPE);
+		void spawnBLOOD(SDL_FPoint pos, ROTATION rot, UV_REGION bloodTEX_TYPE);
 
 };
 
