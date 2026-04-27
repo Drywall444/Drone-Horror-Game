@@ -574,8 +574,8 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 LOCATION newLOC = { pos, newROT };
 	 newSPRITE_OBJ.spriteLOCATION = newLOC;
 	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
-	 newSPRITE_OBJ.texW = 16;
-	 newSPRITE_OBJ.texH = 16;
+	 newSPRITE_OBJ.texW = 32;
+	 newSPRITE_OBJ.texH = 32;
 	 newSPRITE_OBJ.TYPE = bloodTEX_TYPE;
 
 	 spriteREGISTER.emplace<spriteOBJECT>(newBLOOD, newSPRITE_OBJ);
