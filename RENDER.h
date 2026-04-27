@@ -7,44 +7,17 @@
 #include "SDL3/SDL.h"
 #include "entt.hpp"
 #include "INPUT.h"
-#include "SPRITE.h"
 
 class RENDER
 {
 public:
-	RENDER(INPUT& I) : IN(I) {}
+	RENDER(INPUT& I, SPRITE_MANAGER& sM) : IN(I),  SM(sM) {}
 
 
 	//MAP SHIT
 	float natureTEX_W = 64.0, natureTEX_H = 64.0;
-	int MAP_W = 1000;
-	int MAP_H = 100;
-
-	struct TILE_REGION
-	{
-		float uMIN;
-		float uMAX;
-		float vMIN;
-		float vMAX;
-	};
-	TILE_REGION GRASS_1 = { 0.0f,  0.25f, 0.0, 1.0};
-	TILE_REGION GRASS_2 = { 0.25f,  0.50f, 0.0, 1.0 };
-	TILE_REGION WOODS_1 = { 0.50f,  0.75f, 0.0, 1.0 };
-	TILE_REGION WOODS_2 = { 0.75f,  1.0f,  0.0, 1.0 };
-
-	TILE_REGION ENEMY_SOLDIER_STANDING = { 0.0f, 0.20f, 0.0f, 0.4f };
-	TILE_REGION ENEMY_SOLDIER_SHOOTING = { 0.20f, 0.40f, 0.0f, 0.4f };
-	TILE_REGION ENEMY_SOLDIER_DEAD_1 = { 0.60f, 0.80f, 0.0f, 0.4f };
-	TILE_REGION ENEMY_SOLDIER_DEAD_2 = { 0.80f, 1.0f, 0.0f, 0.4f };
-
-	TILE_REGION SOLDIER_STANDING = { 0.0f, 0.20f, 0.4f, 0.8f };
-	TILE_REGION SOLDIER_SHOOTING = { 0.20f, 0.40f, 0.4f, 0.8f };
-	TILE_REGION SOLDIER_DEAD_1 = { 0.60f, 0.80f, 0.4f, 0.8f };
-	TILE_REGION SOLDIER_DEAD_2 = { 0.80f, 1.0f, 0.4f, 0.8f };
-
-	TILE_REGION VFX_BULLET = { 0.15f, 0.2f, 0.8f, 0.85f };
-	TILE_REGION VFX_MUZZ_FLASH_3 = { 0.10f, 0.15f, 0.8f, 0.85f };
-
+	int MAP_W = 150;
+	int MAP_H = 300;
 
 
 	std::vector<int> NATURE_INDICIES;
@@ -70,6 +43,7 @@ public:
 	void createMAP(SPRITE_MANAGER& sprites);
 
 private:
+	SPRITE_MANAGER& SM;
 	INPUT& IN;
 
 };

@@ -10,7 +10,7 @@
 
 SPRITE_MANAGER SM; //SM FIRST
 INPUT I(SM);
-RENDER R(I);
+RENDER R(I, SM);
 
 double DT = 0;
 
@@ -31,11 +31,11 @@ int main(int argc, char* argv[]) {
     SM.createSOLDIER({ 200.0, 150.0 }, testROT, false);
     //SM.createSOLDIER({ 0.0, 170.0 }, testROT, false);
 
-    //SM.createSOLDIER({ 250.0, 2000.0 }, testROT, true);
-    //SM.createSOLDIER({ 150.0, 2000.0 }, testROT, true);
-    //SM.createSOLDIER({ 200.0, 2000.0 }, testROT, true);
-    //SM.createSOLDIER({ 300.0, 2500.0 }, testROT, true);
-    //SM.createSOLDIER({ 300.0, 2600.0 }, testROT, true);
+    SM.createSOLDIER({ 250.0, 2000.0 }, testROT, true);
+    SM.createSOLDIER({ 150.0, 2000.0 }, testROT, true);
+    SM.createSOLDIER({ 200.0, 2000.0 }, testROT, true);
+    SM.createSOLDIER({ 300.0, 2500.0 }, testROT, true);
+    SM.createSOLDIER({ 300.0, 2600.0 }, testROT, true);
 
     R.createMAP(SM);
 
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
         Uint64 frameEND = SDL_GetPerformanceCounter();
         DT = (double)(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
         SM.updateDT(DT);
-        //std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
+        std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
     }
 
     // Clean
