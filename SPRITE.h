@@ -96,7 +96,7 @@ struct soldierOBJECT
 	int magSIZE = 30;
 
 	//STATS
-	float soldierSKILL = 0.8; //default 0.8 increase by 0.1 per day survived
+	float soldierSKILL = 0.5; //default 0.8 increase by 0.1 per day survived
 };
 
 //STATE TAGS
@@ -105,6 +105,7 @@ struct MOVING
 	float dX, dY;
 	SDL_FPoint targetLOC;
 	float movementSPEED = 150.0;
+	void move(); //call to advance object
 };
 
 struct FIRING

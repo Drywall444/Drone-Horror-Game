@@ -177,7 +177,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 		 }
 	 }
 
-	 //MOVEMENT
+	 //MOVEMENT - MOVE INTO SEPERATE FUNCTION
 	 auto movingSPRITES = spriteREGISTER.view<MOVING>();
 	 bool continueMOVING = true;
 
@@ -215,10 +215,6 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 			soldierSPRITE_INFO.spriteLOCATION.POS = pos;
 		}
 
-
-
-
-		 //ADD: If new enemy is closer switch targets
 	 }
 
 	 //CHECK LOS - Friendly
@@ -237,7 +233,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 std::vector<entt::entity> removeTARGET_LIST;
 	 for (auto& shootingSOLDIER : soldiersSHOOTING)
 	 {
-		 auto& soldierSPRITE_INFO = spriteREGISTER.get<hasTARGET>(shootingSOLDIER); //CRASHES GAME: When you remove hasTARGET mid iteration ENTT dosent like that. hasTARGET and isFIRING could be combined
+		 auto& soldierSPRITE_INFO = spriteREGISTER.get<hasTARGET>(shootingSOLDIER); 
 		 if (soldierSPRITE_INFO.targetDEAD == false)
 		 {
 			 if (spriteREGISTER.valid(soldierSPRITE_INFO.enemySOLDIER)) //If sprites been removed as a corpse dont use it, we will crash
