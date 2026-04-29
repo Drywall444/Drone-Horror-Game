@@ -222,6 +222,12 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
  void SPRITE_MANAGER::soldierSHOOT_AT_TARGET(entt::entity soldier)
  {
 	 auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(soldier);
+	 if (soldierINFO.outOF_AMMO)
+	 {
+		 std::cout << "No ammo\n";
+		 return;
+	 }
+
 	 auto& soldierSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(soldier);
 	 auto& soldiersSHOOTING = spriteREGISTER.get<hasTARGET>(soldier);
 
@@ -249,6 +255,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 
 	 auto& fireINFO = spriteREGISTER.get<FIRING>(soldier);
 	 auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(soldier);
+	 auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
 	 if (soldierINFO.weapon.curMAG_SIZE <= 0 && soldierINFO.weapon.reloading == false) //If our mag is on empty and we havent started reloading, reload
 	 {
 		 soldierINFO.weapon.reloading = true;
@@ -261,12 +268,17 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 		 if (soldierINFO.weapon.curRELOAD_TIME < 0.0)
 		 {
 			 std::cout << "Done Reloading\n";
-			 //spawnmag
-			 SDL_FPoint magPOS = { spriteREGISTER.get<spriteOBJECT>(soldier).spriteLOCATION.POS.x + 30, spriteREGISTER.get<spriteOBJECT>(soldier).spriteLOCATION.POS.y - 15 };
+			 SDL_FPoint magOFF_SET = { 30.0, 15.0 };
+			 SDL_FPoint magPOS = rotatePOINT_AND_APPLY_OFFSET(spriteINFO.spriteLOCATION.POS, spriteINFO.spriteLOCATION.ROT, magOFF_SET);
 			 ROTATION magROT = { 1.0, 0.0 };
 			 spawnMAG(magPOS, magROT, VFX_MAG);
 			 soldierINFO.weapon.curMAG_SIZE = soldierINFO.weapon.magSIZE;
 			 soldierINFO.weapon.reloading = false; //When done reloading set false and then return
+			 soldierINFO.curMAGS -= 1;
+			 if (soldierINFO.curMAGS <= 0)
+			 {
+				 soldierINFO.outOF_AMMO = true;
+			 }
 		 }
 		 return;
 	 }
@@ -290,6 +302,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 			 auto& soldierSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(soldier);
 			 auto& enemySPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(target.enemySOLDIER);
 			 auto& enemySPRITE = spriteREGISTER.get<soldierOBJECT>(target.enemySOLDIER);
+
 			 float dist = distanceTO_POINT(soldierSPRITE_INFO.spriteLOCATION.POS, enemySPRITE_INFO.spriteLOCATION.POS);
 			 fireINFO.aimTIME = dist / 1000;
 			 float soldierSKILL = soldierINFO.soldierSKILL;
@@ -302,10 +315,14 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 
 			 float randNUMBER = randBETWEEN(0.0f, 1.0f);
 
-			 if (randNUMBER < finalHIT / 6)
+			 if (randNUMBER < finalHIT / 5)
 			 {
 				 //we hit
-				 soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weapon.weaponDMG);
+				 //soldierINFO.weapon.weaponDMG
+				 soldierTAKE_DAMAGE(target.enemySOLDIER, 0.0);
+				 //apply damage after bullet hits
+
+
 				 //VFX
 				 spawnBULLET(soldier, enemySPRITE_INFO.spriteLOCATION.POS);
 				 if (enemySPRITE.HP < 0.0)
@@ -320,6 +337,8 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 			 else {
 				 //VFX
 				 std::cout << "Missed\n";
+
+				 //create function for this
 				 float randX = randBETWEEN(enemySPRITE_INFO.texW / 2, 90.0);
 				 float randY = randBETWEEN(enemySPRITE_INFO.texH / 2, 90.0);
 				 if (randBETWEEN(0.0, 1.0) > 0.5) { randX = -randX; }
@@ -475,8 +494,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 entt::entity newBULLET = spriteREGISTER.create();
 	 spriteOBJECT newSPRITE_OBJ;
 	 ROTATION newROT = soldierINFO.spriteLOCATION.ROT;
-	 SDL_FPoint rotatedPOINT = rotatePOINT(offSET_TRACER, newROT);
-	 SDL_FPoint bulletPOS = { soldierINFO.spriteLOCATION.POS.x + rotatedPOINT.x,  soldierINFO.spriteLOCATION.POS.y + rotatedPOINT.y };
+	 SDL_FPoint bulletPOS = rotatePOINT_AND_APPLY_OFFSET(soldierINFO.spriteLOCATION.POS, newROT, offSET_TRACER);
 	 LOCATION newLOC = { bulletPOS, newROT };
 	 newSPRITE_OBJ.spriteLOCATION = newLOC;
 	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
@@ -492,8 +510,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 
 	 //MUZZLE FLASH
 	 SDL_FPoint offSET_MUZZLE_FLASH = { 5.0f, -50.0f };
-	 SDL_FPoint rotatedPOINT_FLASH = rotatePOINT(offSET_MUZZLE_FLASH, newROT);
-	 SDL_FPoint flashPOS = { soldierINFO.spriteLOCATION.POS.x + rotatedPOINT_FLASH.x, soldierINFO.spriteLOCATION.POS.y + rotatedPOINT_FLASH.y };
+	 SDL_FPoint flashPOS = rotatePOINT_AND_APPLY_OFFSET(soldierINFO.spriteLOCATION.POS, newROT, offSET_MUZZLE_FLASH);
 
 	 entt::entity newFLASH = spriteREGISTER.create();
 	 spriteOBJECT newFLASH_OBJ = newSPRITE_OBJ;
@@ -533,7 +550,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
  {
 	 entt::entity newBLOOD = spriteREGISTER.create();
 	 spriteOBJECT newSPRITE_OBJ;
-	 ROTATION newROT = rot;
+	 ROTATION newROT = randROTATION();
 	 LOCATION newLOC = { pos, newROT };
 	 newSPRITE_OBJ.spriteLOCATION = newLOC;
 	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;

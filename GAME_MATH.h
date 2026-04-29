@@ -7,6 +7,8 @@
 
 //MATH
 
+inline float PI = 3.1415926;
+
 struct ROTATION
 {
 	float cosR, sinR;
@@ -41,6 +43,15 @@ inline SDL_FPoint rotatePOINT(SDL_FPoint pos, ROTATION rot)
 {
 
 	SDL_FPoint FINAL = { (pos.x * rot.cosR - pos.y * rot.sinR), (pos.x * rot.sinR + pos.y * rot.cosR) };
+
+	return FINAL;
+}
+
+inline SDL_FPoint rotatePOINT_AND_APPLY_OFFSET(SDL_FPoint pos, ROTATION rot, SDL_FPoint offSET)
+{
+
+	SDL_FPoint rotatedPOINT = rotatePOINT(offSET, rot);
+	SDL_FPoint FINAL = { pos.x + rotatedPOINT.x, pos.y + rotatedPOINT.y };
 
 	return FINAL;
 }
@@ -88,6 +99,14 @@ inline float randBETWEEN(float min, float max)
 	static std::mt19937 rng(std::random_device{}());
 	std::uniform_real_distribution<float> dist(min, max);
 	return dist(rng);
+}
+
+inline ROTATION randROTATION()
+{
+	float randDEGREE = randBETWEEN(0.0, 360.0);
+	float rad = randDEGREE * PI / 180.0;
+	ROTATION final = { cos(rad), sin(rad) };
+	return final;
 }
 
 

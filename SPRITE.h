@@ -63,8 +63,8 @@ struct GUN
 	float weaponEFFECTIVE_RANGE = 3000.0;
 	float weaponRPM = 600;
 	float weaponDMG = 45.0;
-	int magSIZE = 30;
-	int curMAG_SIZE = 30; //start at a full mag
+	int magSIZE = 15;
+	int curMAG_SIZE = 15; //start at a full mag
 	float reloadTIME = 2.5;
 	float curRELOAD_TIME = 2.5; //hits zero when reloaded
 	bool reloading = false;
@@ -95,6 +95,9 @@ struct soldierOBJECT
 
 	//WEAPON INFO
 	GUN weapon;
+	int totalMAGS = 15;
+	int curMAGS = 15;
+	bool outOF_AMMO = false;
 
 	//STATS
 	float soldierSKILL = 0.5; //default 0.8 increase by 0.1 per day survived
