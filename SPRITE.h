@@ -5,6 +5,7 @@
 #include <vector>
 #include "SDL3/SDL.h"
 #include "entt.hpp"
+#include "GAME_MATH.h"
 
 enum textureATLAS //Keep all human types on one sheet and naturage and foliage on another
 {
@@ -34,7 +35,8 @@ enum uvTYPE
 	T_BLOOD_1,
 	T_BLOOD_2,
 	T_BLOOD_3,
-	T_BLOOD_4
+	T_BLOOD_4,
+	T_MAG
 
 };
 
@@ -55,15 +57,17 @@ enum natureTYPE_TILE
 	TYPE_WOODS1,
 };
 
-struct ROTATION
+struct GUN
 {
-	float cosR, sinR;
-};
-
-struct LOCATION
-{
-	SDL_FPoint POS;
-	ROTATION ROT;
+	std::string name = "AK-74";
+	float weaponEFFECTIVE_RANGE = 3000.0;
+	float weaponRPM = 600;
+	float weaponDMG = 45.0;
+	int magSIZE = 30;
+	int curMAG_SIZE = 30; //start at a full mag
+	float reloadTIME = 2.5;
+	float curRELOAD_TIME = 2.5; //hits zero when reloaded
+	bool reloading = false;
 };
 
 struct spriteOBJECT//SHIT THAT CAN MOVE
@@ -90,10 +94,7 @@ struct soldierOBJECT
 	bool isSHOOTING = false;
 
 	//WEAPON INFO
-	float weaponEFFECTIVE_RANGE = 3000.0;
-	float weaponRPM = 600;
-	float weaponDMG = 45.0; 
-	int magSIZE = 30;
+	GUN weapon;
 
 	//STATS
 	float soldierSKILL = 0.5; //default 0.8 increase by 0.1 per day survived
@@ -163,6 +164,8 @@ class SPRITE_MANAGER
 		UV_REGION VFX_BLOOD_3 = { T_BLOOD_3, 0.05f, 0.10f, 0.85f, 0.90f };
 		UV_REGION VFX_BLOOD_4 = { T_BLOOD_4, 0.0f, 0.05f, 0.85f, 0.90f };
 
+		UV_REGION VFX_MAG = { T_MAG, 0.05f, 0.10f, 0.90f, 0.95f };
+
 		//GAME LOOP
 		float DT = 0.0;
 		void updateDT(float newDT);
@@ -186,15 +189,16 @@ class SPRITE_MANAGER
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
 		void spawnBLOOD(SDL_FPoint pos, ROTATION rot, UV_REGION bloodTEX_TYPE);
+		void spawnMAG(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE);
 
 };
 
-//MATH
-ROTATION rotationTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB);
-float dotBETWEEN_ROTS(ROTATION rotA, ROTATION rotB);
-float distanceTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB);
-bool isPOINT_WITHIN_BOUNDS(SDL_FPoint point, SDL_FPoint spritePOS, ROTATION spriteROT, int texW, int texH);
-SDL_FPoint rotatePOINT(SDL_FPoint pos, ROTATION rot);
+////MATH
+//ROTATION rotationTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB);
+//float dotBETWEEN_ROTS(ROTATION rotA, ROTATION rotB);
+//float distanceTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB);
+//bool isPOINT_WITHIN_BOUNDS(SDL_FPoint point, SDL_FPoint spritePOS, ROTATION spriteROT, int texW, int texH);
+//SDL_FPoint rotatePOINT(SDL_FPoint pos, ROTATION rot);
 
 #endif // !SPRITE_H
 

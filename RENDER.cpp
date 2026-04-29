@@ -91,7 +91,7 @@ void RENDER::initializeRENDER()
 	SDL_SetWindowFullscreenMode(window, NULL); //WHY TF DOES TWO CALLS TO WINDOW FULL SCREEN WORK, FUCK MY LIFE
 	SDL_SetWindowFullscreen(window, true);
 	IN.getWINDOWSIZE(window);
-	SDL_SetRenderVSync(REND, 1);
+	//SDL_SetRenderVSync(REND, 1);
 
 	std::cout << "Renderer Success!/n";
 }

@@ -1,5 +1,4 @@
 #include "SPRITE.h"
-#include <random>
 
 //DT
 void SPRITE_MANAGER::updateDT(float newDT)
@@ -7,78 +6,14 @@ void SPRITE_MANAGER::updateDT(float newDT)
 	DT = newDT;
 }
 
-//MATH
-
-ROTATION rotationTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB)
+bool hasARRIVED_AT_POINT(SDL_FPoint spriteCUR_POS, MOVING soldierMOVING_INFO)
 {
-	float dX = pointB.x - pointA.x;
-	float dY = pointB.y - pointA.y;
-	float length = sqrt(dX * dX + dY * dY);
-	float cosR = dX / length;
-	float sinR = dY / length;
-	return { -sinR, cosR }; // 90° CCW baked in
-}
+	float pX = soldierMOVING_INFO.targetLOC.x - spriteCUR_POS.x;
+	float pY = soldierMOVING_INFO.targetLOC.y - spriteCUR_POS.y;
 
-ROTATION directionTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB)
-{
-	float dX = pointB.x - pointA.x;
-	float dY = pointB.y - pointA.y;
-	float length = sqrt(dX * dX + dY * dY);
-	return { dX / length, dY / length }; // no 90° bake, pure direction
-}
-
-
-SDL_FPoint rotatePOINT(SDL_FPoint pos, ROTATION rot)
-{
-
-	SDL_FPoint FINAL = { (pos.x * rot.cosR - pos.y * rot.sinR), (pos.x * rot.sinR + pos.y * rot.cosR) };
-
-	return FINAL;
-}
-
-
-float distanceTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB)
-{
-	float dX = pointB.x - pointA.x;
-	float dY = pointB.y - pointA.y;
-
-	float length = sqrt(dX * dX + dY * dY);
-	return length;
-}
-
-float dotBETWEEN_ROTS(ROTATION rotA, ROTATION rotB)//RETURNS Dot Product of two rotations
-{
-	float dot = rotA.cosR * rotB.cosR + rotA.sinR * rotB.sinR;
-	//dot product of two angles 
-	return dot;
-}
-
-bool isPOINT_WITHIN_BOUNDS(SDL_FPoint point, SDL_FPoint spritePOS, ROTATION spriteROT, int texW, int texH)
-{
-
-	float localX = point.x - spritePOS.x;//Translate that hoe into local space
-	float localY = point.y - spritePOS.y;
-
-	float rotatedX = localX * spriteROT.cosR - localY * spriteROT.sinR;
-	float rotatedY = localX * spriteROT.sinR + localY * spriteROT.cosR;
-
-	float halfW = texW / 2.0f;
-	float halfH = texH / 2.0f;
-
-	return (rotatedX >= -halfW && rotatedX <= halfW && rotatedY >= -halfH && rotatedY <= halfH);
-
-}
-
-SDL_FPoint getCENTER(SDL_FPoint pos, float texW, float texH)
-{
-	return { pos.x + texW * 0.5f, pos.y + texH * 0.5f };
-}
-
-float randBETWEEN(float min, float max)
-{
-	static std::mt19937 rng(std::random_device{}());
-	std::uniform_real_distribution<float> dist(min, max);
-	return dist(rng);
+	float DOT = (soldierMOVING_INFO.dX * pX) + (soldierMOVING_INFO.dY * pY);
+	if (DOT < 0.0) { return true; }
+	else { return false; }
 }
 
 //SPRITE_MANAGER
@@ -186,28 +121,21 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 {
 		 auto& soldierSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(sprite);
 		 auto& soldierMOVING_INFO = spriteREGISTER.get<MOVING>(sprite);
-		 float dist = distanceTO_POINT(soldierSPRITE_INFO.spriteLOCATION.POS, soldierMOVING_INFO.targetLOC);
 
-		float pX = soldierMOVING_INFO.targetLOC.x - soldierSPRITE_INFO.spriteLOCATION.POS.x;
-		float pY = soldierMOVING_INFO.targetLOC.y - soldierSPRITE_INFO.spriteLOCATION.POS.y;
-
-		float DOT = (soldierMOVING_INFO.dX * pX) + (soldierMOVING_INFO.dY * pY);
-
-		if (DOT < 0.0f)
-		{
-			if (!(soldierSPRITE_INFO.TYPE.uvTYPE == T_VFX_TRACER))
-			{
-				continueMOVING = false;
-				spriteREGISTER.remove<MOVING>(sprite);
-			}
-			else
-			{
-				continueMOVING = false;
-				toDESTROY.push_back(sprite); //If add to destroy list
-			}
-		}
-
-		if (continueMOVING)
+		 if (hasARRIVED_AT_POINT(soldierSPRITE_INFO.spriteLOCATION.POS, soldierMOVING_INFO))
+		 {
+			 if (!(soldierSPRITE_INFO.TYPE.uvTYPE == T_VFX_TRACER))
+			 {
+				 continueMOVING = false;
+				 spriteREGISTER.remove<MOVING>(sprite);
+			 }
+			 else
+			 {
+				 continueMOVING = false;
+				 toDESTROY.push_back(sprite); //If add to destroy list
+			 }
+		 }
+		else 
 		{
 			SDL_FPoint pos = soldierSPRITE_INFO.spriteLOCATION.POS;
 			pos.x += soldierMOVING_INFO.dX * DT;
@@ -302,7 +230,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 if (!spriteREGISTER.all_of<FIRING>(soldier))
 	 {
 		 FIRING newFIRE;
-		 newFIRE.secPER_BULLET = (1.0f / (soldierINFO.weaponRPM / 60.0f));
+		 newFIRE.secPER_BULLET = (1.0f / (soldierINFO.weapon.weaponRPM / 60.0f));
 		 newFIRE.TIME_SINCE_LAST_SHOT = newFIRE.secPER_BULLET; // ready to fire immediately
 		 newFIRE.aimTIME = 2.5;
 		 spriteREGISTER.emplace<FIRING>(soldier, newFIRE);
@@ -321,7 +249,29 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 
 	 auto& fireINFO = spriteREGISTER.get<FIRING>(soldier);
 	 auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(soldier);
-	 if (fireINFO.aimTIME < 0.0 || fireINFO.firingBURST)
+	 if (soldierINFO.weapon.curMAG_SIZE <= 0 && soldierINFO.weapon.reloading == false) //If our mag is on empty and we havent started reloading, reload
+	 {
+		 soldierINFO.weapon.reloading = true;
+		 soldierINFO.weapon.curRELOAD_TIME = soldierINFO.weapon.reloadTIME; //set to full reload time
+	 }
+
+	 if (soldierINFO.weapon.reloading == true)
+	 {
+		 soldierINFO.weapon.curRELOAD_TIME -= DT;
+		 if (soldierINFO.weapon.curRELOAD_TIME < 0.0)
+		 {
+			 std::cout << "Done Reloading\n";
+			 //spawnmag
+			 SDL_FPoint magPOS = { spriteREGISTER.get<spriteOBJECT>(soldier).spriteLOCATION.POS.x + 30, spriteREGISTER.get<spriteOBJECT>(soldier).spriteLOCATION.POS.y - 15 };
+			 ROTATION magROT = { 1.0, 0.0 };
+			 spawnMAG(magPOS, magROT, VFX_MAG);
+			 soldierINFO.weapon.curMAG_SIZE = soldierINFO.weapon.magSIZE;
+			 soldierINFO.weapon.reloading = false; //When done reloading set false and then return
+		 }
+		 return;
+	 }
+
+	 if (fireINFO.aimTIME < 0.0 || fireINFO.firingBURST && soldierINFO.weapon.reloading == false)
 	 {
 		 if (fireINFO.TIME_SINCE_LAST_SHOT > fireINFO.secPER_BULLET)
 		 {
@@ -344,7 +294,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 			 fireINFO.aimTIME = dist / 1000;
 			 float soldierSKILL = soldierINFO.soldierSKILL;
 
-			 float rangeFACTOR = dist / soldierINFO.weaponEFFECTIVE_RANGE;
+			 float rangeFACTOR = dist / soldierINFO.weapon.weaponEFFECTIVE_RANGE;
 			 float baseHIT = 0.95f - (rangeFACTOR * rangeFACTOR) * 0.85f;
 			 float finalHIT = baseHIT * soldierINFO.soldierSKILL;
 			 finalHIT = std::clamp(finalHIT, 0.01f, 0.99f);
@@ -355,7 +305,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 			 if (randNUMBER < finalHIT / 6)
 			 {
 				 //we hit
-				 soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weaponDMG);
+				 soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weapon.weaponDMG);
 				 //VFX
 				 spawnBULLET(soldier, enemySPRITE_INFO.spriteLOCATION.POS);
 				 if (enemySPRITE.HP < 0.0)
@@ -377,14 +327,16 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 				 SDL_FPoint missPOINT = { enemySPRITE_INFO.spriteLOCATION.POS.x + randX, enemySPRITE_INFO.spriteLOCATION.POS.y + randY };
 				 spawnBULLET(soldier, missPOINT);
 			 }
-
+			 soldierINFO.weapon.curMAG_SIZE -= 1;
 			 fireINFO.TIME_SINCE_LAST_SHOT = 0.0;
 		 }
 	 }
+
+
 	 fireINFO.TIME_SINCE_LAST_SHOT += DT; //increase by secs
-	 if (!fireINFO.firingBURST)
+	 if (!fireINFO.firingBURST) //If not firing burst reduce aim time while we steady
 	 {
-		 fireINFO.aimTIME -= DT;
+		 fireINFO.aimTIME -= DT; //reduce steady time
 	 }
 
  }
@@ -577,10 +529,24 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 spriteREGISTER.emplace<spriteOBJECT>(newBLOOD, newSPRITE_OBJ);
  }
 
+ void SPRITE_MANAGER::spawnMAG(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE)
+ {
+	 entt::entity newBLOOD = spriteREGISTER.create();
+	 spriteOBJECT newSPRITE_OBJ;
+	 ROTATION newROT = rot;
+	 LOCATION newLOC = { pos, newROT };
+	 newSPRITE_OBJ.spriteLOCATION = newLOC;
+	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
+	 newSPRITE_OBJ.texW = 16;
+	 newSPRITE_OBJ.texH = 16;
+	 newSPRITE_OBJ.TYPE = MAG_TEX_TYPE;
+
+	 spriteREGISTER.emplace<spriteOBJECT>(newBLOOD, newSPRITE_OBJ);
+ }
+
+ //COMBINE VFX INTO ONE FUNCTION
 
 
  //TO DO:
 
- // - ADD BLOOD
- // - ADD Bullet Casings and mag drops
- // - Soldiers Reload
+ // - ADD Bullet Casings

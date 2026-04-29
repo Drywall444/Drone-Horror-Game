@@ -140,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INPUT.h" />
+    <ClInclude Include="GAME_MATH.h" />
     <ClInclude Include="RENDER.h" />
     <ClInclude Include="SPRITE.h" />
   </ItemGroup>

@@ -38,5 +38,8 @@
     <ClInclude Include="RENDER.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GAME_MATH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
