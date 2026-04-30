@@ -267,6 +267,9 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 if (soldierINFO.weapon.reloading == true)
 	 {
 		 soldierINFO.weapon.curRELOAD_TIME -= DT;
+		 if (soldierINFO.friendly){ spriteINFO.TYPE = SOLDIER_RELOADING; } //set animation to reloading basic as hell will change later
+		 else{ spriteINFO.TYPE = ENEMY_SOLDIER_RELOADING; }
+
 		 if (soldierINFO.weapon.curRELOAD_TIME < 0.0)
 		 {
 			 std::cout << "Done Reloading\n";

@@ -62,11 +62,11 @@ struct GUN
 	std::string name = "AK-74";
 	float weaponEFFECTIVE_RANGE = 3000.0;
 	float weaponRPM = 600;
-	float weaponDMG = 45.0;
-	int magSIZE = 15;
-	int curMAG_SIZE = 15; //start at a full mag
+	float weaponDMG = 5.0;
+	int magSIZE = 30;
+	int curMAG_SIZE = 31; //start at a full mag
 	float reloadTIME = 2.5;
-	float curRELOAD_TIME = 2.5; //hits zero when reloaded
+	float curRELOAD_TIME = 3.5; //hits zero when reloaded
 	bool reloading = false;
 };
 
@@ -155,11 +155,14 @@ class SPRITE_MANAGER
 
 		UV_REGION ENEMY_SOLDIER_STANDING = { T_ENEMY_SOLDIER_STANDING, 0.0f, 0.20f, 0.0f, 0.2f };
 		UV_REGION ENEMY_SOLDIER_SHOOTING = { T_ENEMY_SOLDIER_SHOOTING, 0.20f, 0.40f, 0.0f, 0.2f };
+		UV_REGION ENEMY_SOLDIER_RELOADING = { T_ENEMY_SOLDIER_SHOOTING, 0.20f, 0.40f, 0.2f, 0.4f };
+
 		UV_REGION ENEMY_SOLDIER_DEAD_1 = { T_ENEMY_DEAD_1, 0.60f, 0.80f, 0.0f, 0.4f };
 		UV_REGION ENEMY_SOLDIER_DEAD_2 = { T_ENEMY_DEAD_2, 0.80f, 1.0f, 0.0f, 0.4f };
 
 		UV_REGION SOLDIER_STANDING = { T_SOLDIER_STANDING, 0.0f, 0.20f, 0.4f, 0.6f };
 		UV_REGION SOLDIER_SHOOTING = { T_SOLDIER_SHOOTING, 0.20f, 0.40f, 0.40f, 0.6f };
+		UV_REGION SOLDIER_RELOADING = { T_SOLDIER_SHOOTING, 0.20f, 0.40f, 0.60f, 0.8f };
 		UV_REGION SOLDIER_DEAD_1 = { T_SOLDIER_DEAD_1, 0.60f,  0.80f, 0.4f, 0.8f };
 		UV_REGION SOLDIER_DEAD_2 = { T_SOLDIER_DEAD_2, 0.80f, 1.0f, 0.4f, 0.8f };
 
