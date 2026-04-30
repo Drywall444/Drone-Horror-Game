@@ -50,6 +50,7 @@ void SPRITE_MANAGER::spriteCREATE(textureATLAS sheetNUM, SDL_FPoint pos, ROTATIO
 		else if (sheetNUM == CORPSE)
 		{
 			std::cout << "Corpse Added.\n";
+			newSPRITE_OBJ.texH = 128;
 			float rnd = randBETWEEN(0, 1);
 			UV_REGION corpseTYPE;
 			
@@ -377,7 +378,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 else if (randBETWEEN4 > 1.0) { bloodTEX_TYPE = VFX_BLOOD_3; }
 	 else { bloodTEX_TYPE = VFX_BLOOD_4; }
 
-	 spawnBLOOD(bloodPOINT, curSOLDIER.spriteLOCATION.ROT, bloodTEX_TYPE);
+	 spawnBLOOD(bloodPOINT, randROTATION(), bloodTEX_TYPE);
 
  }
 

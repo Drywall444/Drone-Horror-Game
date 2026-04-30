@@ -37,6 +37,18 @@ int main(int argc, char* argv[]) {
     SM.createSOLDIER({ 300.0, 2500.0 }, testROT, true);
     SM.createSOLDIER({ 300.0, 2600.0 }, testROT, true);
 
+    entt::entity newBLOOD = SM.spriteREGISTER.create();
+    spriteOBJECT newSPRITE_OBJ;
+    ROTATION newROT = testROT;
+    LOCATION newLOC = { { 100.0, 150.0 }, newROT };
+    newSPRITE_OBJ.spriteLOCATION = newLOC;
+    newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
+    newSPRITE_OBJ.texW = 64;
+    newSPRITE_OBJ.texH = 64;
+    newSPRITE_OBJ.TYPE = SM.FOXHOLE;
+
+    SM.spriteREGISTER.emplace<spriteOBJECT>(newBLOOD, newSPRITE_OBJ);
+
     R.createMAP(SM);
 
 
