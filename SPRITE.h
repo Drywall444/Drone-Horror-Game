@@ -103,6 +103,14 @@ struct soldierOBJECT
 	float soldierSKILL = 0.5; //default 0.8 increase by 0.1 per day survived
 };
 
+struct BUILDING
+{
+	std::vector<SDL_FPoint> firingPOSITIONS; //Holds locations of locations within buildings
+	int maxOCCUPANTS;
+	float coverVALUE = 0.0; // 0-100% 
+	bool topCOVERED;
+};
+
 //STATE TAGS
 struct MOVING
 {
@@ -186,22 +194,13 @@ class SPRITE_MANAGER
 		void checkLOS(entt::entity soldier, bool checkENEMYS);
 		void soldierSHOOT_AT_TARGET(entt::entity soldier);
 		void fireWEAPON(entt::entity solder, hasTARGET target);
-		void soldierRELOAD(entt::entity soldier);
 		void soldierTAKE_DAMAGE(entt::entity soldier, float damage);
 
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
-		void spawnBLOOD(SDL_FPoint pos, ROTATION rot, UV_REGION bloodTEX_TYPE);
-		void spawnMAG(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE);
+		void createVFX(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE, int w, int h);
 
 };
-
-////MATH
-//ROTATION rotationTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB);
-//float dotBETWEEN_ROTS(ROTATION rotA, ROTATION rotB);
-//float distanceTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB);
-//bool isPOINT_WITHIN_BOUNDS(SDL_FPoint point, SDL_FPoint spritePOS, ROTATION spriteROT, int texW, int texH);
-//SDL_FPoint rotatePOINT(SDL_FPoint pos, ROTATION rot);
 
 #endif // !SPRITE_H
 

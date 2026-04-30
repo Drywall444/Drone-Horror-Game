@@ -272,7 +272,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 			 SDL_FPoint magOFF_SET = { 30.0, 15.0 };
 			 SDL_FPoint magPOS = rotatePOINT_AND_APPLY_OFFSET(spriteINFO.spriteLOCATION.POS, spriteINFO.spriteLOCATION.ROT, magOFF_SET);
 			 ROTATION magROT = { 1.0, 0.0 };
-			 spawnMAG(magPOS, magROT, VFX_MAG);
+			 createVFX(magPOS, magROT, VFX_MAG, 16, 16);
 			 soldierINFO.weapon.curMAG_SIZE = soldierINFO.weapon.magSIZE;
 			 soldierINFO.weapon.reloading = false; //When done reloading set false and then return
 			 soldierINFO.curMAGS -= 1;
@@ -378,7 +378,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 else if (randBETWEEN4 > 1.0) { bloodTEX_TYPE = VFX_BLOOD_3; }
 	 else { bloodTEX_TYPE = VFX_BLOOD_4; }
 
-	 spawnBLOOD(bloodPOINT, randROTATION(), bloodTEX_TYPE);
+	 createVFX(bloodPOINT, randROTATION(), bloodTEX_TYPE, 32, 32);
 
  }
 
@@ -532,34 +532,19 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 //CREATE FUNCTION FOR VFX
  }
 
- void SPRITE_MANAGER::spawnBLOOD(SDL_FPoint pos, ROTATION rot, UV_REGION bloodTEX_TYPE)
+ void SPRITE_MANAGER::createVFX(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE, int w, int h)
  {
-	 entt::entity newBLOOD = spriteREGISTER.create();
-	 spriteOBJECT newSPRITE_OBJ;
-	 ROTATION newROT = rot;
-	 LOCATION newLOC = { pos, newROT };
-	 newSPRITE_OBJ.spriteLOCATION = newLOC;
-	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
-	 newSPRITE_OBJ.texW = 32;
-	 newSPRITE_OBJ.texH = 32;
-	 newSPRITE_OBJ.TYPE = bloodTEX_TYPE;
-
-	 spriteREGISTER.emplace<spriteOBJECT>(newBLOOD, newSPRITE_OBJ);
- }
-
- void SPRITE_MANAGER::spawnMAG(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE)
- {
-	 entt::entity newBLOOD = spriteREGISTER.create();
+	 entt::entity newVFX = spriteREGISTER.create();
 	 spriteOBJECT newSPRITE_OBJ;
 	 ROTATION newROT = randROTATION();
 	 LOCATION newLOC = { pos, newROT };
 	 newSPRITE_OBJ.spriteLOCATION = newLOC;
 	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
-	 newSPRITE_OBJ.texW = 16;
-	 newSPRITE_OBJ.texH = 16;
+	 newSPRITE_OBJ.texW = w;
+	 newSPRITE_OBJ.texH = h;
 	 newSPRITE_OBJ.TYPE = MAG_TEX_TYPE;
 
-	 spriteREGISTER.emplace<spriteOBJECT>(newBLOOD, newSPRITE_OBJ);
+	 spriteREGISTER.emplace<spriteOBJECT>(newVFX, newSPRITE_OBJ);
  }
 
  //COMBINE VFX INTO ONE FUNCTION

@@ -43,8 +43,8 @@ int main(int argc, char* argv[]) {
     LOCATION newLOC = { { 100.0, 150.0 }, newROT };
     newSPRITE_OBJ.spriteLOCATION = newLOC;
     newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
-    newSPRITE_OBJ.texW = 64;
-    newSPRITE_OBJ.texH = 64;
+    newSPRITE_OBJ.texW = 128;
+    newSPRITE_OBJ.texH = 128;
     newSPRITE_OBJ.TYPE = SM.FOXHOLE;
 
     SM.spriteREGISTER.emplace<spriteOBJECT>(newBLOOD, newSPRITE_OBJ);
