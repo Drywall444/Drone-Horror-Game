@@ -94,6 +94,11 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 }
 }
 
+ void MOVING::move()
+ {
+
+ }
+
 
  void SPRITE_MANAGER::updateGAME()
  {
@@ -113,10 +118,36 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 		 }
 	 }
 
+	 //HEALTH - STATE
+	 auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
+
+	 for (auto& S : allSOLDIER)
+	 {
+		 auto& curS = spriteREGISTER.get<soldierOBJECT>(S);
+		 if (curS.HP < 0.0) //DEAD
+		 {
+			 auto& curS_SPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(S);
+
+			 spriteCREATE(CORPSE, curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly);
+
+			 toDESTROY.push_back(S);
+		 }
+
+		 auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(S);
+
+		 if (spriteREGISTER.all_of<hasTARGET>(S)) {
+			 spriteINFO.TYPE = curS.friendly ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
+		 }
+		 else if (spriteREGISTER.all_of<MOVING>(S)) {
+			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
+		 }
+		 else {
+			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
+		 }
+	 }
+
 	 //MOVEMENT - MOVE INTO SEPERATE FUNCTION
 	 auto movingSPRITES = spriteREGISTER.view<MOVING>();
-	 bool continueMOVING = true;
-
 
 	 for (auto& sprite : movingSPRITES)
 	 {
@@ -125,14 +156,12 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 
 		 if (hasARRIVED_AT_POINT(soldierSPRITE_INFO.spriteLOCATION.POS, soldierMOVING_INFO))
 		 {
-			 if (!(soldierSPRITE_INFO.TYPE.uvTYPE == T_VFX_TRACER))
+			 if (!(soldierSPRITE_INFO.TYPE.uvTYPE == T_VFX_TRACER)) //if bullet delete
 			 {
-				 continueMOVING = false;
 				 spriteREGISTER.remove<MOVING>(sprite);
 			 }
 			 else
 			 {
-				 continueMOVING = false;
 				 toDESTROY.push_back(sprite); //If add to destroy list
 			 }
 		 }
@@ -183,34 +212,6 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 {
 		 spriteREGISTER.remove<hasTARGET>(noTARGET);
 		 auto& solOBJ = spriteREGISTER.get<soldierOBJECT>(noTARGET);
-	 }
-
-	 //HEALTH - STATE
-	 auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
-
-	 for (auto& S : allSOLDIER)
-	 {
-		 auto& curS = spriteREGISTER.get<soldierOBJECT>(S);
-		 if (curS.HP < 0.0) //DEAD
-		 {
-			 auto& curS_SPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(S);
-
-			spriteCREATE(CORPSE, curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly);
-
-			 toDESTROY.push_back(S);
-		 }
-
-		 auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(S);
-
-		 if (spriteREGISTER.all_of<hasTARGET>(S)) {
-			 spriteINFO.TYPE = curS.friendly ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
-		 }
-		 else if (spriteREGISTER.all_of<MOVING>(S)) {
-			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
-		 }
-		 else {
-			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
-		 }
 	 }
 
 	 for (auto corpse : toDESTROY) //cleanup
@@ -269,10 +270,10 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 		 if (soldierINFO.weapon.curRELOAD_TIME < 0.0)
 		 {
 			 std::cout << "Done Reloading\n";
-			 SDL_FPoint magOFF_SET = { 30.0, 15.0 };
+			 float randY = randBETWEEN( -15.0, 15.0);
+			 SDL_FPoint magOFF_SET = { 30.0, randY };
 			 SDL_FPoint magPOS = rotatePOINT_AND_APPLY_OFFSET(spriteINFO.spriteLOCATION.POS, spriteINFO.spriteLOCATION.ROT, magOFF_SET);
-			 ROTATION magROT = { 1.0, 0.0 };
-			 createVFX(magPOS, magROT, VFX_MAG, 16, 16);
+			 createVFX(magPOS, randROTATION(), VFX_MAG, 16, 16, -1);
 			 soldierINFO.weapon.curMAG_SIZE = soldierINFO.weapon.magSIZE;
 			 soldierINFO.weapon.reloading = false; //When done reloading set false and then return
 			 soldierINFO.curMAGS -= 1;
@@ -319,8 +320,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 			 if (randNUMBER < finalHIT / 5)
 			 {
 				 //we hit
-				 //soldierINFO.weapon.weaponDMG
-				 soldierTAKE_DAMAGE(target.enemySOLDIER, 0.0);
+				 soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weapon.weaponDMG);
 				 //apply damage after bullet hits
 
 
@@ -378,7 +378,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 else if (randBETWEEN4 > 1.0) { bloodTEX_TYPE = VFX_BLOOD_3; }
 	 else { bloodTEX_TYPE = VFX_BLOOD_4; }
 
-	 createVFX(bloodPOINT, randROTATION(), bloodTEX_TYPE, 32, 32);
+	 createVFX(bloodPOINT, randROTATION(), bloodTEX_TYPE, 32, 32, -1);
 
  }
 
@@ -492,59 +492,45 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 auto& soldierINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
 	 SDL_FPoint offSET_TRACER = { 7.5f, -50.0f };
 
-	 entt::entity newBULLET = spriteREGISTER.create();
-	 spriteOBJECT newSPRITE_OBJ;
 	 ROTATION newROT = soldierINFO.spriteLOCATION.ROT;
 	 SDL_FPoint bulletPOS = rotatePOINT_AND_APPLY_OFFSET(soldierINFO.spriteLOCATION.POS, newROT, offSET_TRACER);
-	 LOCATION newLOC = { bulletPOS, newROT };
-	 newSPRITE_OBJ.spriteLOCATION = newLOC;
-	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
-	 newSPRITE_OBJ.texW = 32;
-	 newSPRITE_OBJ.texH = 64;
-	 newSPRITE_OBJ.TYPE = VFX_BULLET;
+	 entt::entity newBULLET = createVFX(bulletPOS, newROT, VFX_BULLET, 32, 64, 0.5);
 
 	 //EMPLACE MOVING
 	 ROTATION dirTOPOINT = directionTO_POINT(bulletPOS, target);
 	 MOVING bulletMOVEMENT = newMOVEMENT(bulletSPEED, dirTOPOINT, target);
-	 spriteREGISTER.emplace<spriteOBJECT>(newBULLET, newSPRITE_OBJ);
 	 spriteREGISTER.emplace<MOVING>(newBULLET, bulletMOVEMENT);
 
 	 //MUZZLE FLASH
-	 SDL_FPoint offSET_MUZZLE_FLASH = { 5.0f, -50.0f };
+	 SDL_FPoint offSET_MUZZLE_FLASH = { 6.5f, -50.0f };
 	 SDL_FPoint flashPOS = rotatePOINT_AND_APPLY_OFFSET(soldierINFO.spriteLOCATION.POS, newROT, offSET_MUZZLE_FLASH);
-
-	 entt::entity newFLASH = spriteREGISTER.create();
-	 spriteOBJECT newFLASH_OBJ = newSPRITE_OBJ;
+	 UV_REGION randFLASH_UV;
 	 float rand = randBETWEEN(0.0, 3.0);
-	 if (rand > 0.2){ newFLASH_OBJ.TYPE = VFX_MUZZ_FLASH_1; }
-	 else if (rand > 0.1) { newFLASH_OBJ.TYPE = VFX_MUZZ_FLASH_2; }
-	 else { newFLASH_OBJ.TYPE = VFX_MUZZ_FLASH_3; }
-	 newFLASH_OBJ.spriteLOCATION.POS = flashPOS;
-	 newFLASH_OBJ.texW = 32;
-	 newFLASH_OBJ.texH = 32;
+	 if (rand > 0.2) { randFLASH_UV = VFX_MUZZ_FLASH_1; }
+	 else if (rand > 0.1) { randFLASH_UV = VFX_MUZZ_FLASH_2; }
+	 else { randFLASH_UV = VFX_MUZZ_FLASH_3; }
+	 entt::entity newFLASH = createVFX(flashPOS, newROT, randFLASH_UV, 32, 32, 0.5);
 
-	 spriteREGISTER.emplace<spriteOBJECT>(newFLASH, newFLASH_OBJ);
 	 float randFLASH = randBETWEEN(0.02f, 0.08f);
 	 spriteREGISTER.emplace<tempSPRITE>(newFLASH, randFLASH);
 
-
-
-	 //CREATE FUNCTION FOR VFX
  }
 
- void SPRITE_MANAGER::createVFX(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE, int w, int h)
+ entt::entity SPRITE_MANAGER::createVFX(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE, int w, int h, int z)
  {
 	 entt::entity newVFX = spriteREGISTER.create();
 	 spriteOBJECT newSPRITE_OBJ;
-	 ROTATION newROT = randROTATION();
+	 ROTATION newROT = rot;
 	 LOCATION newLOC = { pos, newROT };
 	 newSPRITE_OBJ.spriteLOCATION = newLOC;
 	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
 	 newSPRITE_OBJ.texW = w;
 	 newSPRITE_OBJ.texH = h;
 	 newSPRITE_OBJ.TYPE = MAG_TEX_TYPE;
-
+	 newSPRITE_OBJ.spriteLOCATION.z = z;
 	 spriteREGISTER.emplace<spriteOBJECT>(newVFX, newSPRITE_OBJ);
+
+	 return newVFX;
  }
 
  //COMBINE VFX INTO ONE FUNCTION

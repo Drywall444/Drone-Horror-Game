@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     entt::entity newBLOOD = SM.spriteREGISTER.create();
     spriteOBJECT newSPRITE_OBJ;
     ROTATION newROT = testROT;
-    LOCATION newLOC = { { 100.0, 150.0 }, newROT };
+    LOCATION newLOC = { { 100.0, 150.0 }, newROT, -2 };
     newSPRITE_OBJ.spriteLOCATION = newLOC;
     newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
     newSPRITE_OBJ.texW = 128;

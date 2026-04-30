@@ -18,6 +18,7 @@ struct LOCATION
 {
 	SDL_FPoint POS;
 	ROTATION ROT;
+	int z = 0;
 };
 
 inline ROTATION rotationTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB)

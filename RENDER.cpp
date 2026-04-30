@@ -108,7 +108,15 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 
 	auto totalSPRITES = spriteREGISTER.view<spriteOBJECT>();
 
-	for (auto& sprite : totalSPRITES)
+	// Collect entity handles
+	std::vector<entt::entity> sorted(totalSPRITES.begin(), totalSPRITES.end());
+
+	std::sort(sorted.begin(), sorted.end(), [&](entt::entity a, entt::entity b) { //Z sort
+		return spriteREGISTER.get<spriteOBJECT>(a).spriteLOCATION.z
+			< spriteREGISTER.get<spriteOBJECT>(b).spriteLOCATION.z;
+		});
+
+	for (auto& sprite : sorted)
 	{
 		auto& curSPRITE = totalSPRITES.get<spriteOBJECT>(sprite);
 
