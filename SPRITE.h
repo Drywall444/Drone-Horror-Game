@@ -173,6 +173,7 @@ class SPRITE_MANAGER
 		UV_REGION VFX_MAG = { T_MAG, 0.05f, 0.10f, 0.90f, 0.95f };
 
 		UV_REGION FOXHOLE = { T_MAG, 0.2f, 0.4f, 0.80f, 1.0f };
+		UV_REGION DUGOUT = { T_MAG, 0.4f, 0.6f, 0.80f, 1.0f };
 
 		//GAME LOOP
 		float DT = 0.0;

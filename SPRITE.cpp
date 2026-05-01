@@ -507,7 +507,7 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 
 	 ROTATION newROT = soldierINFO.spriteLOCATION.ROT;
 	 SDL_FPoint bulletPOS = rotatePOINT_AND_APPLY_OFFSET(soldierINFO.spriteLOCATION.POS, newROT, offSET_TRACER);
-	 entt::entity newBULLET = createVFX(bulletPOS, newROT, VFX_BULLET, 32, 64, 0.5);
+	 entt::entity newBULLET = createVFX(bulletPOS, newROT, VFX_BULLET, 32, 64, 0);
 
 	 //EMPLACE MOVING
 	 ROTATION dirTOPOINT = directionTO_POINT(bulletPOS, target);
@@ -550,7 +550,7 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 
  entt::entity SPRITE_MANAGER::createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE)
  {
-	 entt::entity newBUILDING = createSPRITE(pos, rot, 100, 100);
+	 entt::entity newBUILDING = createSPRITE(pos, rot, 128, 128);
 	 auto& newBUIDLING = spriteREGISTER.get<spriteOBJECT>(newBUILDING);
 	 newBUIDLING.TYPE = BUILDING_TEX_TYPE;
 	 newBUIDLING.spriteLOCATION.z = -10;

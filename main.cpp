@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     I.initializeINPUT(1280, 720);
     R.initializeRENDER();
 
-    ROTATION testROT = { 1.0, 0.0 };
+    ROTATION testROT = { -1.0, 0.0 };
 
     SM.createSOLDIER({ 0.0, 100.0 }, testROT, false);
     SM.createSOLDIER({ 100.0, 150.0 }, testROT, false);
@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
 
     SM.createBUILDING({ 60.0, 60.0 }, testROT, SM.FOXHOLE);
     SM.createBUILDING({ 450.0, 68.0 }, testROT, SM.FOXHOLE);
+    SM.createBUILDING({ 600.0, 68.0 }, testROT, SM.DUGOUT);
 
     R.createMAP(SM);
 
