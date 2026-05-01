@@ -18,58 +18,19 @@ bool hasARRIVED_AT_POINT(SDL_FPoint spriteCUR_POS, MOVING soldierMOVING_INFO)
 
 //SPRITE_MANAGER
 
-void SPRITE_MANAGER::spriteCREATE(textureATLAS sheetNUM, SDL_FPoint pos, ROTATION ROT, bool isFRIEND)
+entt::entity SPRITE_MANAGER::createSPRITE(SDL_FPoint pos, ROTATION ROT, int texW, int texH)
 {
 		entt::entity newSPRITE = spriteREGISTER.create();
 		spriteOBJECT newSPRITE_OBJ;
+		newSPRITE_OBJ.texW = texW;
+		newSPRITE_OBJ.texH = texH;
 		ROTATION newROT = ROT;
 		LOCATION newLOC = { {pos.x, pos.y}, newROT };
 		newSPRITE_OBJ.spriteLOCATION = newLOC;
-		newSPRITE_OBJ.textureSHEET_NUM = sheetNUM;
 
-		if (sheetNUM == HUMAN)
-		{
-			if (isFRIEND)//FRIENDLY
-			{
-				newSPRITE_OBJ.TYPE = SOLDIER_STANDING;
-
-				soldierOBJECT newSOLDIER;
-				newSOLDIER.friendly = true;
-				newSOLDIER.HP = 100.0;
-				spriteREGISTER.emplace<soldierOBJECT>(newSPRITE, newSOLDIER);
-			}
-			else 
-			{
-				newSPRITE_OBJ.TYPE = ENEMY_SOLDIER_STANDING;
-				soldierOBJECT newSOLDIER;
-				newSOLDIER.friendly = false;
-				newSOLDIER.HP = 100.0;
-				spriteREGISTER.emplace<soldierOBJECT>(newSPRITE, newSOLDIER);
-			}
-		}
-		else if (sheetNUM == CORPSE)
-		{
-			std::cout << "Corpse Added.\n";
-			newSPRITE_OBJ.texH = 128;
-			float rnd = randBETWEEN(0, 1);
-			UV_REGION corpseTYPE;
-			
-			if (isFRIEND)//FRIENDLY
-			{
-				if (rnd > 0.5) { corpseTYPE = SOLDIER_DEAD_1; }
-				else { corpseTYPE = SOLDIER_DEAD_2; }
-
-				newSPRITE_OBJ.TYPE = corpseTYPE;
-			}
-			else
-			{
-				if (rnd > 0.5) { corpseTYPE = ENEMY_SOLDIER_DEAD_1; }
-				else { corpseTYPE = ENEMY_SOLDIER_DEAD_2; }
-
-				newSPRITE_OBJ.TYPE = corpseTYPE;
-			}
-		}
 		spriteREGISTER.emplace<spriteOBJECT>(newSPRITE, newSPRITE_OBJ);
+
+		return newSPRITE;
 }
 
 void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
@@ -84,20 +45,55 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 //SOLDIER
  void SPRITE_MANAGER::createSOLDIER(SDL_FPoint pos, ROTATION rot, bool isFRIEND)
 {
+	 entt::entity newSOLDIER_ENTITY = createSPRITE(pos, rot, 64, 64);
+	 auto& newSPRITE_OBJ = spriteREGISTER.get<spriteOBJECT>(newSOLDIER_ENTITY);
+
 	 if (isFRIEND)
 	 {
-		 spriteCREATE(HUMAN,  pos, rot, true);
+
+		 newSPRITE_OBJ.TYPE = SOLDIER_STANDING;
+
+		 soldierOBJECT newSOLDIER;
+		 newSOLDIER.friendly = true;
+		 newSOLDIER.HP = 100.0;
+		 spriteREGISTER.emplace<soldierOBJECT>(newSOLDIER_ENTITY, newSOLDIER);
 	 }
-	 else
+	 else //enemy
 	 {
-		 spriteCREATE(HUMAN, pos, rot, false);
+		 newSPRITE_OBJ.TYPE = ENEMY_SOLDIER_STANDING;
+		 soldierOBJECT newSOLDIER;
+		 newSOLDIER.friendly = false;
+		 newSOLDIER.HP = 100.0;
+		 spriteREGISTER.emplace<soldierOBJECT>(newSOLDIER_ENTITY, newSOLDIER);
 	 }
 }
 
- void MOVING::move()
- {
+entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isFRIEND)
+{
+	 std::cout << "Corpse Added.\n";
+	 entt::entity newCORPSE_ENTITY = createSPRITE(pos, rot, 64, 128);
+	 auto& newSPRITE_OBJ = spriteREGISTER.get<spriteOBJECT>(newCORPSE_ENTITY);
 
- }
+	 float rnd = randBETWEEN(0, 1);
+	 UV_REGION corpseTYPE;
+
+	 if (isFRIEND)//FRIENDLY
+	 {
+		 if (rnd > 0.5) { corpseTYPE = SOLDIER_DEAD_1; }
+		 else { corpseTYPE = SOLDIER_DEAD_2; }
+
+		 newSPRITE_OBJ.TYPE = corpseTYPE;
+	 }
+	 else
+	 {
+		 if (rnd > 0.5) { corpseTYPE = ENEMY_SOLDIER_DEAD_1; }
+		 else { corpseTYPE = ENEMY_SOLDIER_DEAD_2; }
+
+		 newSPRITE_OBJ.TYPE = corpseTYPE;
+	 }
+	 
+	 return newCORPSE_ENTITY;
+}
 
 
  void SPRITE_MANAGER::updateGAME()
@@ -127,9 +123,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 		 if (curS.HP < 0.0) //DEAD
 		 {
 			 auto& curS_SPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(S);
-
-			 spriteCREATE(CORPSE, curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly);
-
+			 createCORPSE(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly);
 			 toDESTROY.push_back(S);
 		 }
 
@@ -320,7 +314,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 
 			 float randNUMBER = randBETWEEN(0.0f, 1.0f);
 
-			 if (randNUMBER < finalHIT / 5)
+			 if (randNUMBER < (finalHIT - (finalHIT * enemySPRITE.coverVALUE)))
 			 {
 				 //we hit
 				 soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weapon.weaponDMG);
@@ -403,7 +397,6 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 
  void SPRITE_MANAGER::ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS)
  {
-
 	 auto& selcSOLDIER = spriteREGISTER.get<spriteOBJECT>(soldier);
 	 auto& selcSOLDIER_INFO = spriteREGISTER.get<soldierOBJECT>(soldier);
 
@@ -526,7 +519,6 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 ROTATION newROT = rot;
 	 LOCATION newLOC = { pos, newROT };
 	 newSPRITE_OBJ.spriteLOCATION = newLOC;
-	 newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
 	 newSPRITE_OBJ.texW = w;
 	 newSPRITE_OBJ.texH = h;
 	 newSPRITE_OBJ.TYPE = MAG_TEX_TYPE;
@@ -536,8 +528,20 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 	 return newVFX;
  }
 
- //COMBINE VFX INTO ONE FUNCTION
+ //BUILDING
 
+ entt::entity SPRITE_MANAGER::createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE)
+ {
+	 entt::entity newBUILDING = createSPRITE(pos, rot, 100, 100);
+	 auto& newBUIDLING = spriteREGISTER.get<spriteOBJECT>(newBUILDING);
+	 newBUIDLING.TYPE = BUILDING_TEX_TYPE;
+	 newBUIDLING.spriteLOCATION.z = -10;
+	 auto& newBUILDING_STRUCT = spriteREGISTER.emplace<BUILDING>(newBUILDING); //use this shit everywhere
+	 std::vector<SDL_FPoint> newFIRING_POSITIONS = { {newBUIDLING.spriteLOCATION.POS.x, newBUIDLING.spriteLOCATION.POS.y} }; //one position
+	 newBUILDING_STRUCT.coverVALUE = 0.85;
+
+	 return newBUILDING;
+ }
 
  //TO DO:
 

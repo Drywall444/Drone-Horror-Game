@@ -27,8 +27,6 @@ int main(int argc, char* argv[]) {
 
     SM.createSOLDIER({ 0.0, 100.0 }, testROT, false);
     SM.createSOLDIER({ 100.0, 150.0 }, testROT, false);
-    SM.createSOLDIER({ 150.0, 150.0 }, testROT, false);
-    SM.createSOLDIER({ 200.0, 150.0 }, testROT, false);
     //SM.createSOLDIER({ 0.0, 170.0 }, testROT, false);
 
     SM.createSOLDIER({ 250.0, 2000.0 }, testROT, true);
@@ -37,17 +35,7 @@ int main(int argc, char* argv[]) {
     SM.createSOLDIER({ 300.0, 2500.0 }, testROT, true);
     SM.createSOLDIER({ 300.0, 2600.0 }, testROT, true);
 
-    entt::entity newBLOOD = SM.spriteREGISTER.create();
-    spriteOBJECT newSPRITE_OBJ;
-    ROTATION newROT = testROT;
-    LOCATION newLOC = { { 100.0, 150.0 }, newROT, -2 };
-    newSPRITE_OBJ.spriteLOCATION = newLOC;
-    newSPRITE_OBJ.textureSHEET_NUM = HUMAN;
-    newSPRITE_OBJ.texW = 128;
-    newSPRITE_OBJ.texH = 128;
-    newSPRITE_OBJ.TYPE = SM.FOXHOLE;
-
-    SM.spriteREGISTER.emplace<spriteOBJECT>(newBLOOD, newSPRITE_OBJ);
+    SM.createBUILDING({ 60.0, 60.0 }, testROT, SM.FOXHOLE);
 
     R.createMAP(SM);
 

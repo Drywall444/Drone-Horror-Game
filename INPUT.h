@@ -33,7 +33,8 @@ public:
 	void cameraMOVEMENT();
 
 	//INTERACTION
-	void checkLEFTCLICK_RETURN_SPRITE(SDL_FPoint globalPOS);
+	void checkLEFT_CLICK_RETURN_SPRITE(SDL_FPoint globalPOS);
+	void checkRIGHT_CLICK_RETURN_SPRITE(SDL_FPoint globalPOS);
 
 
 	int WINDOW_W = 0;

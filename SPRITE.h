@@ -7,12 +7,6 @@
 #include "entt.hpp"
 #include "GAME_MATH.h"
 
-enum textureATLAS //Keep all human types on one sheet and naturage and foliage on another
-{
-	HUMAN,
-	CORPSE
-};
-
 
 enum uvTYPE
 {
@@ -60,20 +54,19 @@ enum natureTYPE_TILE
 struct GUN
 {
 	std::string name = "AK-74";
-	float weaponEFFECTIVE_RANGE = 3000.0;
-	float weaponRPM = 600;
-	float weaponDMG = 5.0;
+	float weaponEFFECTIVE_RANGE = 1800.0;
+	float weaponRPM = 900;
+	float weaponDMG = 45.0;
 	int magSIZE = 30;
 	int curMAG_SIZE = 31; //start at a full mag
-	float reloadTIME = 2.5;
-	float curRELOAD_TIME = 3.5; //hits zero when reloaded
+	float reloadTIME = 5.0;
+	float curRELOAD_TIME = 5.0; //hits zero when reloaded
 	bool reloading = false;
 };
 
 struct spriteOBJECT//SHIT THAT CAN MOVE
 {
 	LOCATION spriteLOCATION;
-	textureATLAS textureSHEET_NUM; //ADD DEFAULT
 	UV_REGION TYPE; //what is drawn
 	int texW = 64;
 	int texH = 64;
@@ -91,7 +84,7 @@ struct soldierOBJECT
 
 	float HP = 100.0;
 	float speed = 150.0;
-	bool isSHOOTING = false;
+	float coverVALUE = 0.0;
 
 	//WEAPON INFO
 	GUN weapon;
@@ -105,8 +98,7 @@ struct soldierOBJECT
 
 struct BUILDING
 {
-	std::vector<SDL_FPoint> firingPOSITIONS; //Holds locations of locations within buildings
-	int maxOCCUPANTS;
+	entt::entity soldierINSIDE = entt::null; //nothing inside yet
 	float coverVALUE = 0.0; // 0-100% 
 	bool topCOVERED;
 };
@@ -186,11 +178,12 @@ class SPRITE_MANAGER
 		void updateGAME();
 
 		entt::registry spriteREGISTER;
-		void spriteCREATE(textureATLAS sheetNUM, SDL_FPoint pos, ROTATION ROT, bool isFRIEND);
+		entt::entity createSPRITE(SDL_FPoint pos, ROTATION ROT, int texW, int texH);
 		void tileCREATE(UV_REGION type, SDL_FPoint pos);
 
 		//SOLDIER MANAGER
 		void createSOLDIER(SDL_FPoint pos, ROTATION rot, bool isFRIEND);
+		entt::entity createCORPSE(SDL_FPoint pos, ROTATION rot, bool isFRIEND);
 		void ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS);
 
 		//SOLDIER ACTIONS
@@ -198,6 +191,9 @@ class SPRITE_MANAGER
 		void soldierSHOOT_AT_TARGET(entt::entity soldier);
 		void fireWEAPON(entt::entity solder, hasTARGET target);
 		void soldierTAKE_DAMAGE(entt::entity soldier, float damage);
+
+		//Building
+		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE);
 
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
