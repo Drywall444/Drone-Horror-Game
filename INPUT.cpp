@@ -163,17 +163,15 @@ void INPUT::checkRIGHT_CLICK_RETURN_SPRITE(SDL_FPoint globalPOS)
 
 	for (auto& sprite : spriteVIEW)
 	{
-		auto& soldier = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(sprite);
-		if (isPOINT_WITHIN_BOUNDS(globalPOS, soldier.spriteLOCATION.POS, soldier.spriteLOCATION.ROT, soldier.texW, soldier.texH))
+		auto& curSPRITE = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(sprite);
+		if (isPOINT_WITHIN_BOUNDS(globalPOS, curSPRITE.spriteLOCATION.POS, curSPRITE.spriteLOCATION.ROT, curSPRITE.texW, curSPRITE.texH))
 		{
 			if (gameSPRITES.spriteREGISTER.all_of<BUILDING>(sprite)) //if this is a building
 			{
 				std::cout << "Clicked on building\n";
 				auto& clickedON_BUILDING = gameSPRITES.spriteREGISTER.get<BUILDING>(sprite);
 
-				gameSPRITES.ORDER_soldierMOVE_TO_POINT(curSELECTED_SOLDIER, soldier.spriteLOCATION.POS);
-				auto& selcSOLDIER = gameSPRITES.spriteREGISTER.get<soldierOBJECT>(curSELECTED_SOLDIER);
-				selcSOLDIER.coverVALUE = clickedON_BUILDING.coverVALUE;
+				gameSPRITES.soldierMOVE_INSIDE_BUILDING(curSELECTED_SOLDIER, sprite);
 				return;
 			}
 		}

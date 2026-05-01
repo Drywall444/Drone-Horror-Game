@@ -73,6 +73,7 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 	 std::cout << "Corpse Added.\n";
 	 entt::entity newCORPSE_ENTITY = createSPRITE(pos, rot, 64, 128);
 	 auto& newSPRITE_OBJ = spriteREGISTER.get<spriteOBJECT>(newCORPSE_ENTITY);
+	 newSPRITE_OBJ.spriteLOCATION.z = -0.5;
 
 	 float rnd = randBETWEEN(0, 1);
 	 UV_REGION corpseTYPE;
@@ -150,9 +151,24 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 
 		 if (hasARRIVED_AT_POINT(soldierSPRITE_INFO.spriteLOCATION.POS, soldierMOVING_INFO))
 		 {
-			 if (!(soldierSPRITE_INFO.TYPE.uvTYPE == T_VFX_TRACER)) //if bullet delete
+			 if (!(soldierSPRITE_INFO.TYPE.uvTYPE == T_VFX_TRACER)) //if not bullet
 			 {
 				 spriteREGISTER.remove<MOVING>(sprite);
+				 auto totalBUIDLINGS = spriteREGISTER.view<BUILDING>();
+				 for (auto& building : totalBUIDLINGS)
+				 {
+					 auto& buildingINFO = spriteREGISTER.get<BUILDING>(building);
+					 if (buildingINFO.soldierINSIDE == sprite) //if we are moving to building and this is our building
+					 {
+						 std::cout << "arrived at building\n";
+						 auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(sprite);
+						 soldierINFO.coverVALUE = buildingINFO.coverVALUE;
+						 break;
+
+						 //TURN INTO FUNCTION FOR ENTERING AND EXITING TRENCH
+
+					 }
+				 }
 			 }
 			 else
 			 {
@@ -333,10 +349,6 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 				 }
 			 }
 			 else {
-				 //VFX
-				 std::cout << "Missed\n";
-
-				 //create function for this
 				 float randX = randBETWEEN(enemySPRITE_INFO.texW / 2, 90.0);
 				 float randY = randBETWEEN(enemySPRITE_INFO.texH / 2, 90.0);
 				 if (randBETWEEN(0.0, 1.0) > 0.5) { randX = -randX; }
@@ -541,6 +553,21 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 	 newBUILDING_STRUCT.coverVALUE = 0.85;
 
 	 return newBUILDING;
+ }
+
+ void SPRITE_MANAGER::soldierMOVE_INSIDE_BUILDING(entt::entity soldier, entt::entity building)
+ {
+	 auto& soldierINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
+	 auto& buildingINFO = spriteREGISTER.get<spriteOBJECT>(building);
+	 auto& buildingINFO_STRUCT = spriteREGISTER.get<BUILDING>(building);
+
+	 if (!buildingINFO_STRUCT.isOCCUPIED())
+	 {
+		 std::cout << "Moving to occuply building\n";
+		 ORDER_soldierMOVE_TO_POINT(soldier, buildingINFO.spriteLOCATION.POS);
+		 buildingINFO_STRUCT.soldierINSIDE = soldier;
+	 }
+
  }
 
  //TO DO:

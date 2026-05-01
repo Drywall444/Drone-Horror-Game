@@ -54,9 +54,9 @@ enum natureTYPE_TILE
 struct GUN
 {
 	std::string name = "AK-74";
-	float weaponEFFECTIVE_RANGE = 1800.0;
+	float weaponEFFECTIVE_RANGE = 2000.0;
 	float weaponRPM = 900;
-	float weaponDMG = 45.0;
+	float weaponDMG = 55.0;
 	int magSIZE = 30;
 	int curMAG_SIZE = 31; //start at a full mag
 	float reloadTIME = 5.0;
@@ -100,7 +100,8 @@ struct BUILDING
 {
 	entt::entity soldierINSIDE = entt::null; //nothing inside yet
 	float coverVALUE = 0.0; // 0-100% 
-	bool topCOVERED;
+	bool topCOVERED = false;
+	bool isOCCUPIED() { return soldierINSIDE != entt::null; }
 };
 
 //STATE TAGS
@@ -194,6 +195,7 @@ class SPRITE_MANAGER
 
 		//Building
 		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE);
+		void soldierMOVE_INSIDE_BUILDING(entt::entity soldier, entt::entity building);
 
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
