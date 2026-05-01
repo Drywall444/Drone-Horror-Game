@@ -54,7 +54,7 @@ enum natureTYPE_TILE
 struct GUN
 {
 	std::string name = "AK-74";
-	float weaponEFFECTIVE_RANGE = 2000.0;
+	float weaponEFFECTIVE_RANGE = 1900.0;
 	float weaponRPM = 900;
 	float weaponDMG = 55.0;
 	int magSIZE = 30;
@@ -78,6 +78,14 @@ struct TILE//SHIT THAT CAN MOVE
 	UV_REGION TYPE;
 };
 
+struct BUILDING
+{
+	entt::entity soldierINSIDE = entt::null; //nothing inside yet
+	float coverVALUE = 0.0; // 0-100% 
+	bool topCOVERED = false;
+	bool isOCCUPIED() { return soldierINSIDE != entt::null; }
+};
+
 struct soldierOBJECT 
 {
 	bool friendly = false;
@@ -85,6 +93,7 @@ struct soldierOBJECT
 	float HP = 100.0;
 	float speed = 150.0;
 	float coverVALUE = 0.0;
+	entt::entity curBUILDING = entt::null;
 
 	//WEAPON INFO
 	GUN weapon;
@@ -96,21 +105,13 @@ struct soldierOBJECT
 	float soldierSKILL = 0.5; //default 0.8 increase by 0.1 per day survived
 };
 
-struct BUILDING
-{
-	entt::entity soldierINSIDE = entt::null; //nothing inside yet
-	float coverVALUE = 0.0; // 0-100% 
-	bool topCOVERED = false;
-	bool isOCCUPIED() { return soldierINSIDE != entt::null; }
-};
-
 //STATE TAGS
 struct MOVING
 {
 	float dX, dY;
 	SDL_FPoint targetLOC;
 	float movementSPEED = 150.0;
-	void move(); //call to advance object
+	bool destroyAT_TARGET = false;
 };
 
 struct FIRING
@@ -177,6 +178,8 @@ class SPRITE_MANAGER
 		float DT = 0.0;
 		void updateDT(float newDT);
 		void updateGAME();
+		void moveSPRITES();
+		std::vector<entt::entity> toDESTROY; //sprites to destroy at end of loop
 
 		entt::registry spriteREGISTER;
 		entt::entity createSPRITE(SDL_FPoint pos, ROTATION ROT, int texW, int texH);
@@ -196,6 +199,7 @@ class SPRITE_MANAGER
 		//Building
 		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE);
 		void soldierMOVE_INSIDE_BUILDING(entt::entity soldier, entt::entity building);
+		void soldierMOVE_OUT_BUILDING(entt::entity building, SDL_FPoint globalPOS);
 
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);

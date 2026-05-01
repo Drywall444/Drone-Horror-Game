@@ -47,7 +47,7 @@ void INPUT::handleINPUT(float dt)
 			{
 				if (seclectedSOLDIER)
 				{
-					checkRIGHT_CLICK_RETURN_SPRITE(screenTO_WORLD_POS(M.screenMOUSE_POS));
+					checkRIGHT_CLICK(screenTO_WORLD_POS(M.screenMOUSE_POS));
 				}
 
 			}
@@ -157,11 +157,12 @@ void INPUT::checkLEFT_CLICK_RETURN_SPRITE(SDL_FPoint globalPOS)
 	}
 }
 
-void INPUT::checkRIGHT_CLICK_RETURN_SPRITE(SDL_FPoint globalPOS)
+void INPUT::checkRIGHT_CLICK(SDL_FPoint globalPOS)
 {
 	auto spriteVIEW = gameSPRITES.spriteREGISTER.view<spriteOBJECT>();
+	bool soldierINSIDE_BUILDING = false;
 
-	for (auto& sprite : spriteVIEW)
+	for (auto& sprite : spriteVIEW) //Check if we right clicked a building
 	{
 		auto& curSPRITE = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(sprite);
 		if (isPOINT_WITHIN_BOUNDS(globalPOS, curSPRITE.spriteLOCATION.POS, curSPRITE.spriteLOCATION.ROT, curSPRITE.texW, curSPRITE.texH))
@@ -170,13 +171,23 @@ void INPUT::checkRIGHT_CLICK_RETURN_SPRITE(SDL_FPoint globalPOS)
 			{
 				std::cout << "Clicked on building\n";
 				auto& clickedON_BUILDING = gameSPRITES.spriteREGISTER.get<BUILDING>(sprite);
-
-				gameSPRITES.soldierMOVE_INSIDE_BUILDING(curSELECTED_SOLDIER, sprite);
+				if (!clickedON_BUILDING.isOCCUPIED() && seclectedSOLDIER == true)
+				{
+					gameSPRITES.soldierMOVE_INSIDE_BUILDING(curSELECTED_SOLDIER, sprite); //If we right click, have a selcSOLDIER and the building is unonccupied we move a soldier there
+				}
 				return;
 			}
 		}
 	}
 
-	if (seclectedSOLDIER){ gameSPRITES.ORDER_soldierMOVE_TO_POINT(curSELECTED_SOLDIER, globalPOS); }
+	auto& curSOLDIER_INFO = gameSPRITES.spriteREGISTER.get<soldierOBJECT>(curSELECTED_SOLDIER);
+	if (curSOLDIER_INFO.curBUILDING != entt::null)
+	{
+		gameSPRITES.soldierMOVE_OUT_BUILDING(curSOLDIER_INFO.curBUILDING, globalPOS);
+	}
+	else
+	{
+		if (seclectedSOLDIER) { gameSPRITES.ORDER_soldierMOVE_TO_POINT(curSELECTED_SOLDIER, globalPOS); }
+	}
 
 }

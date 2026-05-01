@@ -34,7 +34,7 @@ public:
 
 	//INTERACTION
 	void checkLEFT_CLICK_RETURN_SPRITE(SDL_FPoint globalPOS);
-	void checkRIGHT_CLICK_RETURN_SPRITE(SDL_FPoint globalPOS);
+	void checkRIGHT_CLICK(SDL_FPoint globalPOS);
 
 
 	int WINDOW_W = 0;

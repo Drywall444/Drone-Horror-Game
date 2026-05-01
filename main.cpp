@@ -36,6 +36,7 @@ int main(int argc, char* argv[]) {
     SM.createSOLDIER({ 300.0, 2600.0 }, testROT, true);
 
     SM.createBUILDING({ 60.0, 60.0 }, testROT, SM.FOXHOLE);
+    SM.createBUILDING({ 450.0, 68.0 }, testROT, SM.FOXHOLE);
 
     R.createMAP(SM);
 
