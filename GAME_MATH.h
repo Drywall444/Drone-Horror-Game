@@ -7,7 +7,7 @@
 
 //MATH
 
-inline float PI = 3.1415926;
+constexpr inline float PI = 3.1415926;
 
 struct ROTATION
 {

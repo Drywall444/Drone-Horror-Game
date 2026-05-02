@@ -136,6 +136,7 @@
     <ClCompile Include="INPUT.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RENDER.cpp" />
+    <ClCompile Include="SOLDIER.cpp" />
     <ClCompile Include="SPRITE.cpp" />
   </ItemGroup>
   <ItemGroup>

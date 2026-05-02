@@ -27,6 +27,9 @@
     <ClCompile Include="SPRITE.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SOLDIER.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SPRITE.h">

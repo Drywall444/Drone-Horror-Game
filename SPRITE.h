@@ -109,9 +109,12 @@ struct soldierOBJECT
 struct MOVING
 {
 	float dX, dY;
-	SDL_FPoint targetLOC;
+	std::vector<LOCATION> waypoints;
 	float movementSPEED = 150.0;
 	bool destroyAT_TARGET = false;
+	float waitTIME_AT_WAYPOINT = 4.0;
+	float cur_waitTIME_AT_WAYPOINT = 4.0;
+	bool isSTOPPED = false;
 };
 
 struct FIRING
@@ -189,13 +192,16 @@ class SPRITE_MANAGER
 		//SOLDIER MANAGER
 		void createSOLDIER(SDL_FPoint pos, ROTATION rot, bool isFRIEND);
 		entt::entity createCORPSE(SDL_FPoint pos, ROTATION rot, bool isFRIEND);
-		void ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS);
+		MOVING newMOVEMENT(float speed, ROTATION dirTO, SDL_FPoint targetLOC);
+		bool hasARRIVED_AT_POINT(SDL_FPoint spriteCUR_POS, MOVING& soldierMOVING_INFO);
 
 		//SOLDIER ACTIONS
 		void checkLOS(entt::entity soldier, bool checkENEMYS);
 		void soldierSHOOT_AT_TARGET(entt::entity soldier);
+		void shootAND_MOVE(entt::entity soldier);
 		void fireWEAPON(entt::entity solder, hasTARGET target);
 		void soldierTAKE_DAMAGE(entt::entity soldier, float damage);
+		void ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS);
 
 		//Building
 		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE);
@@ -205,6 +211,9 @@ class SPRITE_MANAGER
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
 		entt::entity createVFX(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE, int w, int h, int z);
+
+private:
+	float returnDIST_TO_TARGET(entt::entity soldier, hasTARGET targetINFO);
 
 };
 
