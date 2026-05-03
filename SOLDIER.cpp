@@ -30,17 +30,6 @@ void SPRITE_MANAGER::moveSPRITES()
 		{
 			if (soldierMOVING_INFO.destroyAT_TARGET == false)
 			{
-				if (soldierMOVING_INFO.waypoints.empty()) //if empty
-				{
-					std::cout << "Stop moving\n";
-					spriteREGISTER.emplace_or_replace<IDLE>(sprite); // Emplace before remove otherwise bad shit happens
-					spriteREGISTER.remove<MOVING>(sprite);
-				}
-				else {
-					std::cout << "Set IDLE\n";
-					soldierMOVING_INFO.isSTOPPED = true;
-					spriteREGISTER.emplace_or_replace<IDLE>(sprite);
-				}
 				//Building check - Will be moved when movement is overhauled
 
 				auto totalBUIDLINGS = spriteREGISTER.view<BUILDING>();
@@ -52,9 +41,21 @@ void SPRITE_MANAGER::moveSPRITES()
 						std::cout << "arrived at building\n";
 						auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(sprite);
 						soldierINFO.coverVALUE = buildingINFO.coverVALUE;
-						break;
 
 					}
+				}
+
+				if (soldierMOVING_INFO.waypoints.empty()) //if empty
+				{
+					std::cout << "Stop moving\n";
+					spriteREGISTER.emplace_or_replace<IDLE>(sprite); // Emplace before remove otherwise bad shit happens
+					spriteREGISTER.remove<MOVING>(sprite);
+					return;
+				}
+				else {
+					std::cout << "Set IDLE\n";
+					soldierMOVING_INFO.isSTOPPED = true;
+					spriteREGISTER.emplace_or_replace<IDLE>(sprite);
 				}
 			}
 			else
@@ -115,6 +116,7 @@ void SPRITE_MANAGER::shootAND_MOVE(entt::entity soldier) //LOOK OVER AND REWRITE
 	soldiersMOVING.waypoints.clear();
 	float wayPOINT_SPACING = 450.0;
 	int numOF_WAYPOINTS = dist / wayPOINT_SPACING;
+	std::cout << "num of waypoints:" << numOF_WAYPOINTS << std::endl;
 
 	SDL_FPoint dirNorm = {
 		soldiersMOVING.dX / soldiersMOVING.movementSPEED,
@@ -154,8 +156,8 @@ void SPRITE_MANAGER::checkLOS(entt::entity soldier, bool friendly)
 	{
 		hasTARGET_BOOL = true;
 
-		auto& t = spriteREGISTER.get<hasTARGET>(soldier);
-		if (!spriteREGISTER.valid(t.enemySOLDIER))
+		auto& targetINFO = spriteREGISTER.get<hasTARGET>(soldier);
+		if (!spriteREGISTER.valid(targetINFO.enemySOLDIER)) //if target has died since last check
 		{
 			spriteREGISTER.remove<hasTARGET>(soldier);
 			hasTARGET_BOOL = false;

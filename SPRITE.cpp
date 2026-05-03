@@ -140,6 +140,13 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 
 		 auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(S);
 
+
+		 if (curLOS_DELAY < 0.0)
+		 {
+			 //Check LOS
+			 checkLOS(S, curS.friendly);
+		 }
+
 		 if (spriteREGISTER.all_of<FIRING>(S)) {
 			 spriteINFO.TYPE = curS.friendly ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
 		 }
@@ -153,17 +160,6 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 
 	 //MOVEMENT - MOVE INTO SEPERATE FUNCTION
 	 moveSPRITES();
-
-	 //CHECK LOS - Friendly
-	 auto soldiersFRIENDLY = spriteREGISTER.view<soldierOBJECT>();
-	 for (auto& SOLDIER : soldiersFRIENDLY)
-	 {
-		 bool isFRIEND = false;
-		 auto& soldierSPRITE_INFO = spriteREGISTER.get<soldierOBJECT>(SOLDIER);
-		 if (soldierSPRITE_INFO.friendly) { isFRIEND = true; }
-		 checkLOS(SOLDIER, isFRIEND);
-
-	 }
 
 	 //SHOOTING - HAS TARGET
 
@@ -199,6 +195,8 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 		 spriteREGISTER.destroy(corpse);
 	 }
 
+	 if (curLOS_DELAY < 0.0) { curLOS_DELAY = LOS_DELAY; } //reset outside of loop
+	 curLOS_DELAY -= DT;
  }
 
  //VFX

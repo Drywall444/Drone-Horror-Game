@@ -180,6 +180,8 @@ class SPRITE_MANAGER
 
 		//GAME LOOP
 		float DT = 0.0;
+		float LOS_DELAY = 0.5;
+		float curLOS_DELAY = 0.5;
 		void updateDT(float newDT);
 		void updateGAME();
 		void moveSPRITES();
