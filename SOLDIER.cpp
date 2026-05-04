@@ -129,7 +129,7 @@ void SPRITE_MANAGER::soldierSHOOT_AT_TARGET(entt::entity soldier)
 	fireWEAPON(soldier, soldiersSHOOTING);
 }
 
-void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target)
+void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target) //CLEANUP NEXT 5/3/26
 {
 	float baseMISS = 80.0;
 
@@ -236,3 +236,6 @@ void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target)
 	}
 
 }
+
+
+//TO ADD: soldierTHROW_GRENADE_AT_POS(soldier, targetPOS), grenadeEXPLODE(grenade) -> checkPOS and then damage all within range regardless of friend or foe, soldierCHECK_GRENADE_RANGE(soldier) -> plae within firing function, if within range randomly decide to lob a grenade. 
