@@ -1,140 +1,5 @@
 #include "sprite.h"
 
-//MOVEMENT
-
-MOVING SPRITE_MANAGER::newMOVEMENT(float speed, ROTATION dirTO, SDL_FPoint targetLOC)
-{
-	float dx = dirTO.cosR * speed;
-	float dy = dirTO.sinR * speed;
-
-	MOVING newMOVING_ORDER;
-	newMOVING_ORDER.dX = dx;
-	newMOVING_ORDER.dY = dy;
-	newMOVING_ORDER.waypoints.push_back({ targetLOC, {0.0, 0.0} }); //rotation meaingless for now
-	newMOVING_ORDER.movementSPEED = speed;
-
-	return newMOVING_ORDER;
-}
-
-void SPRITE_MANAGER::moveSPRITES()
-{
-	auto movingSPRITES = spriteREGISTER.view<MOVING>();
-
-	for (auto& sprite : movingSPRITES)
-	{
-		auto& soldierSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(sprite);
-		auto& soldierMOVING_INFO = spriteREGISTER.get<MOVING>(sprite);
-
-
-		if (hasARRIVED_AT_POINT(soldierSPRITE_INFO.spriteLOCATION.POS, soldierMOVING_INFO))
-		{
-			if (soldierMOVING_INFO.destroyAT_TARGET == false)
-			{
-				//Building check - Will be moved when movement is overhauled
-
-				auto totalBUIDLINGS = spriteREGISTER.view<BUILDING>();
-				for (auto& building : totalBUIDLINGS)
-				{
-					auto& buildingINFO = spriteREGISTER.get<BUILDING>(building);
-					if (buildingINFO.soldierINSIDE == sprite) //if we are moving to building and this is our building
-					{
-						std::cout << "arrived at building\n";
-						auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(sprite);
-						soldierINFO.coverVALUE = buildingINFO.coverVALUE;
-
-					}
-				}
-
-				if (soldierMOVING_INFO.waypoints.empty()) //if empty
-				{
-					std::cout << "Stop moving\n";
-					spriteREGISTER.emplace_or_replace<IDLE>(sprite); // Emplace before remove otherwise bad shit happens
-					spriteREGISTER.remove<MOVING>(sprite);
-					return;
-				}
-				else {
-					std::cout << "Set IDLE\n";
-					soldierMOVING_INFO.isSTOPPED = true;
-					spriteREGISTER.emplace_or_replace<IDLE>(sprite);
-				}
-			}
-			else
-			{
-				toDESTROY.push_back(sprite); //If add to destroy list
-			}
-		}
-		if (!soldierMOVING_INFO.isSTOPPED) //If not stopped
-		{
-			SDL_FPoint pos = soldierSPRITE_INFO.spriteLOCATION.POS;
-			pos.x += soldierMOVING_INFO.dX * DT;
-			pos.y += soldierMOVING_INFO.dY * DT;
-			soldierSPRITE_INFO.spriteLOCATION.POS = pos;
-		}
-		else {
-			if (soldierMOVING_INFO.cur_waitTIME_AT_WAYPOINT > 0.0)
-			{
-				std::cout << "Soldier not moving\n";
-				soldierMOVING_INFO.cur_waitTIME_AT_WAYPOINT -= DT;
-			}
-			else {
-				soldierMOVING_INFO.cur_waitTIME_AT_WAYPOINT = soldierMOVING_INFO.waitTIME_AT_WAYPOINT;
-				soldierMOVING_INFO.isSTOPPED = false;
-				spriteREGISTER.remove<IDLE>(sprite); // no longer idle
-			}
-
-		}
-	}
-}
-
-void SPRITE_MANAGER::ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS)
-{
-	auto& selcSOLDIER = spriteREGISTER.get<spriteOBJECT>(soldier);
-	auto& selcSOLDIER_INFO = spriteREGISTER.get<soldierOBJECT>(soldier);
-	spriteREGISTER.remove<IDLE>(soldier);
-
-	ROTATION direction = directionTO_POINT(selcSOLDIER.spriteLOCATION.POS, globalPOS); //ALWAYS USE un roated direction
-	MOVING newMOVING_ORDER = newMOVEMENT(selcSOLDIER_INFO.speed, direction, globalPOS);
-	selcSOLDIER.spriteLOCATION.ROT = rotationTO_POINT(selcSOLDIER.spriteLOCATION.POS, globalPOS);
-
-	spriteREGISTER.emplace_or_replace<MOVING>(soldier, newMOVING_ORDER); //if already ordered delete previous and replace, god i love entt
-	if (spriteREGISTER.all_of<hasTARGET>(soldier))
-	{
-		shootAND_MOVE(soldier);
-	}
-}
-
-void SPRITE_MANAGER::shootAND_MOVE(entt::entity soldier) //LOOK OVER AND REWRITE
-{
-	auto& soldierSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(soldier);
-	auto& soldierSHOOTING = spriteREGISTER.get<hasTARGET>(soldier);
-	auto& soldiersMOVING = spriteREGISTER.get<MOVING>(soldier);
-
-	LOCATION destination = soldiersMOVING.waypoints.back(); // save final target
-
-	float dist = distanceTO_POINT(soldierSPRITE_INFO.spriteLOCATION.POS, destination.POS);
-	if (dist < 450.0) { return; }
-	soldiersMOVING.waypoints.clear();
-	float wayPOINT_SPACING = 450.0;
-	int numOF_WAYPOINTS = dist / wayPOINT_SPACING;
-	std::cout << "num of waypoints:" << numOF_WAYPOINTS << std::endl;
-
-	SDL_FPoint dirNorm = {
-		soldiersMOVING.dX / soldiersMOVING.movementSPEED,
-		soldiersMOVING.dY / soldiersMOVING.movementSPEED
-	};
-
-	soldiersMOVING.waypoints.push_back(destination);
-
-	for (int i = numOF_WAYPOINTS; i > 0; i--)
-	{
-		SDL_FPoint wpPOS = {
-			soldierSPRITE_INFO.spriteLOCATION.POS.x + dirNorm.x * (i * wayPOINT_SPACING),
-			soldierSPRITE_INFO.spriteLOCATION.POS.y + dirNorm.y * (i * wayPOINT_SPACING)
-		};
-		soldiersMOVING.waypoints.push_back({ wpPOS, {0.0f, 0.0f} });
-	}
-}
-
 //Seperate movement
 
 
@@ -216,7 +81,7 @@ void SPRITE_MANAGER::checkLOS(entt::entity soldier, bool friendly)
 
 void SPRITE_MANAGER::soldierTAKE_DAMAGE(entt::entity soldier, float damage)
 {
-	//spriteREGISTER.get<soldierOBJECT>(soldier).HP -= damage;
+	spriteREGISTER.get<soldierOBJECT>(soldier).HP -= damage;
 	auto& curSOLDIER = spriteREGISTER.get<spriteOBJECT>(soldier);
 	float randX = randBETWEEN(5, 25);
 	float randY = randBETWEEN(5, 25);
@@ -239,9 +104,9 @@ void SPRITE_MANAGER::soldierSHOOT_AT_TARGET(entt::entity soldier)
 {
 	auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(soldier);
 	if (soldierINFO.outOF_AMMO) { return; }
-	if (!spriteREGISTER.all_of<IDLE>(soldier))
+	if (!spriteREGISTER.all_of<IDLE>(soldier)) //If not idle remove fire
 	{
-		spriteREGISTER.remove<FIRING>(soldier);
+		if(spriteREGISTER.all_of<FIRING>(soldier)){ spriteREGISTER.remove<FIRING>(soldier); }
 		return;
 	}
 

@@ -133,8 +133,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BUILDING.cpp" />
     <ClCompile Include="INPUT.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MOVEMENT.cpp" />
     <ClCompile Include="RENDER.cpp" />
     <ClCompile Include="SOLDIER.cpp" />
     <ClCompile Include="SPRITE.cpp" />

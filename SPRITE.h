@@ -105,7 +105,7 @@ struct soldierOBJECT
 	float soldierSKILL = 0.5; //default 0.8 increase by 0.1 per day survived
 };
 
-//STATE TAGS
+//STATES
 struct MOVING
 {
 	float dX, dY;
@@ -114,7 +114,7 @@ struct MOVING
 	bool destroyAT_TARGET = false;
 	float waitTIME_AT_WAYPOINT = 4.0;
 	float cur_waitTIME_AT_WAYPOINT = 4.0;
-	bool isSTOPPED = false;
+	bool atFINAL_POINT = false;
 };
 
 struct FIRING
@@ -131,12 +131,15 @@ struct hasTARGET
 	bool targetDEAD = false; //quit firing
 };
 
+//TAGS
 struct IDLE{};
+struct inCOVER {};
+struct HIDDEN {};
+struct ORDER_TO_BUILDING { entt::entity building; };
+struct ORDER_TO_POINT {};
 
-struct tempSPRITE
-{
-	float timeLEFT;
-};
+struct tempSPRITE{ float timeLEFT; };
+
 
 struct selectedNOTHING {};
 
@@ -207,8 +210,9 @@ class SPRITE_MANAGER
 
 		//Building
 		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE);
-		void soldierMOVE_INSIDE_BUILDING(entt::entity soldier, entt::entity building);
+		void soldierMOVE_TO_BUILDING(entt::entity soldier, entt::entity building);
 		void soldierMOVE_OUT_BUILDING(entt::entity building, SDL_FPoint globalPOS);
+		void soldierENTERED_BUILDING(entt::entity soldier, entt::entity building);
 
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);

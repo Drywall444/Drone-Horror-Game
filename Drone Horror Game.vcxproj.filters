@@ -30,6 +30,12 @@
     <ClCompile Include="SOLDIER.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MOVEMENT.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BUILDING.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SPRITE.h">

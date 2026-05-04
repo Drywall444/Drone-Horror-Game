@@ -173,7 +173,7 @@ void INPUT::checkRIGHT_CLICK(SDL_FPoint globalPOS)
 				auto& clickedON_BUILDING = gameSPRITES.spriteREGISTER.get<BUILDING>(sprite);
 				if (!clickedON_BUILDING.isOCCUPIED() && seclectedSOLDIER == true)
 				{
-					gameSPRITES.soldierMOVE_INSIDE_BUILDING(curSELECTED_SOLDIER, sprite); //If we right click, have a selcSOLDIER and the building is unonccupied we move a soldier there
+					gameSPRITES.soldierMOVE_TO_BUILDING(curSELECTED_SOLDIER, sprite); //If we right click, have a selcSOLDIER and the building is unonccupied we move a soldier there
 				}
 				return;
 			}

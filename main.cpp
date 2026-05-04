@@ -25,15 +25,14 @@ int main(int argc, char* argv[]) {
 
     ROTATION testROT = { -1.0, 0.0 };
 
-    SM.createSOLDIER({ 0.0, 100.0 }, testROT, false);
-    SM.createSOLDIER({ 100.0, 150.0 }, testROT, false);
+    SM.createSOLDIER({ 0.0, 100.0 }, testROT, true);
+    SM.createSOLDIER({ 100.0, 150.0 }, testROT, true);
     //SM.createSOLDIER({ 0.0, 170.0 }, testROT, false);
 
-    SM.createSOLDIER({ 250.0, 2000.0 }, testROT, true);
-    SM.createSOLDIER({ 150.0, 2000.0 }, testROT, true);
-    SM.createSOLDIER({ 200.0, 2000.0 }, testROT, true);
-    SM.createSOLDIER({ 300.0, 2500.0 }, testROT, true);
-    SM.createSOLDIER({ 300.0, 2600.0 }, testROT, true);
+    for (int i = 0; i < 1000;i++)
+    {
+        SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 3000.0f }, testROT, false);
+    }
 
     SM.createBUILDING({ 60.0, 60.0 }, testROT, SM.FOXHOLE);
     SM.createBUILDING({ 450.0, 68.0 }, testROT, SM.FOXHOLE);
@@ -57,7 +56,7 @@ int main(int argc, char* argv[]) {
         Uint64 frameEND = SDL_GetPerformanceCounter();
         DT = (double)(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
         SM.updateDT(DT);
-        //std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
+        std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
     }
 
     // Clean

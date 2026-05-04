@@ -6,17 +6,6 @@ void SPRITE_MANAGER::updateDT(float newDT)
 	DT = newDT;
 }
 
-bool SPRITE_MANAGER::hasARRIVED_AT_POINT(SDL_FPoint spriteCUR_POS, MOVING& soldierMOVING_INFO)
-{
-	LOCATION curWAYPOINT = soldierMOVING_INFO.waypoints.back();
-	float pX = curWAYPOINT.POS.x - spriteCUR_POS.x;
-	float pY = curWAYPOINT.POS.y - spriteCUR_POS.y;
-
-	float DOT = (soldierMOVING_INFO.dX * pX) + (soldierMOVING_INFO.dY * pY);
-	if (DOT < 0.0) { soldierMOVING_INFO.waypoints.pop_back(); return true; }
-	else { return false; }
-}
-
 float SPRITE_MANAGER::returnDIST_TO_TARGET(entt::entity soldier, hasTARGET targetINFO)
 {
 	auto& spriteINFO_POS = spriteREGISTER.get<spriteOBJECT>(soldier).spriteLOCATION.POS;
@@ -140,7 +129,6 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 
 		 auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(S);
 
-
 		 if (curLOS_DELAY < 0.0)
 		 {
 			 //Check LOS
@@ -157,6 +145,7 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
 		 }
 	 }
+
 
 	 //MOVEMENT - MOVE INTO SEPERATE FUNCTION
 	 moveSPRITES();
@@ -177,6 +166,7 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 			 else {
 				 soldierSPRITE_INFO.enemySOLDIER = entt::null; //set nothing
 				 removeTARGET_LIST.push_back(shootingSOLDIER);
+				 if (spriteREGISTER.all_of<FIRING>(shootingSOLDIER)) { spriteREGISTER.remove<FIRING>(shootingSOLDIER); } //if we still are firing and dont have a target remove firing
 			 }
 		 }
 		 else {
@@ -187,7 +177,6 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 	 for (auto noTARGET : removeTARGET_LIST) //cleanup
 	 {
 		 spriteREGISTER.remove<hasTARGET>(noTARGET);
-		 auto& solOBJ = spriteREGISTER.get<soldierOBJECT>(noTARGET);
 	 }
 
 	 for (auto corpse : toDESTROY) //cleanup
@@ -247,48 +236,6 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 	 spriteREGISTER.emplace<spriteOBJECT>(newVFX, newSPRITE_OBJ);
 
 	 return newVFX;
- }
-
-
-
- //BUILDING - Create Seperate CPP
-
- entt::entity SPRITE_MANAGER::createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE)
- {
-	 entt::entity newBUILDING = createSPRITE(pos, rot, 128, 128);
-	 auto& newBUIDLING = spriteREGISTER.get<spriteOBJECT>(newBUILDING);
-	 newBUIDLING.TYPE = BUILDING_TEX_TYPE;
-	 newBUIDLING.spriteLOCATION.z = -10;
-	 auto& newBUILDING_STRUCT = spriteREGISTER.emplace<BUILDING>(newBUILDING); //use this shit everywhere
-	 std::vector<SDL_FPoint> newFIRING_POSITIONS = { {newBUIDLING.spriteLOCATION.POS.x, newBUIDLING.spriteLOCATION.POS.y} }; //one position
-	 newBUILDING_STRUCT.coverVALUE = 0.85;
-
-	 return newBUILDING;
- }
-
- void SPRITE_MANAGER::soldierMOVE_INSIDE_BUILDING(entt::entity soldier, entt::entity building)
- {
-	 auto& soldierINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
-	 auto& soldierINFO_STRUCT = spriteREGISTER.get<soldierOBJECT>(soldier);
-	 auto& buildingINFO = spriteREGISTER.get<spriteOBJECT>(building);
-	 auto& buildingINFO_STRUCT = spriteREGISTER.get<BUILDING>(building);
-	 soldierINFO_STRUCT.curBUILDING = building; //pointer to building
-
-	 std::cout << "Moving to Occupy building\n";
-	 ORDER_soldierMOVE_TO_POINT(soldier, buildingINFO.spriteLOCATION.POS);
-	 buildingINFO_STRUCT.soldierINSIDE = soldier;
-
- }
-
- void SPRITE_MANAGER::soldierMOVE_OUT_BUILDING(entt::entity building, SDL_FPoint globalPOS)
- {
-	 auto& buildingINFO_STRUCT = spriteREGISTER.get<BUILDING>(building);
-	 auto& soldier = buildingINFO_STRUCT.soldierINSIDE;
-	 auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(soldier);
-
-	 ORDER_soldierMOVE_TO_POINT(soldier, globalPOS);
-	 buildingINFO_STRUCT.soldierINSIDE = entt::null;
-	 soldierINFO.coverVALUE = 0.0;
  }
 
  //TO DO:
