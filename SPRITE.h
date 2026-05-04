@@ -80,10 +80,11 @@ struct TILE//SHIT THAT CAN MOVE
 
 struct BUILDING
 {
-	entt::entity soldierINSIDE = entt::null; //nothing inside yet
+	std::vector<entt::entity> soldierINSIDE; //nothing inside yet
+	int buildingMAX_SIZE = 1;
 	float coverVALUE = 0.0; // 0-100% 
 	bool topCOVERED = false;
-	bool isOCCUPIED() { return soldierINSIDE != entt::null; }
+	bool isOCCUPIED() { std::cout << soldierINSIDE.size() << std::endl; return soldierINSIDE.size() > 0; }
 };
 
 struct soldierOBJECT 
@@ -197,6 +198,7 @@ class SPRITE_MANAGER
 		//SOLDIER MANAGER
 		void createSOLDIER(SDL_FPoint pos, ROTATION rot, bool isFRIEND);
 		entt::entity createCORPSE(SDL_FPoint pos, ROTATION rot, bool isFRIEND);
+		entt::entity createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot, bool isFRIEND, entt::entity buidling);
 		MOVING newMOVEMENT(float speed, ROTATION dirTO, SDL_FPoint targetLOC);
 		bool hasARRIVED_AT_POINT(SDL_FPoint spriteCUR_POS, MOVING& soldierMOVING_INFO);
 
@@ -211,7 +213,7 @@ class SPRITE_MANAGER
 		//Building
 		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE);
 		void soldierMOVE_TO_BUILDING(entt::entity soldier, entt::entity building);
-		void soldierMOVE_OUT_BUILDING(entt::entity building, SDL_FPoint globalPOS);
+		void soldierMOVE_OUT_BUILDING(entt::entity building, SDL_FPoint globalPOS, bool movingIN_ANOTHER_BUILDING, entt::entity newBUIDLING = entt::null);
 		void soldierENTERED_BUILDING(entt::entity soldier, entt::entity building);
 
 		//VFX - Include sound here

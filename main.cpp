@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     SM.createSOLDIER({ 100.0, 150.0 }, testROT, true);
     //SM.createSOLDIER({ 0.0, 170.0 }, testROT, false);
 
-    for (int i = 0; i < 1000;i++)
+    for (int i = 0; i < 15;i++)
     {
         SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 3000.0f }, testROT, false);
     }
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
         Uint64 frameEND = SDL_GetPerformanceCounter();
         DT = (double)(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
         SM.updateDT(DT);
-        std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
+        //std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
     }
 
     // Clean

@@ -46,6 +46,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 {
 	 entt::entity newSOLDIER_ENTITY = createSPRITE(pos, rot, 64, 64);
 	 auto& newSPRITE_OBJ = spriteREGISTER.get<spriteOBJECT>(newSOLDIER_ENTITY);
+	 newSPRITE_OBJ.spriteLOCATION.z = 1;
 	 spriteREGISTER.emplace<IDLE>(newSOLDIER_ENTITY);
 
 	 if (isFRIEND)
@@ -96,6 +97,15 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 	 return newCORPSE_ENTITY;
 }
 
+entt::entity SPRITE_MANAGER::createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot, bool isFRIEND, entt::entity buidling)
+{
+	auto& buildingINFO = spriteREGISTER.get<BUILDING>(buidling);
+	entt::entity corpse = createCORPSE(pos, rot, isFRIEND);
+	buildingINFO.soldierINSIDE.clear(); //this clears all corpses
+
+	return corpse;
+}
+
 
  void SPRITE_MANAGER::updateGAME()
  {
@@ -123,7 +133,13 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 		 if (curS.HP < 0.0) //DEAD
 		 {
 			 auto& curS_SPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(S);
-			 createCORPSE(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly);
+			 if (spriteREGISTER.all_of<inCOVER>(S)) //If died in cover
+			 {
+				 createCORPSE_IN_COVER(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly, curS.curBUILDING);
+			 }
+			 else {
+				 createCORPSE(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly);
+			 }
 			 toDESTROY.push_back(S);
 		 }
 
