@@ -17,7 +17,7 @@ float SPRITE_MANAGER::returnDIST_TO_TARGET(entt::entity soldier, hasTARGET targe
 
 //Sprite Creation:
 
-entt::entity SPRITE_MANAGER::createSPRITE(SDL_FPoint pos, ROTATION ROT, int texW, int texH)
+entt::entity SPRITE_MANAGER::createSPRITE(SDL_FPoint pos, ROTATION ROT, int texW, int texH, float z)
 {
 		entt::entity newSPRITE = spriteREGISTER.create();
 		spriteOBJECT newSPRITE_OBJ;
@@ -25,6 +25,7 @@ entt::entity SPRITE_MANAGER::createSPRITE(SDL_FPoint pos, ROTATION ROT, int texW
 		newSPRITE_OBJ.texH = texH;
 		ROTATION newROT = ROT;
 		LOCATION newLOC = { {pos.x, pos.y}, newROT };
+		newLOC.z = z;
 		newSPRITE_OBJ.spriteLOCATION = newLOC;
 
 		spriteREGISTER.emplace<spriteOBJECT>(newSPRITE, newSPRITE_OBJ);
@@ -44,9 +45,8 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 
  void SPRITE_MANAGER::createSOLDIER(SDL_FPoint pos, ROTATION rot, bool isFRIEND)
 {
-	 entt::entity newSOLDIER_ENTITY = createSPRITE(pos, rot, 64, 64);
+	 entt::entity newSOLDIER_ENTITY = createSPRITE(pos, rot, 64, 64, 1.0);
 	 auto& newSPRITE_OBJ = spriteREGISTER.get<spriteOBJECT>(newSOLDIER_ENTITY);
-	 newSPRITE_OBJ.spriteLOCATION.z = 1;
 	 spriteREGISTER.emplace<IDLE>(newSOLDIER_ENTITY);
 
 	 if (isFRIEND)
@@ -72,9 +72,8 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isFRIEND)
 {
 	 std::cout << "Corpse Added.\n";
-	 entt::entity newCORPSE_ENTITY = createSPRITE(pos, rot, 64, 128);
+	 entt::entity newCORPSE_ENTITY = createSPRITE(pos, rot, 64, 128, 0.5);
 	 auto& newSPRITE_OBJ = spriteREGISTER.get<spriteOBJECT>(newCORPSE_ENTITY);
-	 newSPRITE_OBJ.spriteLOCATION.z = -0.5;
 
 	 float rnd = randBETWEEN(0, 1);
 	 UV_REGION corpseTYPE;
@@ -124,6 +123,16 @@ entt::entity SPRITE_MANAGER::createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot,
 		 }
 	 }
 
+	 auto allSoldiers = spriteREGISTER.view<soldierOBJECT>(); //STATE CHECK
+	 for (auto& S : allSoldiers)
+	 {
+		 bool isIdle = !spriteREGISTER.all_of<MOVING>(S)
+			 && !spriteREGISTER.all_of<throwingGRENADE>(S);
+
+		 if (isIdle) { spriteREGISTER.emplace_or_replace<IDLE>(S); }
+		 else { spriteREGISTER.remove<IDLE>(S); } // safe even if not present in entt
+	 }
+
 	 //HEALTH - STATE
 	 auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
 
@@ -157,6 +166,9 @@ entt::entity SPRITE_MANAGER::createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot,
 		 else if (spriteREGISTER.all_of<IDLE>(S)) {
 			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
 		 }
+		 else if (spriteREGISTER.all_of<throwingGRENADE>(S)) {
+			 spriteINFO.TYPE = curS.friendly ? SOLDIER_AIM_GRENADE : ENEMY_SOLDIER_AIM_GRENADE;
+		 }
 		 else {
 			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
 		 }
@@ -165,6 +177,11 @@ entt::entity SPRITE_MANAGER::createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot,
 
 	 //MOVEMENT - MOVE INTO SEPERATE FUNCTION
 	 moveSPRITES();
+
+	 //GRENADE
+	 soldiersAIM_GRENADE();
+	 checkEXPLOSIONS();
+
 
 	 //SHOOTING - HAS TARGET
 

@@ -84,7 +84,7 @@ struct BUILDING
 	int buildingMAX_SIZE = 1;
 	float coverVALUE = 0.0; // 0-100% 
 	bool topCOVERED = false;
-	bool isOCCUPIED() { std::cout << soldierINSIDE.size() << std::endl; return soldierINSIDE.size() > 0; }
+	bool isOCCUPIED() { return soldierINSIDE.size() > 0; }
 };
 
 struct soldierOBJECT 
@@ -106,6 +106,12 @@ struct soldierOBJECT
 	float soldierSKILL = 0.5; //default 0.8 increase by 0.1 per day survived
 };
 
+struct grenadeOBJECT
+{
+	float fuseLENGTH = 3.5f;
+	bool fuseENDED(float DT);
+};
+
 //STATES
 struct MOVING
 {
@@ -113,8 +119,8 @@ struct MOVING
 	std::vector<LOCATION> waypoints;
 	float movementSPEED = 150.0;
 	bool destroyAT_TARGET = false;
-	float waitTIME_AT_WAYPOINT = 4.0;
-	float cur_waitTIME_AT_WAYPOINT = 4.0;
+	float waitTIME_AT_WAYPOINT = 4.0f;
+	float cur_waitTIME_AT_WAYPOINT = 4.0f;
 	bool atFINAL_POINT = false;
 };
 
@@ -126,13 +132,21 @@ struct FIRING
 	bool firingBURST = false; //ignore aimtime and fire multiple bullets in seccesion
 };
 
+struct throwingGRENADE 
+{
+	ROTATION throwDIR;
+	SDL_FPoint throwPOS;
+	SDL_FPoint targetPOS;
+	float throwTIME = 2.0f;
+	bool throwing(float DT);
+};
+
 struct hasTARGET
 {
 	entt::entity enemySOLDIER;
 	bool targetDEAD = false; //quit firing
 };
 
-//TAGS
 struct IDLE{};
 struct inCOVER {};
 struct HIDDEN {};
@@ -156,6 +170,8 @@ class SPRITE_MANAGER
 
 		UV_REGION ENEMY_SOLDIER_STANDING = { T_ENEMY_SOLDIER_STANDING, 0.0f, 0.20f, 0.0f, 0.2f };
 		UV_REGION ENEMY_SOLDIER_SHOOTING = { T_ENEMY_SOLDIER_SHOOTING, 0.20f, 0.40f, 0.0f, 0.2f };
+		UV_REGION ENEMY_SOLDIER_AIM_GRENADE = { T_ENEMY_SOLDIER_SHOOTING, 0.40f, 0.60f, 0.0f, 0.2f };
+		UV_REGION ENEMY_SOLDIER_THROW_GRENADE = { T_ENEMY_SOLDIER_SHOOTING, 0.60f, 0.80f, 0.0f, 0.2f };
 		UV_REGION ENEMY_SOLDIER_RELOADING = { T_ENEMY_SOLDIER_SHOOTING, 0.20f, 0.40f, 0.2f, 0.4f };
 
 		UV_REGION ENEMY_SOLDIER_DEAD_1 = { T_ENEMY_DEAD_1, 0.60f, 0.80f, 0.0f, 0.4f };
@@ -163,6 +179,8 @@ class SPRITE_MANAGER
 
 		UV_REGION SOLDIER_STANDING = { T_SOLDIER_STANDING, 0.0f, 0.20f, 0.4f, 0.6f };
 		UV_REGION SOLDIER_SHOOTING = { T_SOLDIER_SHOOTING, 0.20f, 0.40f, 0.40f, 0.6f };
+		UV_REGION SOLDIER_AIM_GRENADE = { T_SOLDIER_SHOOTING, 0.40f, 0.60f, 0.40f, 0.6f };
+		UV_REGION SOLDIER_THROW_GRENADE = { T_SOLDIER_SHOOTING, 0.40f, 0.60f, 0.40f, 0.6f };
 		UV_REGION SOLDIER_RELOADING = { T_SOLDIER_SHOOTING, 0.20f, 0.40f, 0.60f, 0.8f };
 		UV_REGION SOLDIER_DEAD_1 = { T_SOLDIER_DEAD_1, 0.60f,  0.80f, 0.4f, 0.8f };
 		UV_REGION SOLDIER_DEAD_2 = { T_SOLDIER_DEAD_2, 0.80f, 1.0f, 0.4f, 0.8f };
@@ -178,6 +196,7 @@ class SPRITE_MANAGER
 		UV_REGION VFX_BLOOD_4 = { T_BLOOD_4, 0.0f, 0.05f, 0.85f, 0.90f };
 
 		UV_REGION VFX_MAG = { T_MAG, 0.05f, 0.10f, 0.90f, 0.95f };
+		UV_REGION VFX_GRENADE = { T_MAG, 0.10f, 0.15f, 0.90f, 0.95f };
 
 		UV_REGION FOXHOLE = { T_MAG, 0.2f, 0.4f, 0.80f, 1.0f };
 		UV_REGION DUGOUT = { T_MAG, 0.4f, 0.6f, 0.80f, 1.0f };
@@ -189,10 +208,11 @@ class SPRITE_MANAGER
 		void updateDT(float newDT);
 		void updateGAME();
 		void moveSPRITES();
+		void checkEXPLOSIONS();
 		std::vector<entt::entity> toDESTROY; //sprites to destroy at end of loop
 
 		entt::registry spriteREGISTER;
-		entt::entity createSPRITE(SDL_FPoint pos, ROTATION ROT, int texW, int texH);
+		entt::entity createSPRITE(SDL_FPoint pos, ROTATION ROT, int texW, int texH, float z);
 		void tileCREATE(UV_REGION type, SDL_FPoint pos);
 
 		//SOLDIER MANAGER
@@ -209,6 +229,11 @@ class SPRITE_MANAGER
 		void fireWEAPON(entt::entity solder, hasTARGET target);
 		void soldierTAKE_DAMAGE(entt::entity soldier, float damage);
 		void ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS);
+		//GRENADE
+		void soldierTHROW_GRENADE_AT_POS(entt::entity soldier, SDL_FPoint targetPOS);
+		void soldiersAIM_GRENADE();
+		entt::entity spawnGRENADE_THROW(throwingGRENADE thrownGRENADE, float forceOF_THROW);
+		void explode(entt::entity explodingSPRITE);
 
 		//Building
 		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE);

@@ -4,10 +4,9 @@
 
 entt::entity SPRITE_MANAGER::createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE)
 {
-	entt::entity newBUILDING = createSPRITE(pos, rot, 128, 128);
+	entt::entity newBUILDING = createSPRITE(pos, rot, 128, 128, -10.0);
 	auto& newBUIDLING = spriteREGISTER.get<spriteOBJECT>(newBUILDING);
 	newBUIDLING.TYPE = BUILDING_TEX_TYPE;
-	newBUIDLING.spriteLOCATION.z = -10;
 	auto& newBUILDING_STRUCT = spriteREGISTER.emplace<BUILDING>(newBUILDING); //use this shit everywhere
 	std::vector<SDL_FPoint> newFIRING_POSITIONS = { {newBUIDLING.spriteLOCATION.POS.x, newBUIDLING.spriteLOCATION.POS.y} }; //one position
 	newBUILDING_STRUCT.coverVALUE = 0.90;
