@@ -122,6 +122,7 @@ struct MOVING
 	float waitTIME_AT_WAYPOINT = 4.0f;
 	float cur_waitTIME_AT_WAYPOINT = 4.0f;
 	bool atFINAL_POINT = false;
+	bool stopped = false;
 };
 
 struct FIRING

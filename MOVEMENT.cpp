@@ -49,21 +49,20 @@ void SPRITE_MANAGER::moveSPRITES()
 				}
 				else if (spriteREGISTER.all_of<ORDER_TO_POINT>(sprite))
 				{
-
+					spriteREGISTER.emplace_or_replace<IDLE>(sprite); //set back to idle
 					//do sum here
 				}
-				spriteREGISTER.emplace_or_replace<IDLE>(sprite); // Emplace before remove otherwise bad shit happens
 				spriteREGISTER.remove<MOVING>(sprite);
 				return;
 			}
 			else //If we have a waypoint stop here for the wait time
 			{
-				spriteREGISTER.emplace_or_replace<IDLE>(sprite);
+				soldierMOVING_INFO.stopped = true;
 			}
 		} 
 		else 
 		{
-			if (!spriteREGISTER.all_of<IDLE>(sprite)) //If not idle we can move
+			if (!soldierMOVING_INFO.stopped) //If not stopped we can move
 			{
 				//MOVE
 				SDL_FPoint pos = spriteINFO.spriteLOCATION.POS;
@@ -78,7 +77,7 @@ void SPRITE_MANAGER::moveSPRITES()
 			}
 			else {
 				soldierMOVING_INFO.cur_waitTIME_AT_WAYPOINT = soldierMOVING_INFO.waitTIME_AT_WAYPOINT;
-				spriteREGISTER.remove<IDLE>(sprite); // no longer idle
+				soldierMOVING_INFO.stopped = false; //start moving again
 			}
 
 		}
@@ -135,3 +134,6 @@ void SPRITE_MANAGER::shootAND_MOVE(entt::entity soldier) //LOOK OVER AND REWRITE
 		soldiersMOVING.waypoints.push_back({ wpPOS, {0.0f, 0.0f} });
 	}
 }
+
+
+//THIS NEEDS AN OVERHAUL

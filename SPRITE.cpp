@@ -108,6 +108,17 @@ entt::entity SPRITE_MANAGER::createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot,
 
  void SPRITE_MANAGER::updateGAME()
  {
+	 //FOR OVERHAUL
+	 //Check temp sprites
+	 // Check Health
+	 // Check LOS
+	 //Assign State to soldiers based on current actions
+	 //Move Sprites - can set player back to idle if at waypoint
+	 //Decide to shoot - If idle shoot, if close enough decide to throw grenade
+	 //Clean-Up
+
+
+
 	 toDESTROY.clear();
 	 //TEMP SPRITES
 	 auto tempSPRITES = spriteREGISTER.view<tempSPRITE>();
@@ -160,14 +171,18 @@ entt::entity SPRITE_MANAGER::createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot,
 			 checkLOS(S, curS.friendly);
 		 }
 
-		 if (spriteREGISTER.all_of<FIRING>(S)) {
-			 spriteINFO.TYPE = curS.friendly ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
-		 }
-		 else if (spriteREGISTER.all_of<IDLE>(S)) {
-			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
-		 }
-		 else if (spriteREGISTER.all_of<throwingGRENADE>(S)) {
+		 if (spriteREGISTER.all_of<throwingGRENADE>(S)) {
 			 spriteINFO.TYPE = curS.friendly ? SOLDIER_AIM_GRENADE : ENEMY_SOLDIER_AIM_GRENADE;
+		 }
+		 else if (spriteREGISTER.all_of<MOVING>(S)) {
+			 auto& moveINFO = spriteREGISTER.get<MOVING>(S);
+			 if (!moveINFO.stopped)
+			 {
+				 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
+			 }
+		 }
+		 else if (spriteREGISTER.all_of<FIRING>(S)) {
+			 spriteINFO.TYPE = curS.friendly ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
 		 }
 		 else {
 			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
@@ -194,7 +209,17 @@ entt::entity SPRITE_MANAGER::createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot,
 		 {
 			 if (spriteREGISTER.valid(soldierSPRITE_INFO.enemySOLDIER)) //If sprites been removed as a corpse dont use it, we will crash
 			 {
-				 soldierSHOOT_AT_TARGET(shootingSOLDIER);
+				 if (spriteREGISTER.all_of<IDLE>(shootingSOLDIER)){
+					 soldierSHOOT_AT_TARGET(shootingSOLDIER);
+				 }
+				 else if (spriteREGISTER.all_of<MOVING>(shootingSOLDIER)) //if not idle but shooting and moving
+				 {
+					 auto& moveINFO = spriteREGISTER.get<MOVING>(shootingSOLDIER);
+					 if (moveINFO.stopped == true) //if we are moving but stopped shoot
+					 {
+						 soldierSHOOT_AT_TARGET(shootingSOLDIER);
+					 }
+				 }
 			 }
 			 else {
 				 soldierSPRITE_INFO.enemySOLDIER = entt::null; //set nothing

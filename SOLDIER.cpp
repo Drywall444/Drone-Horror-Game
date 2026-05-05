@@ -104,25 +104,21 @@ void SPRITE_MANAGER::soldierSHOOT_AT_TARGET(entt::entity soldier)
 {
 	auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(soldier);
 	if (soldierINFO.outOF_AMMO) { return; }
-	if (!spriteREGISTER.all_of<IDLE>(soldier)) //If not idle remove fire
-	{
-		if(spriteREGISTER.all_of<FIRING>(soldier)){ spriteREGISTER.remove<FIRING>(soldier); }
-		return;
-	}
+	if (spriteREGISTER.all_of<throwingGRENADE>(soldier)) { return; } //throwing grenade
 
 	auto& soldiersSHOOTING = spriteREGISTER.get<hasTARGET>(soldier);
 	float curDISTANCE = returnDIST_TO_TARGET(soldier, soldiersSHOOTING);
 
 	if (curDISTANCE < 800 && !spriteREGISTER.all_of<throwingGRENADE>(soldier)) //If close throw a grenade
 	{
-		auto& enemySOLDIER_INFO = spriteREGISTER.get<spriteOBJECT>(soldiersSHOOTING.enemySOLDIER);
-		soldierTHROW_GRENADE_AT_POS(soldier, enemySOLDIER_INFO.spriteLOCATION.POS);
-		return;
+		float rand = randBETWEEN(0.0f, 100.0f);
+		if (rand < 95.0f)
+		{
+			auto& enemySOLDIER_INFO = spriteREGISTER.get<spriteOBJECT>(soldiersSHOOTING.enemySOLDIER);
+			soldierTHROW_GRENADE_AT_POS(soldier, enemySOLDIER_INFO.spriteLOCATION.POS);
+			return;
+		}
 	} 
-	if (spriteREGISTER.all_of<throwingGRENADE>(soldier)) //if we are throwing a grenade
-	{
-		return;
-	}
 
 	// Idle and not firing yet - set up FIRING
 	if (!spriteREGISTER.all_of<FIRING>(soldier))
@@ -247,6 +243,8 @@ void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target) //CLEANU
 	}
 
 }
+
+//grenade
 
 void SPRITE_MANAGER::soldiersAIM_GRENADE()
 {
