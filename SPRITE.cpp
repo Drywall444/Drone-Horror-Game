@@ -6,6 +6,22 @@ void SPRITE_MANAGER::updateDT(float newDT)
 	DT = newDT;
 }
 
+void SPRITE_MANAGER::countDOWN_TEMP_SPRITES()
+{
+	auto tempSPRITES = spriteREGISTER.view<tempSPRITE>();
+	for (auto temp : tempSPRITES)
+	{
+		auto& tempINFO = spriteREGISTER.get<tempSPRITE>(temp);
+		if (tempINFO.timeLEFT < 0.0)
+		{
+			toDESTROY.push_back(temp);
+		}
+		else {
+			tempINFO.timeLEFT -= DT;
+		}
+	}
+}
+
 float SPRITE_MANAGER::returnDIST_TO_TARGET(entt::entity soldier, hasTARGET targetINFO)
 {
 	auto& spriteINFO_POS = spriteREGISTER.get<spriteOBJECT>(soldier).spriteLOCATION.POS;
@@ -105,87 +121,79 @@ entt::entity SPRITE_MANAGER::createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot,
 	return corpse;
 }
 
+void SPRITE_MANAGER::soldierHEALTH(entt::entity soldier)
+{
+	auto& curS = spriteREGISTER.get<soldierOBJECT>(soldier);
+	if (curS.HP < 0.0) //DEAD
+	{
+		auto& curS_SPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(soldier);
+		if (spriteREGISTER.all_of<inCOVER>(soldier)) //If died in cover
+		{
+			createCORPSE_IN_COVER(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly, curS.curBUILDING);
+		}
+		else {
+			createCORPSE(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly);
+		}
+		toDESTROY.push_back(soldier);
+	}
+}
+
 
  void SPRITE_MANAGER::updateGAME()
  {
 	 //FOR OVERHAUL
-	 //Check temp sprites
-	 // Check Health
-	 // Check LOS
-	 //Assign State to soldiers based on current actions
-	 //Move Sprites - can set player back to idle if at waypoint
-	 //Decide to shoot - If idle shoot, if close enough decide to throw grenade
-	 //Clean-Up
+	 // Check sprites health info.
 
 
 
 	 toDESTROY.clear();
-	 //TEMP SPRITES
-	 auto tempSPRITES = spriteREGISTER.view<tempSPRITE>();
-	 for (auto temp : tempSPRITES)
-	 {
-		 auto& tempINFO = spriteREGISTER.get<tempSPRITE>(temp);
-		 if (tempINFO.timeLEFT < 0.0)
-		 {
-			 toDESTROY.push_back(temp);
-		 }
-		 else {
-			 tempINFO.timeLEFT -= DT;
-		 }
-	 }
+	 countDOWN_TEMP_SPRITES(); //Temp sprites timer
 
 	 auto allSoldiers = spriteREGISTER.view<soldierOBJECT>(); //STATE CHECK
 	 for (auto& S : allSoldiers)
 	 {
-		 bool isIdle = !spriteREGISTER.all_of<MOVING>(S)
-			 && !spriteREGISTER.all_of<throwingGRENADE>(S);
-
-		 if (isIdle) { spriteREGISTER.emplace_or_replace<IDLE>(S); }
-		 else { spriteREGISTER.remove<IDLE>(S); } // safe even if not present in entt
-	 }
-
-	 //HEALTH - STATE
-	 auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
-
-	 for (auto& S : allSOLDIER)
-	 {
 		 auto& curS = spriteREGISTER.get<soldierOBJECT>(S);
-		 if (curS.HP < 0.0) //DEAD
-		 {
-			 auto& curS_SPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(S);
-			 if (spriteREGISTER.all_of<inCOVER>(S)) //If died in cover
-			 {
-				 createCORPSE_IN_COVER(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly, curS.curBUILDING);
-			 }
-			 else {
-				 createCORPSE(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly);
-			 }
-			 toDESTROY.push_back(S);
-		 }
-
-		 auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(S);
+		 soldierHEALTH(S); //Health Check
 
 		 if (curLOS_DELAY < 0.0)
 		 {
 			 //Check LOS
 			 checkLOS(S, curS.friendly);
 		 }
+		 //flags
+		 bool movingAND_IDLE = false;
+		 bool moving = false;
+
+		 if (spriteREGISTER.all_of<MOVING>(S)) //if moving
+		 {
+			 auto& moveINFO = spriteREGISTER.get<MOVING>(S);
+			 if (moveINFO.stopped) { spriteREGISTER.emplace_or_replace<IDLE>(S); movingAND_IDLE = true; }//we idle baby and set flag
+			 moving = true;
+		 }
+
+		 auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(S);
 
 		 if (spriteREGISTER.all_of<throwingGRENADE>(S)) {
 			 spriteINFO.TYPE = curS.friendly ? SOLDIER_AIM_GRENADE : ENEMY_SOLDIER_AIM_GRENADE;
 		 }
-		 else if (spriteREGISTER.all_of<MOVING>(S)) {
-			 auto& moveINFO = spriteREGISTER.get<MOVING>(S);
-			 if (!moveINFO.stopped)
-			 {
-				 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
+		 else if (moving) //we are moving 
+		 {
+			 if (spriteREGISTER.all_of<FIRING>(S) && movingAND_IDLE) { //If Moving, but we are waiting we 
+				 spriteINFO.TYPE = curS.friendly ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
+				 continue;
 			 }
-		 }
-		 else if (spriteREGISTER.all_of<FIRING>(S)) {
-			 spriteINFO.TYPE = curS.friendly ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
+			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
+			 //can add moving animation here
 		 }
 		 else {
-			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
+			 //otherwise we idle
+			 if (spriteREGISTER.all_of<FIRING>(S)) {
+				 spriteINFO.TYPE = curS.friendly ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
+			 }
+			 else {
+				 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
+			 }
+			 spriteREGISTER.emplace_or_replace<IDLE>(S);
 		 }
 	 }
 
