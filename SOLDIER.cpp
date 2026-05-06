@@ -112,7 +112,7 @@ void SPRITE_MANAGER::soldierSHOOT_AT_TARGET(entt::entity soldier)
 	if (curDISTANCE < 800 && !spriteREGISTER.all_of<throwingGRENADE>(soldier)) //If close throw a grenade
 	{
 		float rand = randBETWEEN(0.0f, 100.0f);
-		if (rand < 99.95f)
+		if (rand > 99.95f)
 		{
 			auto& enemySOLDIER_INFO = spriteREGISTER.get<spriteOBJECT>(soldiersSHOOTING.enemySOLDIER);
 			soldierTHROW_GRENADE_AT_POS(soldier, enemySOLDIER_INFO.spriteLOCATION.POS);

@@ -168,6 +168,7 @@ void SPRITE_MANAGER::soldierHEALTH(entt::entity soldier)
 		 {
 			 auto& moveINFO = spriteREGISTER.get<MOVING>(S);
 			 if (moveINFO.stopped) { spriteREGISTER.emplace_or_replace<IDLE>(S); movingAND_IDLE = true; }//we idle baby and set flag
+			 else if (spriteREGISTER.all_of<IDLE>(S)) { spriteREGISTER.remove<IDLE>(S); } //if not stopped and still idle remove that hoe!
 			 moving = true;
 		 }
 
@@ -206,31 +207,23 @@ void SPRITE_MANAGER::soldierHEALTH(entt::entity soldier)
 	 checkEXPLOSIONS();
 
 
-	 //SHOOTING - HAS TARGET
+	 //SHOOTING - Decision Logic (Will Move)
 
 	 auto soldiersSHOOTING = spriteREGISTER.view<hasTARGET>();
 	 std::vector<entt::entity> removeTARGET_LIST;
 	 for (auto& shootingSOLDIER : soldiersSHOOTING)
 	 {
-		 auto& soldierSPRITE_INFO = spriteREGISTER.get<hasTARGET>(shootingSOLDIER); 
-		 if (soldierSPRITE_INFO.targetDEAD == false)
+		 auto& soldierTARGET_INFO = spriteREGISTER.get<hasTARGET>(shootingSOLDIER); 
+		 if (soldierTARGET_INFO.targetDEAD == false)
 		 {
-			 if (spriteREGISTER.valid(soldierSPRITE_INFO.enemySOLDIER)) //If sprites been removed as a corpse dont use it, we will crash
+			 if (spriteREGISTER.valid(soldierTARGET_INFO.enemySOLDIER)) //If sprites been removed as a corpse dont use it, we will crash
 			 {
 				 if (spriteREGISTER.all_of<IDLE>(shootingSOLDIER)){
 					 soldierSHOOT_AT_TARGET(shootingSOLDIER);
 				 }
-				 else if (spriteREGISTER.all_of<MOVING>(shootingSOLDIER)) //if not idle but shooting and moving
-				 {
-					 auto& moveINFO = spriteREGISTER.get<MOVING>(shootingSOLDIER);
-					 if (moveINFO.stopped == true) //if we are moving but stopped shoot
-					 {
-						 soldierSHOOT_AT_TARGET(shootingSOLDIER);
-					 }
-				 }
 			 }
 			 else {
-				 soldierSPRITE_INFO.enemySOLDIER = entt::null; //set nothing
+				 soldierTARGET_INFO.enemySOLDIER = entt::null; //set nothing
 				 removeTARGET_LIST.push_back(shootingSOLDIER);
 				 if (spriteREGISTER.all_of<FIRING>(shootingSOLDIER)) { spriteREGISTER.remove<FIRING>(shootingSOLDIER); } //if we still are firing and dont have a target remove firing
 			 }

@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 
     for (int i = 0; i < 15;i++)
     {
-        SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 3000.0f }, testROT, false);
+        SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 2000.0f }, testROT, false);
     }
 
     SM.createBUILDING({ 60.0, 60.0 }, testROT, SM.FOXHOLE);
@@ -54,9 +54,9 @@ int main(int argc, char* argv[]) {
         SDL_RenderPresent(R.REND); // blocks here if vsync on
 
         Uint64 frameEND = SDL_GetPerformanceCounter();
-        DT = (double)(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
         SM.updateDT(DT);
-        //std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
+        DT = (double)(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
+        std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
     }
 
     // Clean
