@@ -1,53 +1,5 @@
 #include "RENDER.h"
 #include <SDL3_image/SDL_image.h>
-#include "FastNoiseLite.h"
-
-
-
-
-//MAP CREATION - DO ON OWN
-void RENDER::createMAP(SPRITE_MANAGER& sprites)
-{
-	// setup noise
-	fnl_state noise = fnlCreateState();
-	noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
-	noise.frequency = 0.03f;  // tweak for region size
-
-	// allocate noise data
-	float* noiseData = (float*)malloc(MAP_W * MAP_H * sizeof(float));
-	int index = 0;
-
-	for (int y = 0; y < MAP_H; y++)
-	{
-		for (int x = 0; x < MAP_W; x++)
-		{
-			noiseData[index++] = fnlGetNoise2D(&noise, x, y);
-		}
-	}
-
-	// use noise data to place tiles
-	index = 0;
-	for (int y = 0; y < MAP_H; y++)
-	{
-		for (int x = 0; x < MAP_W; x++)
-		{
-			float value = (noiseData[index++] + 1.0f) * 0.5f;
-
-			UV_REGION tileType;
-			if (value > 0.8f) 
-			{ 
-				tileType = SM.GRASS_1;
-			}
-			else if (value > 0.3f) 
-			{ 
-				tileType = SM.GRASS_2;
-			}
-			else { tileType = SM.WOODS_1; }
-
-			sprites.tileCREATE(tileType, { float(x * natureTEX_W), float(y * natureTEX_H) });
-		}
-	}
-}
 
 //RENDER
 
@@ -130,6 +82,9 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 
 			float x = curSPRITE.spriteLOCATION.POS.x;
 			float y = curSPRITE.spriteLOCATION.POS.y;
+
+			if ((x - halfW) * camera.zoom + camera.offSET.x > IN.WINDOW_W || (x + halfW) * camera.zoom + camera.offSET.x < 0.0) { continue; } //Cull Sprites
+			if ((y - halfH) * camera.zoom + camera.offSET.y > IN.WINDOW_H || (y + halfH) * camera.zoom + camera.offSET.y < 0.0) { continue; }
 
 			SDL_FPoint Point1 = rotatePOINT({ -halfW, -halfH }, curSPRITE.spriteLOCATION.ROT);
 			SDL_FPoint Point2 = rotatePOINT({ halfW, -halfH }, curSPRITE.spriteLOCATION.ROT);

@@ -26,6 +26,11 @@ enum natureTYPE_TILE
 	TYPE_WOODS1,
 };
 
+struct isTREE 
+{
+	bool treeTOP = true; //False = treeSTUMP
+};
+
 struct GUN
 {
 	std::string name = "AK-74";
@@ -160,21 +165,24 @@ class SPRITE_MANAGER
 		UV_REGION SOLDIER_DEAD_1 = { 0.60f,  0.80f, 0.4f, 0.8f };
 		UV_REGION SOLDIER_DEAD_2 = { 0.80f, 1.0f, 0.4f, 0.8f };
 
+		//VFX ROW 1
 		UV_REGION VFX_BULLET = { 0.15f, 0.2f, 0.8f, 0.85f };
 		UV_REGION VFX_MUZZ_FLASH_3 = { 0.10f, 0.15f, 0.8f, 0.85f };
 		UV_REGION VFX_MUZZ_FLASH_2 = { 0.05f, 0.10f, 0.8f, 0.85f };
 		UV_REGION VFX_MUZZ_FLASH_1 = { 0.0f, 0.05f, 0.8f, 0.85f };
-
+		//VFX ROW 2
 		UV_REGION VFX_BLOOD_1 = { 0.15f, 0.2f, 0.85f, 0.90f };
 		UV_REGION VFX_BLOOD_2 = { 0.10f, 0.15f, 0.85f, 0.90f };
 		UV_REGION VFX_BLOOD_3 = { 0.05f, 0.10f, 0.85f, 0.90f };
 		UV_REGION VFX_BLOOD_4 = { 0.0f, 0.05f, 0.85f, 0.90f };
-
+		//VFX ROW #
 		UV_REGION VFX_MAG = { 0.05f, 0.10f, 0.90f, 0.95f };
 		UV_REGION VFX_GRENADE = { 0.10f, 0.15f, 0.90f, 0.95f };
+		UV_REGION TREE_TRUNK = { 0.15f, 0.20f, 0.90f, 0.95f };
 
 		UV_REGION FOXHOLE = { 0.2f, 0.4f, 0.80f, 1.0f };
 		UV_REGION DUGOUT = { 0.4f, 0.6f, 0.80f, 1.0f };
+		UV_REGION TREE_TOP = { 0.6f, 0.8f, 0.80f, 1.0f };
 
 		//GAME LOOP
 		float DT = 0.0;
@@ -219,6 +227,9 @@ class SPRITE_MANAGER
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
 		entt::entity createVFX(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE, int w, int h, int z);
+
+		//TREE SHIT
+		void toggleTREE_TOPS();
 
 private:
 	float returnDIST_TO_TARGET(entt::entity soldier, hasTARGET targetINFO);

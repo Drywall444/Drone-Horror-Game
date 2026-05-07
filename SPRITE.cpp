@@ -141,10 +141,6 @@ void SPRITE_MANAGER::soldierHEALTH(entt::entity soldier)
 
  void SPRITE_MANAGER::updateGAME()
  {
-	 //FOR OVERHAUL
-	 // Check sprites health info.
-
-
 
 	 toDESTROY.clear();
 	 countDOWN_TEMP_SPRITES(); //Temp sprites timer

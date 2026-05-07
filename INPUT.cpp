@@ -49,7 +49,6 @@ void INPUT::handleINPUT(float dt)
 				{
 					checkRIGHT_CLICK(screenTO_WORLD_POS(M.screenMOUSE_POS));
 				}
-
 			}
 		}
 		if (input.type == SDL_EVENT_MOUSE_BUTTON_UP)
@@ -72,6 +71,11 @@ void INPUT::handleINPUT(float dt)
 			if (input.key.key == SDLK_ESCAPE) {
 				std::cout << "hit escape\n";
 				RUN = false;
+			}
+			if (input.key.scancode == SDL_SCANCODE_T)
+			{
+				std::cout << "Toggle Tree\n";
+				gameSPRITES.toggleTREE_TOPS();
 			}
 		}
 	}
@@ -199,3 +203,5 @@ void INPUT::checkRIGHT_CLICK(SDL_FPoint globalPOS)
 	}
 
 }
+
+//IF SELC SOLDIER DIES WE CRASH - fix

@@ -41,6 +41,7 @@ public:
 
 	//MAP CREATION
 	void createMAP(SPRITE_MANAGER& sprites);
+	entt::entity spawnTREE(SDL_FPoint pos);
 
 private:
 	SPRITE_MANAGER& SM;

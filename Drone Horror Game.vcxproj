@@ -140,6 +140,7 @@
     <ClCompile Include="RENDER.cpp" />
     <ClCompile Include="SOLDIER.cpp" />
     <ClCompile Include="SPRITE.cpp" />
+    <ClCompile Include="WORLD_GEN.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INPUT.h" />
