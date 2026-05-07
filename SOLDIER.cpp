@@ -4,7 +4,7 @@
 void SPRITE_MANAGER::checkLOS(entt::entity soldier, bool friendly) //OVERHAUL
 {
 
-	float losRANGE = 2400.0;
+	float losRANGE = 2000.0;
 
 	auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
 
@@ -193,11 +193,7 @@ void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target) //CLEANU
 			float soldierSKILL = soldierINFO.soldierSKILL;
 
 			float rangeFACTOR = dist / soldierINFO.weapon.weaponEFFECTIVE_RANGE;
-			float skillFLOOR = 0.15f * (1.0f - rangeFACTOR); // shrinks to 0 at effective range
-			skillFLOOR = std::clamp(skillFLOOR, 0.0f, 0.15f);
-			float baseHIT = 0.95f - (rangeFACTOR * rangeFACTOR) * 0.90f; //5% at effective range
-			baseHIT = std::clamp(baseHIT, 0.0f, 0.95f);
-			float finalHIT = skillFLOOR + (baseHIT * soldierINFO.soldierSKILL);
+			float finalHIT = soldierINFO.soldierSKILL / (rangeFACTOR * rangeFACTOR);
 			finalHIT = std::clamp(finalHIT, 0.001f, 0.90f);
 			//If miss randomize direction
 

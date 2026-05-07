@@ -32,7 +32,7 @@ struct isTREE
 struct GUN
 {
 	std::string name = "AK-74";
-	float weaponEFFECTIVE_RANGE = 1800.0;
+	float weaponEFFECTIVE_RANGE = 500;
 	float weaponRPM = 900;
 	float weaponDMG = 55.0;
 	int magSIZE = 30;
