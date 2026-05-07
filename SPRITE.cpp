@@ -49,13 +49,15 @@ entt::entity SPRITE_MANAGER::createSPRITE(SDL_FPoint pos, ROTATION ROT, int texW
 		return newSPRITE;
 }
 
-void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
+entt::entity SPRITE_MANAGER::tileCREATE(UV_REGION uv_type, SDL_FPoint pos, natureTYPE_TILE type)
 {
 	entt::entity newTILE_ENT = spriteREGISTER.create();
 	TILE newTILE;
 	newTILE.pos = pos;
+	newTILE.UV_TYPE = uv_type;
 	newTILE.TYPE = type;
 	spriteREGISTER.emplace<TILE>(newTILE_ENT, newTILE);
+	return newTILE_ENT;
 }
 
 
@@ -83,6 +85,7 @@ void SPRITE_MANAGER::tileCREATE(UV_REGION type, SDL_FPoint pos)
 		 newSOLDIER.HP = 100.0;
 		 spriteREGISTER.emplace<soldierOBJECT>(newSOLDIER_ENTITY, newSOLDIER);
 	 }
+	 spriteREGISTER.emplace<hasCOLLISION>(newSOLDIER_ENTITY);
 }
 
 entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isFRIEND)
@@ -134,7 +137,31 @@ void SPRITE_MANAGER::soldierHEALTH(entt::entity soldier)
 		else {
 			createCORPSE(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly);
 		}
+
+
+		if (spriteREGISTER.all_of<hasCOLLISION>(soldier)) //remove from tile
+		{
+			auto& curS_COLLISION_INFO = spriteREGISTER.get<hasCOLLISION>(soldier);
+			entt::entity curTILE = worldTILES[curS_COLLISION_INFO.curINDEX];
+			removeCOLLISION_SPRITE_FROM_TILE(soldier, curTILE);
+		}
+
 		toDESTROY.push_back(soldier);
+	}
+}
+
+void SPRITE_MANAGER::assignCOVER(entt::entity soldier)
+{
+	auto& collisionSTRUCT = spriteREGISTER.get<hasCOLLISION>(soldier);
+	entt::entity tile = worldTILES[collisionSTRUCT.curINDEX];
+	auto& curTILE_STRUCT = spriteREGISTER.get<TILE>(tile);
+	auto& soldierSTRUCT = spriteREGISTER.get<soldierOBJECT>(soldier);
+	if (curTILE_STRUCT.TYPE = TYPE_WOODS1)
+	{
+		soldierSTRUCT.coverVALUE = 0.55f;
+	}
+	else {
+		soldierSTRUCT.coverVALUE = 0.0f;
 	}
 }
 
@@ -144,12 +171,15 @@ void SPRITE_MANAGER::soldierHEALTH(entt::entity soldier)
 
 	 toDESTROY.clear();
 	 countDOWN_TEMP_SPRITES(); //Temp sprites timer
+	 assignCOLLISION();
+	 checkCOLLISIONS();
 
 	 auto allSoldiers = spriteREGISTER.view<soldierOBJECT>(); //STATE CHECK
 	 for (auto& S : allSoldiers)
 	 {
 		 auto& curS = spriteREGISTER.get<soldierOBJECT>(S);
 		 soldierHEALTH(S); //Health Check
+		 assignCOVER(S);
 
 		 if (curLOS_DELAY < 0.0)
 		 {

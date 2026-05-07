@@ -14,12 +14,6 @@ public:
 	RENDER(INPUT& I, SPRITE_MANAGER& sM) : IN(I),  SM(sM) {}
 
 
-	//MAP SHIT
-	float natureTEX_W = 64.0, natureTEX_H = 64.0;
-	int MAP_W = 150;
-	int MAP_H = 300;
-
-
 	std::vector<int> NATURE_INDICIES;
 	std::vector<SDL_Vertex> NATURE_VERTEXES;
 
@@ -34,14 +28,6 @@ public:
 
 	void renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA camera);
 	void initializeRENDER();
-
-
-	//OPTIMIZATION
-	void emplaceSPRITES_ON_SCREEN();
-
-	//MAP CREATION
-	void createMAP(SPRITE_MANAGER& sprites);
-	entt::entity spawnTREE(SDL_FPoint pos);
 
 private:
 	SPRITE_MANAGER& SM;

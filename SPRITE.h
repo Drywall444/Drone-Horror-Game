@@ -8,8 +8,6 @@
 #include "GAME_MATH.h"
 
 
-
-
 struct UV_REGION
 {
 	float uMIN;
@@ -20,10 +18,10 @@ struct UV_REGION
 
 enum natureTYPE_TILE
 {
-	TYPE_GRASS,
 	TYPE_GRASS1,
-	TYPE_WOODS,
+	TYPE_GRASS2,
 	TYPE_WOODS1,
+	TYPE_WOODS2,
 };
 
 struct isTREE 
@@ -34,7 +32,7 @@ struct isTREE
 struct GUN
 {
 	std::string name = "AK-74";
-	float weaponEFFECTIVE_RANGE = 1900.0;
+	float weaponEFFECTIVE_RANGE = 1800.0;
 	float weaponRPM = 900;
 	float weaponDMG = 55.0;
 	int magSIZE = 30;
@@ -52,10 +50,12 @@ struct spriteOBJECT//SHIT THAT CAN MOVE
 	int texH = 64;
 };
 
-struct TILE//SHIT THAT CAN MOVE
+struct TILE
 {
 	SDL_FPoint pos;
-	UV_REGION TYPE;
+	UV_REGION UV_TYPE;
+	natureTYPE_TILE TYPE;
+	std::vector<entt::entity> spritesWITHIN;
 };
 
 struct BUILDING
@@ -71,7 +71,7 @@ struct soldierOBJECT
 {
 	bool friendly = false;
 	float HP = 100.0;
-	float speed = 150.0;
+	float speed = 120.0;
 	float coverVALUE = 0.0;
 	entt::entity curBUILDING = entt::null;
 
@@ -133,7 +133,11 @@ struct HIDDEN {};
 struct ORDER_TO_BUILDING { entt::entity building; };
 struct ORDER_TO_POINT {};
 
+
+//ENGINE
 struct tempSPRITE{ float timeLEFT; };
+struct isSTATIC{};
+struct hasCOLLISION { int curINDEX = -1; };
 
 
 struct selectedNOTHING {};
@@ -192,11 +196,17 @@ class SPRITE_MANAGER
 		void updateGAME();
 		void moveSPRITES();
 		void checkEXPLOSIONS();
+		void assignCOVER(entt::entity soldier);
 		std::vector<entt::entity> toDESTROY; //sprites to destroy at end of loop
+
+		//Collision Detection
+		std::vector<entt::entity> worldTILES;
+		void assignCOLLISION();
+		void checkCOLLISIONS();
+		void removeCOLLISION_SPRITE_FROM_TILE(entt::entity sprite, entt::entity tile);
 
 		entt::registry spriteREGISTER;
 		entt::entity createSPRITE(SDL_FPoint pos, ROTATION ROT, int texW, int texH, float z);
-		void tileCREATE(UV_REGION type, SDL_FPoint pos);
 
 		//SOLDIER MANAGER
 		void createSOLDIER(SDL_FPoint pos, ROTATION rot, bool isFRIEND);
@@ -228,7 +238,13 @@ class SPRITE_MANAGER
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
 		entt::entity createVFX(SDL_FPoint pos, ROTATION rot, UV_REGION MAG_TEX_TYPE, int w, int h, int z);
 
-		//TREE SHIT
+		//WORLD MAP
+		entt::entity  tileCREATE(UV_REGION uv_type, SDL_FPoint pos, natureTYPE_TILE type);
+		float natureTEX_W = 128, natureTEX_H = 128;
+		int MAP_W = 150;
+		int MAP_H = 300;
+		void createMAP(SPRITE_MANAGER& sprites);
+		entt::entity spawnTREE(SDL_FPoint pos);
 		void toggleTREE_TOPS();
 
 private:

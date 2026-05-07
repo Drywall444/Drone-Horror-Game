@@ -117,8 +117,8 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 	{
 		auto& curTILE = totalTILE.get<TILE>(tile);
 
-			float halfW = natureTEX_W * 0.5f;
-			float halfH = natureTEX_H * 0.5f;
+			float halfW = SM.natureTEX_W * 0.5f;
+			float halfH = SM.natureTEX_H * 0.5f;
 
 			float x = curTILE.pos.x;
 			float y = curTILE.pos.y;
@@ -136,7 +136,7 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 			Point3 = { Point3.x + x, Point3.y + y };
 			Point4 = { Point4.x + x, Point4.y + y };
 
-			UV_REGION curTILE_REGION = curTILE.TYPE;
+			UV_REGION curTILE_REGION = curTILE.UV_TYPE;
 
 			NATURE_VERTEXES.push_back({ { Point1.x * camera.zoom + camera.offSET.x,  Point1.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMIN,0} });
 			NATURE_VERTEXES.push_back({ { Point2.x * camera.zoom + camera.offSET.x,  Point2.y * camera.zoom + camera.offSET.y }, {1,1,1,1}, {curTILE_REGION.uMAX,0} });

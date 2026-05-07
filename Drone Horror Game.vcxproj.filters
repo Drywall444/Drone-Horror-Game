@@ -36,6 +36,12 @@
     <ClCompile Include="BUILDING.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WORLD_GEN.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="COLLISION.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SPRITE.h">

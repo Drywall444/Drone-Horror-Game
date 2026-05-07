@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BUILDING.cpp" />
+    <ClCompile Include="COLLISION.cpp" />
     <ClCompile Include="INPUT.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MOVEMENT.cpp" />

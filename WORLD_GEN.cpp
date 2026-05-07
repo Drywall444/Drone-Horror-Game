@@ -2,7 +2,7 @@
 #include "FastNoiseLite.h"
 
 //MAP CREATION - DO ON OWN
-void RENDER::createMAP(SPRITE_MANAGER& sprites)
+void SPRITE_MANAGER::createMAP(SPRITE_MANAGER& sprites)
 {
 	// setup noise
 	fnl_state noise = fnlCreateState();
@@ -24,6 +24,7 @@ void RENDER::createMAP(SPRITE_MANAGER& sprites)
 
 	// use noise data to place tiles
 	index = 0;
+	natureTYPE_TILE tileTYPE;
 	for (int y = 0; y < MAP_H; y++)
 	{
 		for (int x = 0; x < MAP_W; x++)
@@ -33,15 +34,18 @@ void RENDER::createMAP(SPRITE_MANAGER& sprites)
 			UV_REGION tileType;
 			if (value > 0.45f)
 			{
-				tileType = SM.GRASS_1;
+				tileType = GRASS_1;
+				tileTYPE = TYPE_GRASS1;
 			}
 			else if (value > 0.3f)
 			{
-				tileType = SM.GRASS_2;
+				tileType = GRASS_2;
+				tileTYPE = TYPE_GRASS2;
 			}
 			else
 			{
-				tileType = SM.WOODS_1;
+				tileTYPE = TYPE_WOODS1;
+				tileType = WOODS_1;
 				float randTREE = randBETWEEN(0.0f, 100.0);
 				if (randTREE > 45.0f)
 				{
@@ -50,24 +54,23 @@ void RENDER::createMAP(SPRITE_MANAGER& sprites)
 					spawnTREE(pos);
 				}
 			}
+			SDL_FPoint newPOS = { float(x * natureTEX_W), float(y * natureTEX_H) };
 
-			sprites.tileCREATE(tileType, { float(x * natureTEX_W), float(y * natureTEX_H) });
+			entt::entity newTILE = tileCREATE(tileType, newPOS, tileTYPE);
+			worldTILES.push_back(newTILE);
 		}
 	}
 
 	free(noiseData);
 }
 
-entt::entity RENDER::spawnTREE(SDL_FPoint pos)
+entt::entity SPRITE_MANAGER::spawnTREE(SDL_FPoint pos)
 {
-	//entt::entity treeTRUNK = SM.createSPRITE(pos, randROTATION(), 64, 64, 1.0);
-	//auto& treeTRUNK_INFO = SM.spriteREGISTER.get<spriteOBJECT>(treeTRUNK);
-	//treeTRUNK_INFO.TYPE = SM.TREE_TRUNK;
 
-	auto allTREE = SM.spriteREGISTER.view<isTREE>();
+	auto allTREE = spriteREGISTER.view<isTREE>();
 	for (auto& tree : allTREE)
 	{
-		auto& curTREE_POS = SM.spriteREGISTER.get<spriteOBJECT>(tree).spriteLOCATION.POS;
+		auto& curTREE_POS = spriteREGISTER.get<spriteOBJECT>(tree).spriteLOCATION.POS;
 		if (distanceTO_POINT(pos, curTREE_POS) < 120)
 		{
 			std::cout << "Tree Culled\n";
@@ -75,10 +78,13 @@ entt::entity RENDER::spawnTREE(SDL_FPoint pos)
 		}
 	}
 
-	entt::entity treeTOP = SM.createSPRITE(pos, randROTATION(), 128, 128, 10.0);
-	SM.spriteREGISTER.emplace_or_replace<isTREE>(treeTOP);
-	auto& treeTOP_INFO = SM.spriteREGISTER.get<spriteOBJECT>(treeTOP);
-	treeTOP_INFO.TYPE = SM.TREE_TOP;
+	entt::entity treeTOP = createSPRITE(pos, randROTATION(), 128, 128, 10.0);
+	spriteREGISTER.emplace_or_replace<isTREE>(treeTOP);
+	auto& treeTOP_INFO = spriteREGISTER.get<spriteOBJECT>(treeTOP);
+	treeTOP_INFO.TYPE = TREE_TOP;
+
+	spriteREGISTER.emplace<hasCOLLISION>(treeTOP);
+	spriteREGISTER.emplace<isSTATIC>(treeTOP);
 
 	return treeTOP;
 }
