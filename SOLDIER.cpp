@@ -214,7 +214,7 @@ void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target) //CLEANU
 				if (coverRAND > enemySPRITE.coverVALUE)
 				{
 					//we hit
-					soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weapon.weaponDMG);
+					//soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weapon.weaponDMG);
 					//apply damage after bullet hits
 				}
 				else {
@@ -343,8 +343,9 @@ void SPRITE_MANAGER::explode(entt::entity explodingSPRITE)
 			soldierTAKE_DAMAGE(soldier, 150.0f);
 		}
 	}
-	entt::entity newVFX = createVFX(grenade.spriteLOCATION.POS, randROTATION(), VFX_MUZZ_FLASH_3, 80, 80, 1);
-	spriteREGISTER.emplace<tempSPRITE>(newVFX, 0.2f);
+	entt::entity newVFX = createVFX(grenade.spriteLOCATION.POS, randROTATION(), VFX_GRENADE_EXPLOSION_FRAME1, 128, 128, 1);
+	std::vector<UV_REGION> grenadeFRAMES = { VFX_GRENADE_EXPLOSION_FRAME2 };
+	spriteREGISTER.emplace<tempSPRITE>(newVFX, 0.35f, 0.0f, grenadeFRAMES);
 	spriteREGISTER.destroy(explodingSPRITE); //delete
 
 }

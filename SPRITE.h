@@ -135,7 +135,7 @@ struct ORDER_TO_POINT {};
 
 
 //ENGINE
-struct tempSPRITE{ float timeLEFT; };
+struct tempSPRITE { float orginalTIME = 0.0; float curTIME = 0.0; std::vector<UV_REGION> frames; };
 struct isSTATIC{};
 struct hasCOLLISION { int curINDEX = -1; };
 
@@ -179,10 +179,14 @@ class SPRITE_MANAGER
 		UV_REGION VFX_BLOOD_2 = { 0.10f, 0.15f, 0.85f, 0.90f };
 		UV_REGION VFX_BLOOD_3 = { 0.05f, 0.10f, 0.85f, 0.90f };
 		UV_REGION VFX_BLOOD_4 = { 0.0f, 0.05f, 0.85f, 0.90f };
-		//VFX ROW #
+		//VFX ROW 3
+		UV_REGION VFX_GRENADE_EXPLOSION_FRAME1 = { 0.0f, 0.05f, 0.90f, 0.95f };
 		UV_REGION VFX_MAG = { 0.05f, 0.10f, 0.90f, 0.95f };
 		UV_REGION VFX_GRENADE = { 0.10f, 0.15f, 0.90f, 0.95f };
 		UV_REGION TREE_TRUNK = { 0.15f, 0.20f, 0.90f, 0.95f };
+
+		//VFX ROW 4
+		UV_REGION VFX_GRENADE_EXPLOSION_FRAME2 = { 0.0f, 0.05f, 0.95f, 1.0f };
 
 		UV_REGION FOXHOLE = { 0.2f, 0.4f, 0.80f, 1.0f };
 		UV_REGION DUGOUT = { 0.4f, 0.6f, 0.80f, 1.0f };
