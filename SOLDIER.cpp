@@ -16,12 +16,21 @@ void SPRITE_MANAGER::checkLOS(entt::entity soldier, bool friendly) //OVERHAUL
 	if (spriteREGISTER.all_of<hasTARGET>(soldier))
 	{
 		hasTARGET_BOOL = true;
-
 		auto& targetINFO = spriteREGISTER.get<hasTARGET>(soldier);
-		if (!spriteREGISTER.valid(targetINFO.enemySOLDIER)) //if target has died since last check
+		if (!spriteREGISTER.valid(targetINFO.enemySOLDIER)) 
 		{
 			spriteREGISTER.remove<hasTARGET>(soldier);
 			hasTARGET_BOOL = false;
+		}
+		else
+		{
+			auto& curENEMY = spriteREGISTER.get<spriteOBJECT>(targetINFO.enemySOLDIER);
+			float dis = distanceTO_POINT(curSOLDIER.spriteLOCATION.POS, curENEMY.spriteLOCATION.POS);
+			if (dis > losRANGE)
+			{
+				spriteREGISTER.remove<hasTARGET>(soldier);
+				hasTARGET_BOOL = false;
+			}
 		}
 	}
 
