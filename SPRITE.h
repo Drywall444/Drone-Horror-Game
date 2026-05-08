@@ -77,12 +77,12 @@ struct soldierOBJECT
 
 	//WEAPON INFO
 	GUN weapon;
-	int totalMAGS = 15;
-	int curMAGS = 15;
+	int totalMAGS = 12;
+	int curMAGS = 12;
 	bool outOF_AMMO = false;
 
 	//STATS
-	float soldierSKILL = 0.5; //default 0.8 increase by 0.1 per day survived
+	float soldierSKILL = 0.75; //default 0.8 increase by 0.1 per day survived
 };
 
 struct grenadeOBJECT
@@ -117,7 +117,7 @@ struct throwingGRENADE
 	ROTATION throwDIR;
 	SDL_FPoint throwPOS;
 	SDL_FPoint targetPOS;
-	float throwTIME = 2.0f;
+	float throwTIME = 2.5f;
 	bool throwing(float DT);
 };
 
@@ -129,7 +129,6 @@ struct hasTARGET
 
 struct IDLE{};
 struct inCOVER {};
-struct HIDDEN {};
 struct ORDER_TO_BUILDING { entt::entity building; };
 struct ORDER_TO_POINT {};
 

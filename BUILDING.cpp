@@ -1,9 +1,11 @@
 #include "SPRITE.h"
 
-//BUILDING - Create Seperate CPP
+//BUILDING
 
 entt::entity SPRITE_MANAGER::createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE)
 {
+	//IF DUGOUT soldiers cant shoot out of or be seen
+
 	entt::entity newBUILDING = createSPRITE(pos, rot, 128, 128, -10.0);
 	auto& newBUIDLING = spriteREGISTER.get<spriteOBJECT>(newBUILDING);
 	newBUIDLING.TYPE = BUILDING_TEX_TYPE;

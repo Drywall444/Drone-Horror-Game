@@ -97,7 +97,7 @@ void SPRITE_MANAGER::removeCOLLISION_SPRITE_FROM_TILE(entt::entity sprite, entt:
 {
 	auto& prevTILE_STRUCT = spriteREGISTER.get<TILE>(tile);
 	int i = 0;
-	for (auto& cursprite : prevTILE_STRUCT.spritesWITHIN) //this crashes on start sometimes :/
+	for (auto& cursprite : prevTILE_STRUCT.spritesWITHIN) //this crashes on start sometimes :/ - still crashes dont know why
 	{
 		if (cursprite == sprite)
 		{

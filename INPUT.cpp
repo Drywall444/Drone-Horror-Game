@@ -63,7 +63,7 @@ void INPUT::handleINPUT(float dt)
 		}
 		if (input.type == SDL_EVENT_MOUSE_WHEEL)
 		{
-			C.zoom = std::clamp(C.zoom + (scrollWHEEL_SENS * input.wheel.y), 0.50, 20.0); //clamps to min and max zoom
+			C.zoom = std::clamp(C.zoom + (scrollWHEEL_SENS * input.wheel.y), 0.09, 10.0); //clamps to min and max zoom
 			getCAM_OFFSET();
 		}
 		if (input.type == SDL_EVENT_KEY_DOWN)
