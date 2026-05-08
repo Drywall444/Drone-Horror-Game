@@ -69,7 +69,6 @@ struct BUILDING
 
 struct soldierOBJECT 
 {
-	bool friendly = false;
 	float HP = 100.0;
 	float speed = 120.0;
 	float coverVALUE = 0.0;
@@ -84,6 +83,10 @@ struct soldierOBJECT
 	//STATS
 	float soldierSKILL = 0.75; //default 0.8 increase by 0.1 per day survived
 };
+
+enum TEAMS {OPFOR, BLUFOR};
+
+struct TEAM { TEAMS soldierTEAM = OPFOR; };
 
 struct grenadeOBJECT
 {
@@ -193,8 +196,8 @@ class SPRITE_MANAGER
 
 		//GAME LOOP
 		float DT = 0.0;
-		float LOS_DELAY = 0.5;
-		float curLOS_DELAY = 0.5;
+		float LOS_DELAY = 0.8;
+		float curLOS_DELAY = 0.8;
 		void updateDT(float newDT);
 		void updateGAME();
 		void moveSPRITES();
@@ -213,18 +216,23 @@ class SPRITE_MANAGER
 
 		//SOLDIER MANAGER
 		void createSOLDIER(SDL_FPoint pos, ROTATION rot, bool isFRIEND);
-		entt::entity createCORPSE(SDL_FPoint pos, ROTATION rot, bool isFRIEND);
-		entt::entity createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot, bool isFRIEND, entt::entity buidling);
+		entt::entity createCORPSE(SDL_FPoint pos, ROTATION rot, TEAM teaminfo);
+		entt::entity createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot, TEAM teaminfo, entt::entity buidling);
+
+		//MOVEMENT
 		MOVING newMOVEMENT(float speed, ROTATION dirTO, SDL_FPoint targetLOC);
 		bool hasARRIVED_AT_POINT(SDL_FPoint spriteCUR_POS, MOVING& soldierMOVING_INFO);
+		void ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS);
 
 		//SOLDIER ACTIONS
-		void checkLOS(entt::entity soldier, bool checkENEMYS);
+		void checkLOS(entt::entity soldier, TEAM teaminfo);
+
+		//WEAPON
 		void soldierSHOOT_AT_TARGET(entt::entity soldier);
+		bool calculateHIT(float distance, float shooterSKILL, float weaponEFFECTIVE_RANGE);
 		void shootAND_MOVE(entt::entity soldier);
 		void fireWEAPON(entt::entity solder, hasTARGET target);
 		void soldierTAKE_DAMAGE(entt::entity soldier, float damage);
-		void ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS);
 		//GRENADE
 		void soldierTHROW_GRENADE_AT_POS(entt::entity soldier, SDL_FPoint targetPOS);
 		void soldiersAIM_GRENADE();

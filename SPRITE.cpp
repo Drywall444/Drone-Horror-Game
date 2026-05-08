@@ -82,22 +82,22 @@ entt::entity SPRITE_MANAGER::tileCREATE(UV_REGION uv_type, SDL_FPoint pos, natur
 		 newSPRITE_OBJ.TYPE = SOLDIER_STANDING;
 
 		 soldierOBJECT newSOLDIER;
-		 newSOLDIER.friendly = true;
 		 newSOLDIER.HP = 100.0;
 		 spriteREGISTER.emplace<soldierOBJECT>(newSOLDIER_ENTITY, newSOLDIER);
+		 spriteREGISTER.emplace<TEAM>(newSOLDIER_ENTITY, BLUFOR);
 	 }
 	 else //enemy
 	 {
 		 newSPRITE_OBJ.TYPE = ENEMY_SOLDIER_STANDING;
 		 soldierOBJECT newSOLDIER;
-		 newSOLDIER.friendly = false;
 		 newSOLDIER.HP = 100.0;
 		 spriteREGISTER.emplace<soldierOBJECT>(newSOLDIER_ENTITY, newSOLDIER);
+		 spriteREGISTER.emplace<TEAM>(newSOLDIER_ENTITY, OPFOR);
 	 }
 	 spriteREGISTER.emplace<hasCOLLISION>(newSOLDIER_ENTITY);
 }
 
-entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isFRIEND)
+entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, TEAM teaminfo)
 {
 	 std::cout << "Corpse Added.\n";
 	 entt::entity newCORPSE_ENTITY = createSPRITE(pos, rot, 64, 128, 0.5);
@@ -106,7 +106,7 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 	 float rnd = randBETWEEN(0, 1);
 	 UV_REGION corpseTYPE;
 
-	 if (isFRIEND)//FRIENDLY
+	 if (teaminfo.soldierTEAM == BLUFOR)//FRIENDLY
 	 {
 		 if (rnd > 0.5) { corpseTYPE = SOLDIER_DEAD_1; }
 		 else { corpseTYPE = SOLDIER_DEAD_2; }
@@ -124,10 +124,10 @@ entt::entity SPRITE_MANAGER::createCORPSE(SDL_FPoint pos, ROTATION rot, bool isF
 	 return newCORPSE_ENTITY;
 }
 
-entt::entity SPRITE_MANAGER::createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot, bool isFRIEND, entt::entity buidling)
+entt::entity SPRITE_MANAGER::createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot, TEAM teaminfo, entt::entity buidling)
 {
 	auto& buildingINFO = spriteREGISTER.get<BUILDING>(buidling);
-	entt::entity corpse = createCORPSE(pos, rot, isFRIEND);
+	entt::entity corpse = createCORPSE(pos, rot, teaminfo);
 	buildingINFO.soldierINSIDE.clear(); //this clears all corpses
 
 	return corpse;
@@ -139,12 +139,14 @@ void SPRITE_MANAGER::soldierHEALTH(entt::entity soldier)
 	if (curS.HP < 0.0) //DEAD
 	{
 		auto& curS_SPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(soldier);
+		auto& teamINFO = spriteREGISTER.get<TEAM>(soldier);
+
 		if (spriteREGISTER.all_of<inCOVER>(soldier)) //If died in cover
 		{
-			createCORPSE_IN_COVER(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly, curS.curBUILDING);
+			createCORPSE_IN_COVER(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, teamINFO, curS.curBUILDING);
 		}
 		else {
-			createCORPSE(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, curS.friendly);
+			createCORPSE(curS_SPRITE_INFO.spriteLOCATION.POS, curS_SPRITE_INFO.spriteLOCATION.ROT, teamINFO);
 		}
 
 
@@ -192,8 +194,9 @@ void SPRITE_MANAGER::assignCOVER(entt::entity soldier)
 
 		 if (curLOS_DELAY < 0.0)
 		 {
+			 auto& curTEAM_INFO = spriteREGISTER.get<TEAM>(S);
 			 //Check LOS
-			 checkLOS(S, curS.friendly);
+			 checkLOS(S, curTEAM_INFO);
 		 }
 		 //flags
 		 bool movingAND_IDLE = false;
@@ -207,27 +210,29 @@ void SPRITE_MANAGER::assignCOVER(entt::entity soldier)
 			 moving = true;
 		 }
 
+
 		 auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(S);
+		 auto& teamINFO = spriteREGISTER.get<TEAM>(S); //clean this hoe up
 
 		 if (spriteREGISTER.all_of<throwingGRENADE>(S)) {
-			 spriteINFO.TYPE = curS.friendly ? SOLDIER_AIM_GRENADE : ENEMY_SOLDIER_AIM_GRENADE;
+			 spriteINFO.TYPE = (teamINFO.soldierTEAM == BLUFOR) ? SOLDIER_AIM_GRENADE : ENEMY_SOLDIER_AIM_GRENADE;
 		 }
 		 else if (moving) //we are moving 
 		 {
 			 if (spriteREGISTER.all_of<FIRING>(S) && movingAND_IDLE) { //If Moving, but we are waiting we 
-				 spriteINFO.TYPE = curS.friendly ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
+				 spriteINFO.TYPE = (teamINFO.soldierTEAM == BLUFOR) ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
 				 continue;
 			 }
-			 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
+			 spriteINFO.TYPE = (teamINFO.soldierTEAM == BLUFOR) ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
 			 //can add moving animation here
 		 }
 		 else {
 			 //otherwise we idle
 			 if (spriteREGISTER.all_of<FIRING>(S)) {
-				 spriteINFO.TYPE = curS.friendly ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
+				 spriteINFO.TYPE = (teamINFO.soldierTEAM == BLUFOR) ? SOLDIER_SHOOTING : ENEMY_SOLDIER_SHOOTING;
 			 }
 			 else {
-				 spriteINFO.TYPE = curS.friendly ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
+				 spriteINFO.TYPE = (teamINFO.soldierTEAM == BLUFOR) ? SOLDIER_STANDING : ENEMY_SOLDIER_STANDING;
 			 }
 			 spriteREGISTER.emplace_or_replace<IDLE>(S);
 		 }
@@ -267,6 +272,8 @@ void SPRITE_MANAGER::assignCOVER(entt::entity soldier)
 			 removeTARGET_LIST.push_back(shootingSOLDIER);
 		 }
 	 }
+
+
 	 //remove all from list
 	 for (auto noTARGET : removeTARGET_LIST) //cleanup
 	 {

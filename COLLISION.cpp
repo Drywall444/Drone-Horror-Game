@@ -84,7 +84,7 @@ void SPRITE_MANAGER::assignCOLLISION()
 		curTILE_STRUCT.spritesWITHIN.push_back(collision);
 
 
-		if (!spriteREGISTER.all_of<isSTATIC>(collision)) //not static reassign
+		if (!spriteREGISTER.all_of<isSTATIC>(collision)) //not static reassign or hasent been assigned
 		{
 			entt::entity prevTILE = worldTILES[previousINDEX];
 			removeCOLLISION_SPRITE_FROM_TILE(collision, prevTILE);

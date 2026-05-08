@@ -142,6 +142,7 @@
     <ClCompile Include="SOLDIER.cpp" />
     <ClCompile Include="SPRITE.cpp" />
     <ClCompile Include="VFX.cpp" />
+    <ClCompile Include="WEAPON.cpp" />
     <ClCompile Include="WORLD_GEN.cpp" />
   </ItemGroup>
   <ItemGroup>
