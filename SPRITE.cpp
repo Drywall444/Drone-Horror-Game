@@ -13,20 +13,15 @@ void SPRITE_MANAGER::countDOWN_TEMP_SPRITES() //FIX SO THAT ALL TEMP SPRITES ARE
 	{
 		auto& tempINFO = spriteREGISTER.get<tempSPRITE>(temp);
 		
-		if (tempINFO.frames.size() > 0)
-		{
-			int totalFRAME_NUM = tempINFO.frames.size() + 1;
-			float fps = tempINFO.orginalTIME / totalFRAME_NUM;
-			int curFRAME = (int)(tempINFO.curTIME / fps) - 1;
 
-			if (curFRAME >= 0)
-			{
-				curFRAME = std::min(curFRAME, (int)tempINFO.frames.size() - 1);
-				UV_REGION curUV = tempINFO.frames[curFRAME];
-				auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(temp);
-				spriteINFO.TYPE = curUV;
-			}
-		}
+			int totalFRAME_NUM = tempINFO.frames.size();
+			float fps = tempINFO.orginalTIME / totalFRAME_NUM;
+			int curFRAME = (int)(tempINFO.curTIME / fps);
+			std::cout << curFRAME << std::endl;
+
+			UV_REGION curUV = tempINFO.frames[curFRAME];
+			auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(temp);
+			spriteINFO.TYPE = curUV;
 
 		tempINFO.curTIME += DT;
 		if (tempINFO.curTIME >= tempINFO.orginalTIME)
@@ -317,7 +312,8 @@ void SPRITE_MANAGER::assignCOVER(entt::entity soldier)
 	 entt::entity newFLASH = createVFX(flashPOS, newROT, randFLASH_UV, 32, 32, 0.5);
 
 	 float randFLASH = randBETWEEN(0.02f, 0.08f);
-	 spriteREGISTER.emplace<tempSPRITE>(newFLASH, 0.0f, randFLASH);
+	 std::vector<UV_REGION> MUZZLE_ANIMATION = { randFLASH_UV };
+	 spriteREGISTER.emplace<tempSPRITE>(newFLASH, randFLASH, 0.0f, MUZZLE_ANIMATION);
 
  }
 

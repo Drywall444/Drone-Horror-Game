@@ -344,7 +344,7 @@ void SPRITE_MANAGER::explode(entt::entity explodingSPRITE)
 		}
 	}
 	entt::entity newVFX = createVFX(grenade.spriteLOCATION.POS, randROTATION(), VFX_GRENADE_EXPLOSION_FRAME1, 128, 128, 1);
-	std::vector<UV_REGION> grenadeFRAMES = { VFX_GRENADE_EXPLOSION_FRAME2 };
+	std::vector<UV_REGION> grenadeFRAMES = { VFX_GRENADE_EXPLOSION_FRAME1, VFX_GRENADE_EXPLOSION_FRAME2 };
 	spriteREGISTER.emplace<tempSPRITE>(newVFX, 0.35f, 0.0f, grenadeFRAMES);
 	spriteREGISTER.destroy(explodingSPRITE); //delete
 
