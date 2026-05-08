@@ -163,6 +163,14 @@ void INPUT::checkLEFT_CLICK_RETURN_SPRITE(SDL_FPoint globalPOS)
 
 void INPUT::checkRIGHT_CLICK(SDL_FPoint globalPOS)
 {
+	if (!gameSPRITES.spriteREGISTER.valid(curSELECTED_SOLDIER))
+	{
+		//not valid 
+		curSELECTED_SOLDIER = entt::null;
+		std::cout << "Selected Soldier Died\n";
+		return;
+	}
+
 	auto spriteVIEW = gameSPRITES.spriteREGISTER.view<spriteOBJECT>();
 	auto& curSOLDIER_INFO = gameSPRITES.spriteREGISTER.get<soldierOBJECT>(curSELECTED_SOLDIER);
 	bool clickBUILDING = false;
@@ -203,5 +211,3 @@ void INPUT::checkRIGHT_CLICK(SDL_FPoint globalPOS)
 	}
 
 }
-
-//IF SELC SOLDIER DIES WE CRASH - fix

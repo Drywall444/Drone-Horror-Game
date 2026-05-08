@@ -110,6 +110,15 @@ inline ROTATION randROTATION()
 	return final;
 }
 
+inline SDL_FPoint randPOINT_FROM(SDL_FPoint pos, float range)
+{
+	float randX = randBETWEEN(-range, range);
+	float randY = randBETWEEN(-range, range);
+	SDL_FPoint finalPOS = { pos.x + randX, pos.y + randY };
+	return finalPOS;
+
+}
+
 
 #endif // !GAME_MATH_H
 

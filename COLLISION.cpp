@@ -74,7 +74,7 @@ void SPRITE_MANAGER::assignCOLLISION()
 			//assign new index
 			collisionSTRUCT.curINDEX = INDEX;
 
-		if (INDEX < 0 || INDEX >= (int)worldTILES.size()) { continue; } //we crash
+		if (INDEX <= 0 || INDEX >= (int)worldTILES.size()) { continue; } //we crash
 
 		if (previousINDEX == INDEX) { continue; } //dont assign newINDEX if in same index
 

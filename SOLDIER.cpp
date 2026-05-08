@@ -88,11 +88,7 @@ void SPRITE_MANAGER::soldierTAKE_DAMAGE(entt::entity soldier, float damage)
 {
 	spriteREGISTER.get<soldierOBJECT>(soldier).HP -= damage;
 	auto& curSOLDIER = spriteREGISTER.get<spriteOBJECT>(soldier);
-	float randX = randBETWEEN(5, 25);
-	float randY = randBETWEEN(5, 25);
-	if (randBETWEEN(0.0, 1.0) > 0.5) { randX = -randX; }
-	if (randBETWEEN(0.0, 1.0) > 0.5) { randY = -randY; }
-	SDL_FPoint bloodPOINT = { curSOLDIER.spriteLOCATION.POS.x + randX, curSOLDIER.spriteLOCATION.POS.y + randY };
+	SDL_FPoint bloodPOINT = { curSOLDIER.spriteLOCATION.POS.x, curSOLDIER.spriteLOCATION.POS.y};
 
 	UV_REGION bloodTEX_TYPE;
 	float randBETWEEN4 = randBETWEEN(0.0, 4.0);
@@ -101,7 +97,7 @@ void SPRITE_MANAGER::soldierTAKE_DAMAGE(entt::entity soldier, float damage)
 	else if (randBETWEEN4 > 1.0) { bloodTEX_TYPE = VFX_BLOOD_3; }
 	else { bloodTEX_TYPE = VFX_BLOOD_4; }
 
-	createVFX(bloodPOINT, randROTATION(), bloodTEX_TYPE, 32, 32, -1);
+	createVFX(randPOINT_FROM(bloodPOINT, 64), randROTATION(), bloodTEX_TYPE, 32, 32, -1);
 
 }
 
@@ -114,10 +110,10 @@ void SPRITE_MANAGER::soldierSHOOT_AT_TARGET(entt::entity soldier)
 	auto& soldiersSHOOTING = spriteREGISTER.get<hasTARGET>(soldier);
 	float curDISTANCE = returnDIST_TO_TARGET(soldier, soldiersSHOOTING);
 
-	if (curDISTANCE < 800 && !spriteREGISTER.all_of<throwingGRENADE>(soldier)) //If close throw a grenade
+	if (curDISTANCE < 1000 && !spriteREGISTER.all_of<throwingGRENADE>(soldier)) //If close throw a grenade
 	{
 		float rand = randBETWEEN(0.0f, 100.0f);
-		if (rand > 99.95f)
+		if (rand > 99.99f)
 		{
 			auto& enemySOLDIER_INFO = spriteREGISTER.get<spriteOBJECT>(soldiersSHOOTING.enemySOLDIER);
 			soldierTHROW_GRENADE_AT_POS(soldier, enemySOLDIER_INFO.spriteLOCATION.POS);
@@ -214,13 +210,12 @@ void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target) //CLEANU
 				if (coverRAND > enemySPRITE.coverVALUE)
 				{
 					//we hit
-					//soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weapon.weaponDMG);
-					//apply damage after bullet hits
+					soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weapon.weaponDMG);
 				}
 				else {
 					//cover blocked it
+					//hit vfx
 				}
-
 
 				//VFX
 				spawnBULLET(soldier, enemySPRITE_INFO.spriteLOCATION.POS);
@@ -235,7 +230,7 @@ void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target) //CLEANU
 			}
 			else {
 				float randX = randBETWEEN(enemySPRITE_INFO.texW / 2, 90.0);
-				float randY = randBETWEEN(enemySPRITE_INFO.texH / 2, 90.0);
+				float randY = randBETWEEN(enemySPRITE_INFO.texH / 2, 300.0);
 				if (randBETWEEN(0.0, 1.0) > 0.5) { randX = -randX; }
 				if (randBETWEEN(0.0, 1.0) > 0.5) { randY = -randY; }
 				SDL_FPoint missPOINT = { enemySPRITE_INFO.spriteLOCATION.POS.x + randX, enemySPRITE_INFO.spriteLOCATION.POS.y + randY };
@@ -268,7 +263,7 @@ void SPRITE_MANAGER::soldiersAIM_GRENADE()
 		if (curG.throwing(DT))
 		{
 			//spawn grenade here
-			spawnGRENADE_THROW(curG, 450);
+			spawnGRENADE_THROW(curG, 550);
 			spriteREGISTER.remove<throwingGRENADE>(soldier);
 			continue;
 		}
@@ -316,11 +311,11 @@ bool grenadeOBJECT::fuseENDED(float DT)
 entt::entity SPRITE_MANAGER::spawnGRENADE_THROW(throwingGRENADE thrownGRENADE, float forceOF_THROW)
 {
 	std::cout << "Grenade Spawned!\n";
-	entt::entity grenade = createSPRITE(thrownGRENADE.throwPOS, thrownGRENADE.throwDIR, 16, 16, 1);
+	entt::entity grenade = createSPRITE(thrownGRENADE.throwPOS, thrownGRENADE.throwDIR, 20, 20, 1);
 	auto& newGRENADE_STRUCT = spriteREGISTER.get<spriteOBJECT>(grenade);
 	newGRENADE_STRUCT.TYPE = VFX_GRENADE;
 	spriteREGISTER.emplace<grenadeOBJECT>(grenade);
-	MOVING newMOVE = newMOVEMENT(forceOF_THROW, thrownGRENADE.throwDIR, thrownGRENADE.targetPOS);
+	MOVING newMOVE = newMOVEMENT(forceOF_THROW, thrownGRENADE.throwDIR, randPOINT_FROM(thrownGRENADE.targetPOS, 120));
 	spriteREGISTER.emplace<MOVING>(grenade, newMOVE);
 
 	return grenade;
