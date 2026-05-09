@@ -167,12 +167,20 @@ void SPRITE_MANAGER::assignCOVER(entt::entity soldier)
 	entt::entity tile = worldTILES[collisionSTRUCT.curINDEX];
 	auto& curTILE_STRUCT = spriteREGISTER.get<TILE>(tile);
 	auto& soldierSTRUCT = spriteREGISTER.get<soldierOBJECT>(soldier);
-	if (curTILE_STRUCT.TYPE = TYPE_WOODS1)
+
+	if (curTILE_STRUCT.TYPE == TYPE_WOODS1)
 	{
-		soldierSTRUCT.coverVALUE = 0.75f;
+		soldierSTRUCT.coverVALUE = 0.50f;
+		soldierSTRUCT.concealment = 0.50f;
 	}
 	else {
 		soldierSTRUCT.coverVALUE = 0.0f;
+		soldierSTRUCT.concealment = 0.0f;
+	}
+
+	if (spriteREGISTER.all_of<FIRING>(soldier))
+	{
+		soldierSTRUCT.concealment = 0.00f;
 	}
 }
 

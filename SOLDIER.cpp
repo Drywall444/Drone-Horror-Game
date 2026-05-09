@@ -4,8 +4,6 @@
 void SPRITE_MANAGER::checkLOS(entt::entity soldier, TEAM teaminfo) //OVERHAUL
 {
 
-	float losRANGE = 2000.0;
-
 	auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
 
 	auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
@@ -20,11 +18,17 @@ void SPRITE_MANAGER::checkLOS(entt::entity soldier, TEAM teaminfo) //OVERHAUL
 
 		for (auto& s : allSOLDIER)
 		{
+			float losRANGE = 2000.0;
 			TEAMS curSOLDIER_TEAM = spriteREGISTER.get<TEAM>(s).soldierTEAM;
 			if (s == soldier) { continue; } //self
 			if (teaminfo.soldierTEAM == curSOLDIER_TEAM) { continue; } //skip friendlys
 			auto& enemySPRITE = spriteREGISTER.get<spriteOBJECT>(s);
+			auto& enemySOLDIER_INFO = spriteREGISTER.get<soldierOBJECT>(s);
 			float dist = distanceTO_POINT(spriteINFO.spriteLOCATION.POS, enemySPRITE.spriteLOCATION.POS);
+			losRANGE -= losRANGE * enemySOLDIER_INFO.concealment;
+			//std::cout << losRANGE * enemySOLDIER_INFO.concealment << std::endl;
+			//std::cout << enemySOLDIER_INFO.concealment << std::endl;
+
 			if (dist > losRANGE) { continue; } //if the current target is further continue
 			else { //if within range
 				if (noTARGETS_FOUND)

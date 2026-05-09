@@ -69,9 +69,10 @@ struct BUILDING
 
 struct soldierOBJECT 
 {
-	float HP = 100.0;
-	float speed = 120.0;
-	float coverVALUE = 0.0;
+	float HP = 100.0f;
+	float speed = 120.0f;
+	float coverVALUE = 0.0f;
+	float concealment = 0.0f;
 	entt::entity curBUILDING = entt::null;
 
 	//WEAPON INFO

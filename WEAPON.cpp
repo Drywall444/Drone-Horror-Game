@@ -121,7 +121,9 @@ void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target) //CLEANU
 			if (calculateHIT(dist, soldierINFO.soldierSKILL, soldierINFO.weapon.weaponEFFECTIVE_RANGE))
 			{
 				float coverRAND = randBETWEEN(0.0f, 1.0f);
-				if (coverRAND > enemySPRITE.coverVALUE)
+				float rangeFACTOR = dist / soldierINFO.weapon.weaponEFFECTIVE_RANGE;
+				float rangeFACTOR_PROBABILITY = (1.0f - enemySPRITE.coverVALUE) / rangeFACTOR;
+				if (coverRAND < rangeFACTOR_PROBABILITY)
 				{
 					//we hit
 					soldierTAKE_DAMAGE(target.enemySOLDIER, soldierINFO.weapon.weaponDMG);
@@ -168,8 +170,8 @@ void SPRITE_MANAGER::fireWEAPON(entt::entity soldier, hasTARGET target) //CLEANU
 bool SPRITE_MANAGER::calculateHIT(float distance, float shooterSKILL, float weaponEFFECTIVE_RANGE)
 {
 	float rangeFACTOR = distance / weaponEFFECTIVE_RANGE;
-	float finalHIT = shooterSKILL / (rangeFACTOR * rangeFACTOR);
-	finalHIT = std::clamp(finalHIT, 0.001f, 0.90f);
+	float finalHIT = 0.10f / rangeFACTOR;
+	finalHIT = std::clamp(finalHIT, 0.001f, 0.75f);
 
 	float randNUMBER = randBETWEEN(0.0f, 1.0f);
 
