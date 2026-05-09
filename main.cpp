@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 
     for (int i = 0; i < 30;i++)
     {
-        SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 1000.0f }, testROT, false);
+        SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 3000.0f }, testROT, false);
     }
 
     SM.createFOXHOLE({ 60.0, 60.0 }, testROT);

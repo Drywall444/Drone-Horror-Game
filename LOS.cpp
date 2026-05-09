@@ -19,15 +19,15 @@ void SPRITE_MANAGER::checkLOS(entt::entity soldier, TEAM teaminfo) //OVERHAUL
 
 	for (auto& s : allSOLDIER)
 	{
-		float losRANGE = 3000.0;
 		TEAMS curSOLDIER_TEAM = spriteREGISTER.get<TEAM>(s).soldierTEAM;
 		if (s == soldier) { continue; } //self
 		if (teaminfo.soldierTEAM == curSOLDIER_TEAM) { continue; } //skip friendlys
 		auto& enemySPRITE = spriteREGISTER.get<spriteOBJECT>(s);
 		auto& enemySOLDIER_INFO = spriteREGISTER.get<soldierOBJECT>(s);
+		float losRANGE = 3000.0;
 
 		float dist = distanceTO_POINT_SQ(spriteINFO.spriteLOCATION.POS, enemySPRITE.spriteLOCATION.POS);
-		float estimateTILE = (3000.0 / 100.0) * natureTEX_W;
+		float estimateTILE = (losRANGE / 100.0) * natureTEX_W;
 		if (dist > estimateTILE * estimateTILE) { continue; } // early exit
 
 
