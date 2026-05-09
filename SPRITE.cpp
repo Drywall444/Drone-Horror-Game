@@ -17,7 +17,6 @@ void SPRITE_MANAGER::countDOWN_TEMP_SPRITES() //FIX SO THAT ALL TEMP SPRITES ARE
 			int totalFRAME_NUM = tempINFO.frames.size();
 			float fps = tempINFO.orginalTIME / totalFRAME_NUM;
 			int curFRAME = (int)(tempINFO.curTIME / fps);
-			std::cout << curFRAME << std::endl;
 
 			UV_REGION curUV = tempINFO.frames[curFRAME];
 			auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(temp);

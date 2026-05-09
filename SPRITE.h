@@ -196,6 +196,7 @@ class SPRITE_MANAGER
 		UV_REGION TREE_TOP = { 0.6f, 0.8f, 0.80f, 1.0f };
 
 		//GAME LOOP
+		int XY_TO_tileNUM(int x, int y);
 		float DT = 0.0;
 		float LOS_DELAY = 0.8;
 		float curLOS_DELAY = 0.8;
@@ -226,7 +227,11 @@ class SPRITE_MANAGER
 		void ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS);
 
 		//SOLDIER ACTIONS
+
+
+		//LOS
 		void checkLOS(entt::entity soldier, TEAM teaminfo);
+		std::vector<int> bresenLINE(int startTILE, int endTILE);
 
 		//WEAPON
 		void soldierSHOOT_AT_TARGET(entt::entity soldier);
@@ -241,7 +246,8 @@ class SPRITE_MANAGER
 		void explode(entt::entity explodingSPRITE);
 
 		//Building
-		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE);
+		entt::entity createFOXHOLE(SDL_FPoint pos, ROTATION rot);
+		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE, std::vector<SDL_FPoint> firingPOS, float coverVALUE);
 		void soldierMOVE_TO_BUILDING(entt::entity soldier, entt::entity building);
 		void soldierMOVE_OUT_BUILDING(entt::entity building, SDL_FPoint globalPOS, bool movingIN_ANOTHER_BUILDING, entt::entity newBUIDLING = entt::null);
 		void soldierENTERED_BUILDING(entt::entity soldier, entt::entity building);

@@ -67,6 +67,13 @@ inline float distanceTO_POINT(SDL_FPoint pointA, SDL_FPoint pointB)
 	return length;
 }
 
+inline float distanceTO_POINT_SQ(SDL_FPoint pointA, SDL_FPoint pointB)
+{
+	float dX = pointB.x - pointA.x;
+	float dY = pointB.y - pointA.y;
+	return dX * dX + dY * dY;
+}
+
 inline float dotBETWEEN_ROTS(ROTATION rotA, ROTATION rotB)//RETURNS Dot Product of two rotations
 {
 	float dot = rotA.cosR * rotB.cosR + rotA.sinR * rotB.sinR;

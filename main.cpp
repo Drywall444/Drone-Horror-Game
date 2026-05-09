@@ -33,14 +33,13 @@ int main(int argc, char* argv[]) {
         SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 50.0f }, testROT, true);
     }
 
-    for (int i = 0; i < 15;i++)
+    for (int i = 0; i < 30;i++)
     {
-        SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 1500.0f }, testROT, false);
+        SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 1000.0f }, testROT, false);
     }
 
-    SM.createBUILDING({ 60.0, 60.0 }, testROT, SM.FOXHOLE);
-    SM.createBUILDING({ 450.0, 68.0 }, testROT, SM.FOXHOLE);
-    SM.createBUILDING({ 600.0, 68.0 }, testROT, SM.DUGOUT);
+    SM.createFOXHOLE({ 60.0, 60.0 }, testROT);
+    SM.createFOXHOLE({ 450.0, 68.0 }, testROT);
 
     SM.createMAP(SM);
 
@@ -60,7 +59,7 @@ int main(int argc, char* argv[]) {
         Uint64 frameEND = SDL_GetPerformanceCounter();
         SM.updateDT(DT);
         DT = (double)(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
-        //std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
+        std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
     }
 
     // Clean

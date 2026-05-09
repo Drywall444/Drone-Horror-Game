@@ -2,7 +2,15 @@
 
 //BUILDING
 
-entt::entity SPRITE_MANAGER::createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE)
+entt::entity SPRITE_MANAGER::createFOXHOLE(SDL_FPoint pos, ROTATION rot)
+{
+	std::vector<SDL_FPoint> newFIRING_POSITIONS = {pos};
+	entt::entity newFOXHOLE = createBUILDING(pos, rot, FOXHOLE, newFIRING_POSITIONS, 0.90);
+	auto& newBUILDING_STRUCT = spriteREGISTER.emplace<BUILDING>(newFOXHOLE);
+}
+
+
+entt::entity SPRITE_MANAGER::createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE, std::vector<SDL_FPoint> firingPOS, float coverVALUE)
 {
 	//IF DUGOUT soldiers cant shoot out of or be seen
 
@@ -11,8 +19,7 @@ entt::entity SPRITE_MANAGER::createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REG
 	newBUIDLING.TYPE = BUILDING_TEX_TYPE;
 	auto& newBUILDING_STRUCT = spriteREGISTER.emplace<BUILDING>(newBUILDING); //use this shit everywhere
 	std::vector<SDL_FPoint> newFIRING_POSITIONS = { {newBUIDLING.spriteLOCATION.POS.x, newBUIDLING.spriteLOCATION.POS.y} }; //one position
-	newBUILDING_STRUCT.coverVALUE = 0.90;
-
+	newBUILDING_STRUCT.coverVALUE = coverVALUE;
 	return newBUILDING;
 }
 

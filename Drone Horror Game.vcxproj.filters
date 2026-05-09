@@ -42,6 +42,15 @@
     <ClCompile Include="COLLISION.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VFX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WEAPON.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LOS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SPRITE.h">

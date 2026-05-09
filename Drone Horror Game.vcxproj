@@ -136,6 +136,7 @@
     <ClCompile Include="BUILDING.cpp" />
     <ClCompile Include="COLLISION.cpp" />
     <ClCompile Include="INPUT.cpp" />
+    <ClCompile Include="LOS.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MOVEMENT.cpp" />
     <ClCompile Include="RENDER.cpp" />
