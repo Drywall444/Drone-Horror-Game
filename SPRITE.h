@@ -58,13 +58,24 @@ struct TILE
 	std::vector<entt::entity> spritesWITHIN;
 };
 
+struct coverPOS
+{
+	entt::entity soldierIN_POS;
+	SDL_FPoint globalPOS;
+};
+
 struct BUILDING
 {
-	std::vector<entt::entity> soldierINSIDE; //nothing inside yet
+	std::vector<coverPOS> soldierINSIDE; //nothing inside yet
 	int buildingMAX_SIZE = 1;
 	float coverVALUE = 0.0; // 0-100% 
 	bool topCOVERED = false;
-	bool isOCCUPIED() { return soldierINSIDE.size() > 0; }
+	bool isOCCUPIED() { //do myself when not high
+		for (auto& slot : soldierINSIDE)
+			if (slot.soldierIN_POS == entt::null) return false;
+		return true; // all slots filled
+	}
+	bool isDUGOUT;
 };
 
 struct soldierOBJECT 
@@ -247,9 +258,10 @@ class SPRITE_MANAGER
 
 		//Building
 		entt::entity createFOXHOLE(SDL_FPoint pos, ROTATION rot);
-		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE, std::vector<SDL_FPoint> firingPOS, float coverVALUE);
+		entt::entity createDUGOUT(SDL_FPoint pos, ROTATION rot);
+		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE, std::vector<coverPOS> firingPOS, float coverVALUE);
 		void soldierMOVE_TO_BUILDING(entt::entity soldier, entt::entity building);
-		void soldierMOVE_OUT_BUILDING(entt::entity building, SDL_FPoint globalPOS, bool movingIN_ANOTHER_BUILDING, entt::entity newBUIDLING = entt::null);
+		void soldierMOVE_OUT_BUILDING(entt::entity soldier, SDL_FPoint globalPOS, bool movingIN_ANOTHER_BUILDING, entt::entity newBUIDLING = entt::null);
 		void soldierENTERED_BUILDING(entt::entity soldier, entt::entity building);
 
 		//VFX - Include sound here

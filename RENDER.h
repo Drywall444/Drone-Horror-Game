@@ -16,6 +16,8 @@ public:
 
 	std::vector<int> NATURE_INDICIES;
 	std::vector<SDL_Vertex> NATURE_VERTEXES;
+	int lastNatureSize = -1;
+	int lastHumanSize = -1;
 
 
 	std::vector<int> HUMAN_INDICIES;

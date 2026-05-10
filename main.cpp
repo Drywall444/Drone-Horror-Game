@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
         Uint64 frameEND = SDL_GetPerformanceCounter();
         SM.updateDT(DT);
         DT = (double)(frameEND - frameSTART) / SDL_GetPerformanceFrequency();
-        std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
+        //std::cout << "FPS: " << (int)(1.0 / DT) << "\n";
     }
 
     // Clean

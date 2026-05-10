@@ -6,7 +6,7 @@
 std::vector<int> returnINDICIES(int size)
 {
 	std::vector<int> final;
-
+	final.reserve(size * 6);
 	for (int i = 0;i < size; i++)
 	{
 		int base = i * 4;
@@ -45,20 +45,20 @@ void RENDER::initializeRENDER()
 	IN.getWINDOWSIZE(window);
 	//SDL_SetRenderVSync(REND, 1);
 
+
 	std::cout << "Renderer Success!/n";
 }
 
 void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA camera)
 {
 	HUMAN_VERTEXES.clear();
-	HUMAN_INDICIES.clear();
 	NATURE_VERTEXES.clear();
-	NATURE_INDICIES.clear();
 
 	//Get new offset based off input
 	IN.getCAM_OFFSET();
 
 	auto totalSPRITES = spriteREGISTER.view<spriteOBJECT>();
+	HUMAN_VERTEXES.reserve(totalSPRITES.size() * 4);
 
 	// Collect entity handles
 	std::vector<entt::entity> sorted(totalSPRITES.begin(), totalSPRITES.end());
@@ -74,9 +74,6 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 
 			float halfW = curSPRITE.texW * 0.5f;
 			float halfH = curSPRITE.texH * 0.5f;
-
-			//Get texture width and height from intizilation and then get top left corner, top right, bottom left, bottom right
-			//GET ROTATION AND APPLY TO ALL POINTS
 
 			//TRS: Translate, Rotate, Scale
 
@@ -111,6 +108,7 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 			HUMAN_VERTEXES.push_back({ { Point4.x * camera.zoom + camera.offSET.x,  Point4.y * camera.zoom + camera.offSET.y }, color, {curTEX_REGION.uMIN, curTEX_REGION.vMAX} });
 	}
 	auto totalTILE = spriteREGISTER.view<TILE>();
+	NATURE_VERTEXES.reserve(totalTILE.size() * 4);
 
 	//TILES
 	for (auto& tile : totalTILE)
@@ -146,10 +144,17 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 	}
 
 	//INDICIES
-	auto totalNATURE = spriteREGISTER.view<TILE>();
+	int visibleNature = (int)NATURE_VERTEXES.size() / 4;
+	int visibleHuman = (int)HUMAN_VERTEXES.size() / 4;
 
-	HUMAN_INDICIES = returnINDICIES(totalSPRITES.size());
-	NATURE_INDICIES = returnINDICIES(totalNATURE.size());
+	if (visibleNature != lastNatureSize) {
+		NATURE_INDICIES = returnINDICIES(visibleNature);
+		lastNatureSize = visibleNature;
+	}
+	if (visibleHuman != lastHumanSize) {
+		HUMAN_INDICIES = returnINDICIES(visibleHuman);
+		lastHumanSize = visibleHuman;
+	}
 
 	SDL_RenderGeometry(REND, groundTEXTURE, NATURE_VERTEXES.data(), NATURE_VERTEXES.size(),
 		NATURE_INDICIES.data(), (NATURE_VERTEXES.size() / 4) * 6);
