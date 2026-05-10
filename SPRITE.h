@@ -150,7 +150,7 @@ struct ORDER_TO_POINT {};
 
 //ENGINE
 struct tempSPRITE { float orginalTIME = 0.0; float curTIME = 0.0; std::vector<UV_REGION> frames; };
-struct isSTATIC{};
+struct isSTATIC {};
 struct hasCOLLISION { int curINDEX = -1; };
 
 

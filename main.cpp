@@ -40,6 +40,8 @@ int main(int argc, char* argv[]) {
 
     SM.createFOXHOLE({ 60.0, 60.0 }, testROT);
     SM.createFOXHOLE({ 450.0, 68.0 }, testROT);
+    SM.createDUGOUT({ 800.0, 128.0 }, testROT);
+
 
     SM.createMAP(SM);
 

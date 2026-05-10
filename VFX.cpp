@@ -46,7 +46,7 @@ entt::entity SPRITE_MANAGER::createVFX(SDL_FPoint pos, ROTATION rot, UV_REGION M
 	newSPRITE_OBJ.texH = h;
 	newSPRITE_OBJ.TYPE = MAG_TEX_TYPE;
 	newSPRITE_OBJ.spriteLOCATION.z = z;
-	spriteREGISTER.emplace<spriteOBJECT>(newVFX, newSPRITE_OBJ);
+	spriteREGISTER.emplace_or_replace<spriteOBJECT>(newVFX, newSPRITE_OBJ);
 
 	return newVFX;
 }

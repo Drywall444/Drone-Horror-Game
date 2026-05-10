@@ -7,6 +7,8 @@ entt::entity SPRITE_MANAGER::createFOXHOLE(SDL_FPoint pos, ROTATION rot)
 	std::vector<coverPOS> newFIRING_POSITIONS = { {entt::null, pos} };
 	entt::entity newFOXHOLE = createBUILDING(pos, rot, FOXHOLE, newFIRING_POSITIONS, 0.90);
 	auto& newBUILDING_STRUCT = spriteREGISTER.get<BUILDING>(newFOXHOLE);
+
+	return newFOXHOLE;
 }
 
 entt::entity SPRITE_MANAGER::createDUGOUT(SDL_FPoint pos, ROTATION rot)
@@ -16,9 +18,15 @@ entt::entity SPRITE_MANAGER::createDUGOUT(SDL_FPoint pos, ROTATION rot)
 	SDL_FPoint pos3 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { -32.0f, -32.0 });
 	SDL_FPoint pos4 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { 32.0f, -32.0 });
 
-	std::vector<coverPOS> newFIRING_POSITIONS = {};
-	entt::entity newFOXHOLE = createBUILDING(pos, rot, FOXHOLE, newFIRING_POSITIONS, 0.90);
-	auto& newBUILDING_STRUCT = spriteREGISTER.get<BUILDING>(newFOXHOLE);
+	std::vector<coverPOS> newFIRING_POSITIONS = { {entt::null, pos1}, {entt::null, pos2}, {entt::null, pos3}, {entt::null, pos4}, };
+	entt::entity newDUGOUT = createBUILDING(pos, rot, DUGOUT, newFIRING_POSITIONS, 1.0f);
+	auto& newBUILDING_STRUCT = spriteREGISTER.get<BUILDING>(newDUGOUT);
+		auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(newDUGOUT);
+		spriteINFO.spriteLOCATION.z = 2.0f;
+		spriteINFO.texW = 266.0f;
+		spriteINFO.texH = 256.0f;
+
+		return newDUGOUT;
 }
 
 
