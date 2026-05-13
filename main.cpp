@@ -25,20 +25,17 @@ int main(int argc, char* argv[]) {
 
     ROTATION testROT = { -1.0, 0.0 };
 
-    SM.createSOLDIER({ 0.0, 100.0 }, testROT, true);
-    SM.createSOLDIER({ 100.0, 150.0 }, testROT, true);
-    //SM.createSOLDIER({ 0.0, 170.0 }, testROT, false);
-    for (int i = 0; i < 10;i++)
+    for (int i = 0; i < 50;i++)
     {
         SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 50.0f }, testROT, true);
     }
 
-    for (int i = 0; i < 30;i++)
+    for (int i = 0; i < 50;i++)
     {
-        SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 3000.0f }, testROT, false);
+        SM.createSOLDIER({ (100.0f * float(i)) + 100.0f, 1500.0f }, testROT, false);
     }
 
-    SM.createFOXHOLE({ 60.0, 60.0 }, testROT);
+    //SM.createFOXHOLE({ 60.0, 60.0 }, testROT);
     SM.createFOXHOLE({ 450.0, 68.0 }, testROT);
     SM.createDUGOUT({ 800.0, 128.0 }, testROT);
 

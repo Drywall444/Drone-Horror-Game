@@ -265,7 +265,7 @@ class SPRITE_MANAGER
 		void soldierTHROW_GRENADE_AT_POS(entt::entity soldier, SDL_FPoint targetPOS);
 		void soldiersAIM_GRENADE();
 		entt::entity spawnGRENADE_THROW(throwingGRENADE thrownGRENADE, float forceOF_THROW);
-		void explode(entt::entity explodingSPRITE);
+		void explode(entt::entity explodingSPRITE, float blastRADIUS, int shrapnel, float dmg_PER_SHRAPNEL);
 
 		//Building
 		entt::entity createFOXHOLE(SDL_FPoint pos, ROTATION rot);

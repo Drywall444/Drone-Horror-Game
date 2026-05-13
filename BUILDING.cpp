@@ -13,10 +13,10 @@ entt::entity SPRITE_MANAGER::createFOXHOLE(SDL_FPoint pos, ROTATION rot)
 
 entt::entity SPRITE_MANAGER::createDUGOUT(SDL_FPoint pos, ROTATION rot)
 {
-	SDL_FPoint pos1 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { -32.0f, 32.0 });
-	SDL_FPoint pos2 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { 32.0f, 32.0 });
-	SDL_FPoint pos3 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { -32.0f, -32.0 });
-	SDL_FPoint pos4 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { 32.0f, -32.0 });
+	SDL_FPoint pos1 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { -40.0f, 40.0f });
+	SDL_FPoint pos2 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { 40.0f, 40.0f });
+	SDL_FPoint pos3 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { -40.0f, -40.0f });
+	SDL_FPoint pos4 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { 40.0f, -40.0f });
 
 	std::vector<coverPOS> newFIRING_POSITIONS = { {entt::null, pos1}, {entt::null, pos2}, {entt::null, pos3}, {entt::null, pos4}, };
 	entt::entity newDUGOUT = createBUILDING(pos, rot, DUGOUT, newFIRING_POSITIONS, 1.0f);
@@ -87,8 +87,21 @@ void SPRITE_MANAGER::soldierENTERED_BUILDING(entt::entity soldier, entt::entity 
 	auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
 
 	std::cout << "Soldier Entered Building!\n";
+	if (spriteREGISTER.all_of<MOVING>(soldier))
+	{
+		auto& movingINFO = spriteREGISTER.get<MOVING>(soldier);
+		for (int i = 0; i < buildingINFO.soldierINSIDE.size();i++)
+		{
+			if (buildingINFO.soldierINSIDE[i].soldierIN_POS == soldier)
+			{
+				spriteINFO.spriteLOCATION.POS = buildingINFO.soldierINSIDE[i].globalPOS; //snap to soldier
+				spriteREGISTER.remove<MOVING>(soldier);
+				break;
+			}
+		}
+	}
 
-	//NEED BETTER WAY TO ASSIGN POSITION, also snap soldier to pos when arrive
+	//NEED BETTER WAY TO ASSIGN POSITION
 	if (buildingINFO.topCOVERED)
 	{
 		//turn opcaity off
@@ -101,9 +114,8 @@ void SPRITE_MANAGER::soldierENTERED_BUILDING(entt::entity soldier, entt::entity 
 	{
 		spriteREGISTER.emplace_or_replace<inDUGOUT>(soldier); //Add shit
 	}
-	else {
-		spriteREGISTER.emplace_or_replace<inCOVER>(soldier); //Add shit
-	}
+	spriteREGISTER.emplace_or_replace<inCOVER>(soldier); //In dugout is also in cover
+
 	soldierINFO.coverVALUE = buildingINFO.coverVALUE;
 	spriteREGISTER.remove<ORDER_TO_BUILDING>(soldier); //remove this shit
 }
@@ -146,8 +158,7 @@ void SPRITE_MANAGER::soldierMOVE_OUT_BUILDING(entt::entity soldier, SDL_FPoint g
 	{
 		spriteREGISTER.remove<inDUGOUT>(soldier); //remove this shit
 	}
-	else {
-			spriteREGISTER.remove<inCOVER>(soldier); //remove this shit
-	}
+
+	spriteREGISTER.remove<inCOVER>(soldier); //remove this shit
 
 }

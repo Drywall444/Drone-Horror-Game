@@ -30,7 +30,7 @@ void SPRITE_MANAGER::checkEXPLOSIONS()
 		auto& curG = spriteREGISTER.get<grenadeOBJECT>(grenade);
 		if (curG.fuseENDED(DT))
 		{
-			explode(grenade);
+			explode(grenade, 250, 1000, 5);
 			//explode
 		}
 	}
@@ -74,22 +74,59 @@ entt::entity SPRITE_MANAGER::spawnGRENADE_THROW(throwingGRENADE thrownGRENADE, f
 }
 
 
-void SPRITE_MANAGER::explode(entt::entity explodingSPRITE)
+void SPRITE_MANAGER::explode(entt::entity explodingSPRITE, float blastRADIUS, int shrapnel, float dmg_PER_SHRAPNEL)
 {
 	//add VFX LATER
 	std::cout << "Grenade exploded!\n";
-	auto allSOLDIERS_NOT_IN_COVER = spriteREGISTER.view<soldierOBJECT>(entt::exclude<inCOVER>);
+	auto allSOLDIERS = spriteREGISTER.view<soldierOBJECT>();
 	auto& grenade = spriteREGISTER.get<spriteOBJECT>(explodingSPRITE);
-	for (auto& soldier : allSOLDIERS_NOT_IN_COVER)
+
+	//
+
+	struct soldierWITHIN
+	{
+		entt::entity soldier;
+		float dist;
+	};
+
+	std::vector<soldierWITHIN> allSOLDIERS_WITHIN_RADIUS;
+
+	for (auto& soldier : allSOLDIERS) //collect all soldiers within radius
 	{
 		auto& curSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(soldier);
 		float dist = distanceTO_POINT(grenade.spriteLOCATION.POS, curSPRITE_INFO.spriteLOCATION.POS);
-		if (dist < 300)
+		if (dist < blastRADIUS)
 		{
-			float dmg = ((300 - dist) / 300) * 150; //baased on distance from explosion
-			soldierTAKE_DAMAGE(soldier, 150.0f);
+			soldierWITHIN newSOLDIER_WITHIN;
+			newSOLDIER_WITHIN.soldier = soldier;
+			newSOLDIER_WITHIN.dist = dist;
+
+			allSOLDIERS_WITHIN_RADIUS.push_back(newSOLDIER_WITHIN);
 		}
 	}
+
+	static constexpr float FALLOFF = 2.5f;
+
+	for (auto& explodedSOLDIER : allSOLDIERS_WITHIN_RADIUS)
+	{
+		float t = 1.0f - (explodedSOLDIER.dist / blastRADIUS);
+		float hitPROB = std::pow(t, FALLOFF);
+		float mu = shrapnel * hitPROB;
+		float sigma = std::sqrt(mu * (1.0f - hitPROB));
+
+		float z = std::sqrt(-2.0f * std::log(randBETWEEN(1e-9f, 1.0f)))
+			* std::cos(2.0f * PI * randBETWEEN(0.0f, 1.0f));
+
+		int hitsLANDED = std::clamp(static_cast<int>(std::round(mu + z * sigma)), 0, shrapnel);
+		if (spriteREGISTER.all_of<inCOVER>(explodedSOLDIER.soldier))
+		{
+
+		}
+
+		soldierTAKE_DAMAGE(explodedSOLDIER.soldier, hitsLANDED * dmg_PER_SHRAPNEL);
+
+	}
+
 	entt::entity newVFX = createVFX(grenade.spriteLOCATION.POS, randROTATION(), VFX_GRENADE_EXPLOSION_FRAME1, 128, 128, 1);
 	std::vector<UV_REGION> grenadeFRAMES = { VFX_GRENADE_EXPLOSION_FRAME1, VFX_GRENADE_EXPLOSION_FRAME2 };
 	spriteREGISTER.emplace<tempSPRITE>(newVFX, 0.35f, 0.0f, grenadeFRAMES);

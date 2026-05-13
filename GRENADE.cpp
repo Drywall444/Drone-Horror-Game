@@ -7,15 +7,24 @@ void SPRITE_MANAGER::soldierTAKE_DAMAGE(entt::entity soldier, float damage)
 	spriteREGISTER.get<soldierOBJECT>(soldier).HP -= damage;
 	auto& curSOLDIER = spriteREGISTER.get<spriteOBJECT>(soldier);
 	SDL_FPoint bloodPOINT = { curSOLDIER.spriteLOCATION.POS.x, curSOLDIER.spriteLOCATION.POS.y };
+	int numOFBLOOD = damage / 50;
+	if (numOFBLOOD == 0)
+	{
+		numOFBLOOD = 1;
+	}
 
-	UV_REGION bloodTEX_TYPE;
-	float randBETWEEN4 = randBETWEEN(0.0, 4.0);
-	if (randBETWEEN4 > 3.0) { bloodTEX_TYPE = VFX_BLOOD_1; }
-	else if (randBETWEEN4 > 2.0) { bloodTEX_TYPE = VFX_BLOOD_2; }
-	else if (randBETWEEN4 > 1.0) { bloodTEX_TYPE = VFX_BLOOD_3; }
-	else { bloodTEX_TYPE = VFX_BLOOD_4; }
+	for (int i = 0;i < numOFBLOOD; i++)
+	{
+		UV_REGION bloodTEX_TYPE;
+		float randBETWEEN4 = randBETWEEN(0.0, 4.0);
+		if (randBETWEEN4 > 3.0) { bloodTEX_TYPE = VFX_BLOOD_1; }
+		else if (randBETWEEN4 > 2.0) { bloodTEX_TYPE = VFX_BLOOD_2; }
+		else if (randBETWEEN4 > 1.0) { bloodTEX_TYPE = VFX_BLOOD_3; }
+		else { bloodTEX_TYPE = VFX_BLOOD_4; }
 
-	createVFX(randPOINT_FROM(bloodPOINT, 64), randROTATION(), bloodTEX_TYPE, 32, 32, -1);
+		createVFX(randPOINT_FROM(bloodPOINT, 64), randROTATION(), bloodTEX_TYPE, 32, 32, -1);
+	}
+
 
 }
 
