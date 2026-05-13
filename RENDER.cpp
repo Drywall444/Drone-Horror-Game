@@ -100,12 +100,12 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 			SDL_FColor color = { 1, 1, 1, 1 };
 			if (curSPRITE.hidden)
 			{
-				color = { 0, 0, 0, 0 };
+				color.a = 0.35;
 			}
 
 			if (sprite == IN.curSELECTED_SOLDIER)
 			{
-				color = { 1, 1, 0, 1 };
+				color = { 0.25, 0.25, 1, 1 };
 			}
 
 			UV_REGION curTEX_REGION = curSPRITE.TYPE;

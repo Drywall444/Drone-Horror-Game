@@ -11,7 +11,7 @@ void SPRITE_MANAGER::spawnBULLET(entt::entity soldier, SDL_FPoint target)
 
 	ROTATION newROT = soldierINFO.spriteLOCATION.ROT;
 	SDL_FPoint bulletPOS = rotatePOINT_AND_APPLY_OFFSET(soldierINFO.spriteLOCATION.POS, newROT, offSET_TRACER);
-	entt::entity newBULLET = createVFX(bulletPOS, newROT, VFX_BULLET, 32, 64, 0);
+	entt::entity newBULLET = createVFX(bulletPOS, newROT, VFX_BULLET, 32, 64, 2.0);
 
 	//EMPLACE MOVING
 	ROTATION dirTOPOINT = directionTO_POINT(bulletPOS, target);

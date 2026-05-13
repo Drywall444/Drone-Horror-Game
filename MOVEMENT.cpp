@@ -32,7 +32,6 @@ void SPRITE_MANAGER::moveSPRITES()
 	for (auto& sprite : movingSPRITES)
 	{
 		auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(sprite);
-		auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(sprite);
 		auto& soldierMOVING_INFO = spriteREGISTER.get<MOVING>(sprite);
 
 		if (hasARRIVED_AT_POINT(spriteINFO.spriteLOCATION.POS, soldierMOVING_INFO)) //If we arrived at 
@@ -53,7 +52,7 @@ void SPRITE_MANAGER::moveSPRITES()
 					//do sum here
 				}
 				spriteREGISTER.remove<MOVING>(sprite);
-				return;
+				continue;
 			}
 			else //If we have a waypoint stop here for the wait time
 			{
