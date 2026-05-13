@@ -188,7 +188,7 @@ void INPUT::checkRIGHT_CLICK(SDL_FPoint globalPOS)
 				clickBUILDING = true;
 				auto& clickedON_BUILDING = gameSPRITES.spriteREGISTER.get<BUILDING>(sprite);
 				clickedBUILDING_ENTITY = sprite;
-				if (!clickedON_BUILDING.isOCCUPIED() && seclectedSOLDIER == true) //if not in a building and we click on a building move selc soldier if not occupied
+				if (!clickedON_BUILDING.isFULL() && seclectedSOLDIER == true) //if not in a building and we click on a building move selc soldier if not occupied
 				{
 					std::cout << "Building not occupied\n";
 					if (curSOLDIER_INFO.curBUILDING == entt::null)
@@ -197,7 +197,10 @@ void INPUT::checkRIGHT_CLICK(SDL_FPoint globalPOS)
 						gameSPRITES.soldierMOVE_TO_BUILDING(curSELECTED_SOLDIER, sprite); //If we right click, have a selcSOLDIER and the building is unonccupied we move a soldier there
 					}
 					else {
-						gameSPRITES.soldierMOVE_OUT_BUILDING(curSOLDIER_INFO.curBUILDING, globalPOS, clickBUILDING, clickedBUILDING_ENTITY);
+						if (clickedBUILDING_ENTITY != curSOLDIER_INFO.curBUILDING)//dont click on same building
+						{
+							gameSPRITES.soldierMOVE_OUT_BUILDING(curSOLDIER_INFO.curBUILDING, globalPOS, clickBUILDING, clickedBUILDING_ENTITY);
+						}
 					}
 					return;
 				}

@@ -60,17 +60,21 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 	auto totalSPRITES = spriteREGISTER.view<spriteOBJECT>();
 	HUMAN_VERTEXES.reserve(totalSPRITES.size() * 4);
 
-	// Collect entity handles
-	std::vector<entt::entity> sorted(totalSPRITES.begin(), totalSPRITES.end());
+	if (totalSPRITES.size() != lastSPRITE_NUM) //only sort if num of sprites has changed
+	{
+		sorted.assign(totalSPRITES.begin(), totalSPRITES.end());
+		std::sort(sorted.begin(), sorted.end(), [&](entt::entity a, entt::entity b) { //Z sort - need to add y tie breaker
+			return spriteREGISTER.get<spriteOBJECT>(a).spriteLOCATION.z
+				< spriteREGISTER.get<spriteOBJECT>(b).spriteLOCATION.z;
+			});
 
-	std::sort(sorted.begin(), sorted.end(), [&](entt::entity a, entt::entity b) { //Z sort
-		return spriteREGISTER.get<spriteOBJECT>(a).spriteLOCATION.z
-			< spriteREGISTER.get<spriteOBJECT>(b).spriteLOCATION.z;
-		});
+		lastSPRITE_NUM = totalSPRITES.size();
+	}
 
 	for (auto& sprite : sorted)
 	{
 		auto& curSPRITE = totalSPRITES.get<spriteOBJECT>(sprite);
+		if (!spriteREGISTER.valid(sprite)) continue;
 
 			float halfW = curSPRITE.texW * 0.5f;
 			float halfH = curSPRITE.texH * 0.5f;
@@ -94,6 +98,10 @@ void RENDER::renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA came
 			Point4 = { Point4.x + x, Point4.y + y };
 
 			SDL_FColor color = { 1, 1, 1, 1 };
+			if (curSPRITE.hidden)
+			{
+				color = { 0, 0, 0, 0 };
+			}
 
 			if (sprite == IN.curSELECTED_SOLDIER)
 			{

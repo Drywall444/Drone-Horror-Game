@@ -23,8 +23,17 @@ entt::entity SPRITE_MANAGER::createDUGOUT(SDL_FPoint pos, ROTATION rot)
 	auto& newBUILDING_STRUCT = spriteREGISTER.get<BUILDING>(newDUGOUT);
 		auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(newDUGOUT);
 		spriteINFO.spriteLOCATION.z = 2.0f;
-		spriteINFO.texW = 266.0f;
+		spriteINFO.texW = 256.0f;
 		spriteINFO.texH = 256.0f;
+
+		auto& buildingINFO = spriteREGISTER.get<BUILDING>(newDUGOUT);
+		buildingINFO.topCOVERED = true;
+		buildingINFO.isDUGOUT = true;
+
+	//bottom
+		entt::entity newDUGOUT_BASEMENT_SPRITE = createSPRITE(pos, rot, 256.0f, 256.0f, -1.0f);
+		auto& basementSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(newDUGOUT_BASEMENT_SPRITE);
+		basementSPRITE_INFO.TYPE = DUGOUT_BOTTOM;
 
 		return newDUGOUT;
 }
@@ -49,7 +58,7 @@ void SPRITE_MANAGER::soldierMOVE_TO_BUILDING(entt::entity soldier, entt::entity 
 	auto& soldierINFO_STRUCT = spriteREGISTER.get<soldierOBJECT>(soldier);
 	auto& buildingINFO = spriteREGISTER.get<spriteOBJECT>(building);
 	auto& buildingINFO_STRUCT = spriteREGISTER.get<BUILDING>(building);
-	if (buildingINFO_STRUCT.isOCCUPIED())
+	if (buildingINFO_STRUCT.isFULL())
 	{
 		std::cout << "Building Full!\n";
 		return;
@@ -77,11 +86,25 @@ void SPRITE_MANAGER::soldierENTERED_BUILDING(entt::entity soldier, entt::entity 
 	auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(soldier);
 	auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
 
-	//NEED BETTER WAY TO ASSIGN POSITION, also snap soldier to pos when arrive
+	std::cout << "Soldier Entered Building!\n";
 
+	//NEED BETTER WAY TO ASSIGN POSITION, also snap soldier to pos when arrive
+	if (buildingINFO.topCOVERED)
+	{
+		//turn opcaity off
+		std::cout << "soldier entered building with top cover\n";
+		auto& buildingSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(soldierINFO.curBUILDING);
+		buildingSPRITE_INFO.hidden = true;
+	}
+
+	if (buildingINFO.isDUGOUT)
+	{
+		spriteREGISTER.emplace_or_replace<inDUGOUT>(soldier); //Add shit
+	}
+	else {
+		spriteREGISTER.emplace_or_replace<inCOVER>(soldier); //Add shit
+	}
 	soldierINFO.coverVALUE = buildingINFO.coverVALUE;
-	//buildingINFO.soldierINSIDE.push_back(soldier);
-	spriteREGISTER.emplace_or_replace<inCOVER>(soldier); //Add shit
 	spriteREGISTER.remove<ORDER_TO_BUILDING>(soldier); //remove this shit
 }
 
@@ -99,8 +122,13 @@ void SPRITE_MANAGER::soldierMOVE_OUT_BUILDING(entt::entity soldier, SDL_FPoint g
 			break;
 		}
 	}
-	soldierINFO.coverVALUE = 0.0;
-	spriteREGISTER.remove<inCOVER>(soldier); //remove this shit
+	//Check for topcover
+	if (buildingINFO_STRUCT.isEMPTY() && buildingINFO_STRUCT.topCOVERED)
+	{
+		//turn opcaity back on
+		auto& buildingSPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(soldierINFO.curBUILDING);
+		buildingSPRITE_INFO.hidden = false;
+	}
 
 	if (movingIN_ANOTHER_BUILDING)
 	{
@@ -111,4 +139,15 @@ void SPRITE_MANAGER::soldierMOVE_OUT_BUILDING(entt::entity soldier, SDL_FPoint g
 		ORDER_soldierMOVE_TO_POINT(soldier, globalPOS);
 		soldierINFO.curBUILDING = entt::null;
 	}
+
+	soldierINFO.coverVALUE = 0.0;
+
+	if (buildingINFO_STRUCT.isDUGOUT)
+	{
+		spriteREGISTER.remove<inDUGOUT>(soldier); //remove this shit
+	}
+	else {
+			spriteREGISTER.remove<inCOVER>(soldier); //remove this shit
+	}
+
 }

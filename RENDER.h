@@ -18,6 +18,8 @@ public:
 	std::vector<SDL_Vertex> NATURE_VERTEXES;
 	int lastNatureSize = -1;
 	int lastHumanSize = -1;
+	int lastSPRITE_NUM = -1;
+	std::vector<entt::entity> sorted;
 
 
 	std::vector<int> HUMAN_INDICIES;

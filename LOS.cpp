@@ -4,8 +4,7 @@
 //LOS
 void SPRITE_MANAGER::checkLOS(entt::entity soldier, TEAM teaminfo) //OVERHAUL
 {
-
-	auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>();
+	auto allSOLDIER = spriteREGISTER.view<soldierOBJECT>(entt::exclude<inDUGOUT>); //exclude those in dugout
 
 	auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
 	auto& curSOLDIER_INFO = spriteREGISTER.get<soldierOBJECT>(soldier);

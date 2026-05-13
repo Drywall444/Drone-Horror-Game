@@ -48,6 +48,7 @@ struct spriteOBJECT//SHIT THAT CAN MOVE
 	UV_REGION TYPE; //what is drawn
 	int texW = 64;
 	int texH = 64;
+	bool hidden = false;
 };
 
 struct TILE
@@ -70,11 +71,19 @@ struct BUILDING
 	int buildingMAX_SIZE = 1;
 	float coverVALUE = 0.0; // 0-100% 
 	bool topCOVERED = false;
-	bool isOCCUPIED() { //do myself when not high
+
+
+	bool isFULL() { //do myself when not high
 		for (auto& slot : soldierINSIDE)
 			if (slot.soldierIN_POS == entt::null) return false;
 		return true; // all slots filled
 	}
+	bool isEMPTY() { //do myself when not high
+		for (auto& slot : soldierINSIDE)
+			if (slot.soldierIN_POS != entt::null) return false;
+		return true; // all slots filled
+	}
+
 	bool isDUGOUT;
 };
 
@@ -144,6 +153,7 @@ struct hasTARGET
 
 struct IDLE{};
 struct inCOVER {};
+struct inDUGOUT{};
 struct ORDER_TO_BUILDING { entt::entity building; };
 struct ORDER_TO_POINT {};
 
@@ -205,6 +215,7 @@ class SPRITE_MANAGER
 		UV_REGION FOXHOLE = { 0.2f, 0.4f, 0.80f, 1.0f };
 		UV_REGION DUGOUT = { 0.4f, 0.6f, 0.80f, 1.0f };
 		UV_REGION TREE_TOP = { 0.6f, 0.8f, 0.80f, 1.0f };
+		UV_REGION DUGOUT_BOTTOM = { 0.8f, 1.0f, 0.80f, 1.0f };
 
 		//GAME LOOP
 		int XY_TO_tileNUM(int x, int y);

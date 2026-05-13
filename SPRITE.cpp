@@ -203,7 +203,10 @@ void SPRITE_MANAGER::assignCOVER(entt::entity soldier)
 		 {
 			 auto& curTEAM_INFO = spriteREGISTER.get<TEAM>(S);
 			 //Check LOS
-			 checkLOS(S, curTEAM_INFO);
+			 if (!spriteREGISTER.all_of<inDUGOUT>(S))
+			 {
+				 checkLOS(S, curTEAM_INFO);
+			 }
 		 }
 		 //flags
 		 bool movingAND_IDLE = false;
