@@ -46,7 +46,7 @@ public:
 	double scrollWHEEL_SENS = 0.1;
 
 	CAMERA C;
-	float cameraSPEED = 850;
+	float cameraSPEED = 1500;
 	MOUSE M;
 	const bool* KEYS = nullptr;
 	bool RUN = true;

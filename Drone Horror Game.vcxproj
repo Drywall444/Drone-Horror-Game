@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="BUILDING.cpp" />
     <ClCompile Include="COLLISION.cpp" />
+    <ClCompile Include="GUI.cpp" />
     <ClCompile Include="INPUT.cpp" />
     <ClCompile Include="LOS.cpp" />
     <ClCompile Include="main.cpp" />

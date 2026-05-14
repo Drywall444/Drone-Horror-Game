@@ -18,6 +18,8 @@ void SPRITE_MANAGER::spawnBULLET(entt::entity soldier, SDL_FPoint target)
 	MOVING bulletMOVEMENT = newMOVEMENT(bulletSPEED, dirTOPOINT, target);
 	bulletMOVEMENT.destroyAT_TARGET = true; //destroy once at target
 	spriteREGISTER.emplace<MOVING>(newBULLET, bulletMOVEMENT);
+	std::vector<UV_REGION> bulletANIMATION = { VFX_BULLET };
+	spriteREGISTER.emplace<tempSPRITE>(newBULLET, 2.0f, 0.0f, bulletANIMATION);
 
 	//MUZZLE FLASH
 	SDL_FPoint offSET_MUZZLE_FLASH = { 6.5f, -50.0f };

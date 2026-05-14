@@ -8,6 +8,24 @@
 #include "entt.hpp"
 #include "INPUT.h"
 
+struct soldierWIDGET
+{
+	std::string name;
+	float HP = 100.0f;
+	bool hasTARGET = false;
+	bool inCOVER = false;
+	bool isIDLE = false;
+	bool isSHOOTING = false;
+};
+
+struct guiWINDOW
+{
+	SDL_FPoint screenPOS;
+	float w, h;
+	soldierWIDGET curSELC_SOLDIER_INFO;
+
+};
+
 class RENDER
 {
 public:
@@ -32,6 +50,11 @@ public:
 
 	void renderSPRITES_ON_SCREEN(entt::registry& spriteREGISTER, CAMERA camera);
 	void initializeRENDER();
+
+
+	//GUI
+	void renderGUI_SOLDIER_INFO();
+	guiWINDOW soldierINFO;
 
 private:
 	SPRITE_MANAGER& SM;

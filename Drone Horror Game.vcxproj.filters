@@ -45,10 +45,13 @@
     <ClCompile Include="VFX.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WEAPON.cpp">
+    <ClCompile Include="LOS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LOS.cpp">
+    <ClCompile Include="GRENADE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
