@@ -63,28 +63,28 @@ struct coverPOS
 {
 	entt::entity soldierIN_POS;
 	SDL_FPoint globalPOS;
+	ROTATION facing = {1.0f, 0.0f}; 
+	float maxROTATION = -1.0f;  //-1 means free 360 rotation
 };
 
 struct BUILDING
 {
 	std::vector<coverPOS> soldierINSIDE; //nothing inside yet
-	int buildingMAX_SIZE = 1;
+	int numOF_SOLDIERS_INSIDE = 0;
 	float coverVALUE = 0.0; // 0-100% 
 	bool topCOVERED = false;
+	float w = 0.0f, h = 0.0f;
 
-
-	bool isFULL() { //do myself when not high
-		for (auto& slot : soldierINSIDE)
-			if (slot.soldierIN_POS == entt::null) return false;
-		return true; // all slots filled
-	}
-	bool isEMPTY() { //do myself when not high
-		for (auto& slot : soldierINSIDE)
-			if (slot.soldierIN_POS != entt::null) return false;
-		return true; // all slots filled
+	bool isEMPTY() { 
+		return numOF_SOLDIERS_INSIDE <= 0;
 	}
 
 	bool isDUGOUT;
+};
+
+struct COVER
+{
+	coverPOS cover;
 };
 
 struct soldierOBJECT 
@@ -94,6 +94,9 @@ struct soldierOBJECT
 	float coverVALUE = 0.0f;
 	float concealment = 0.0f;
 	entt::entity curBUILDING = entt::null;
+
+	//ORDERS
+	entt::entity curORDER = entt::null;
 
 	//WEAPON INFO
 	GUN weapon;
@@ -115,19 +118,14 @@ struct grenadeOBJECT
 	bool fuseENDED(float DT);
 };
 
-//STATES
-struct MOVING
+//ORDERS
+struct ORDER_TO_BUILDING { entt::entity building; };
+struct ORDER_TO_POINT 
 {
-	float dX, dY;
-	std::vector<LOCATION> waypoints; //Keep waypoint function
-	float movementSPEED = 150.0;
-	bool destroyAT_TARGET = false;
-	float waitTIME_AT_WAYPOINT = 4.0f;
-	float cur_waitTIME_AT_WAYPOINT = 4.0f;
-	bool atFINAL_POINT = false;
-	bool stopped = false;
+	std::vector<SDL_FPoint> waypoints;
 };
 
+//ACTIONS
 struct FIRING
 {
 	float aimTIME = 0.0;
@@ -154,11 +152,16 @@ struct hasTARGET
 struct IDLE{};
 struct inCOVER {};
 struct inDUGOUT{};
-struct ORDER_TO_BUILDING { entt::entity building; };
-struct ORDER_TO_POINT {};
-
 
 //ENGINE
+struct MOVING
+{
+	float dX, dY;
+	SDL_FPoint waypoint; 
+	float movementSPEED = 150.0;
+	bool destroyAT_TARGET = false;
+};
+
 struct tempSPRITE { float orginalTIME = 0.0; float curTIME = 0.0; std::vector<UV_REGION> frames; };
 struct isSTATIC {};
 struct hasCOLLISION { int curINDEX = -1; };
@@ -219,12 +222,11 @@ class SPRITE_MANAGER
 
 		//GAME LOOP
 		int XY_TO_tileNUM(int x, int y);
-		float DT = 0.0;
 		float LOS_DELAY = 0.8;
 		float curLOS_DELAY = 0.8;
+		float DT = 0.0;
 		void updateDT(float newDT);
 		void updateGAME();
-		void moveSPRITES();
 		void checkEXPLOSIONS();
 		void assignCOVER(entt::entity soldier);
 		std::vector<entt::entity> toDESTROY; //sprites to destroy at end of loop
@@ -244,12 +246,15 @@ class SPRITE_MANAGER
 		entt::entity createCORPSE_IN_COVER(SDL_FPoint pos, ROTATION rot, TEAM teaminfo, entt::entity buidling);
 
 		//MOVEMENT
+		void moveSPRITES();
 		MOVING newMOVEMENT(float speed, ROTATION dirTO, SDL_FPoint targetLOC);
 		bool hasARRIVED_AT_POINT(SDL_FPoint spriteCUR_POS, MOVING& soldierMOVING_INFO);
+
 		void ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS);
+		void soldiersMOVE_TOWARD_POINT();
 
 		//SOLDIER ACTIONS
-
+		void decideSOLDIER_ACTIONS();
 
 		//LOS
 		void checkLOS(entt::entity soldier, TEAM teaminfo);
@@ -258,7 +263,6 @@ class SPRITE_MANAGER
 		//WEAPON
 		void soldierSHOOT_AT_TARGET(entt::entity soldier);
 		bool calculateHIT(float distance, float shooterSKILL, float weaponEFFECTIVE_RANGE);
-		void shootAND_MOVE(entt::entity soldier);
 		void fireWEAPON(entt::entity solder, hasTARGET target);
 		void soldierTAKE_DAMAGE(entt::entity soldier, float damage);
 		//GRENADE
@@ -270,10 +274,10 @@ class SPRITE_MANAGER
 		//Building
 		entt::entity createFOXHOLE(SDL_FPoint pos, ROTATION rot);
 		entt::entity createDUGOUT(SDL_FPoint pos, ROTATION rot);
-		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE, std::vector<coverPOS> firingPOS, float coverVALUE);
-		void soldierMOVE_TO_BUILDING(entt::entity soldier, entt::entity building);
-		void soldierMOVE_OUT_BUILDING(entt::entity soldier, SDL_FPoint globalPOS, bool movingIN_ANOTHER_BUILDING, entt::entity newBUIDLING = entt::null);
+		entt::entity createBUILDING(SDL_FPoint pos, ROTATION rot, float w, float h, float z, UV_REGION BUILDING_TEX_TYPE, std::vector<coverPOS> firingPOS, float coverVALUE);
+		void soldierMOVE_OUT_BUILDING(entt::entity soldier, entt::entity building);
 		void soldierENTERED_BUILDING(entt::entity soldier, entt::entity building);
+		void checkBUILDING_INSIDES();
 
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
@@ -294,6 +298,7 @@ private:
 	void soldierHEALTH(entt::entity soldier);
 
 };
+
 
 #endif // !SPRITE_H
 

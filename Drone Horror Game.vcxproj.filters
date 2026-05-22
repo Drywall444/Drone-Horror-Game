@@ -48,7 +48,7 @@
     <ClCompile Include="LOS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GRENADE.cpp">
+    <ClCompile Include="WEAPON.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GUI.cpp">

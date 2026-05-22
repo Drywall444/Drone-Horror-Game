@@ -173,48 +173,17 @@ void INPUT::checkRIGHT_CLICK(SDL_FPoint globalPOS)
 
 	auto spriteVIEW = gameSPRITES.spriteREGISTER.view<spriteOBJECT>();
 	auto& curSOLDIER_INFO = gameSPRITES.spriteREGISTER.get<soldierOBJECT>(curSELECTED_SOLDIER);
-	bool clickBUILDING = false;
-	entt::entity clickedBUILDING_ENTITY = entt::null;
-	bool actionTAKEN;
 
-	for (auto& sprite : spriteVIEW) //Check if we right clicked a building
+	for (auto& sprite : spriteVIEW)
 	{
 		auto& curSPRITE = gameSPRITES.spriteREGISTER.get<spriteOBJECT>(sprite);
 		if (isPOINT_WITHIN_BOUNDS(globalPOS, curSPRITE.spriteLOCATION.POS, curSPRITE.spriteLOCATION.ROT, curSPRITE.texW, curSPRITE.texH))
 		{
-			if (gameSPRITES.spriteREGISTER.all_of<BUILDING>(sprite)) //if this is a building
-			{
-				std::cout << "Clicked on building\n";
-				clickBUILDING = true;
-				auto& clickedON_BUILDING = gameSPRITES.spriteREGISTER.get<BUILDING>(sprite);
-				clickedBUILDING_ENTITY = sprite;
-				if (!clickedON_BUILDING.isFULL() && seclectedSOLDIER == true) //if not in a building and we click on a building move selc soldier if not occupied
-				{
-					std::cout << "Building not occupied\n";
-					if (curSOLDIER_INFO.curBUILDING == entt::null)
-					{
-						std::cout << "Move to building\n";
-						gameSPRITES.soldierMOVE_TO_BUILDING(curSELECTED_SOLDIER, sprite); //If we right click, have a selcSOLDIER and the building is unonccupied we move a soldier there
-					}
-					else {
-						if (clickedBUILDING_ENTITY != curSOLDIER_INFO.curBUILDING)//dont click on same building
-						{
-							gameSPRITES.soldierMOVE_OUT_BUILDING(curSOLDIER_INFO.curBUILDING, globalPOS, clickBUILDING, clickedBUILDING_ENTITY);
-						}
-					}
-					return;
-				}
-			}
+
+
 		}
 	}
 
-	if (curSOLDIER_INFO.curBUILDING != entt::null) //if inside a building
-	{
-		gameSPRITES.soldierMOVE_OUT_BUILDING(curSELECTED_SOLDIER, globalPOS, clickBUILDING, clickedBUILDING_ENTITY);
-	}
-	else if (!clickBUILDING)
-	{
-		if (seclectedSOLDIER) { gameSPRITES.ORDER_soldierMOVE_TO_POINT(curSELECTED_SOLDIER, globalPOS); }
-	}
+	gameSPRITES.ORDER_soldierMOVE_TO_POINT(curSELECTED_SOLDIER, globalPOS);
 
 }

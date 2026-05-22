@@ -5,7 +5,7 @@
 entt::entity SPRITE_MANAGER::createFOXHOLE(SDL_FPoint pos, ROTATION rot)
 {
 	std::vector<coverPOS> newFIRING_POSITIONS = { {entt::null, pos} };
-	entt::entity newFOXHOLE = createBUILDING(pos, rot, FOXHOLE, newFIRING_POSITIONS, 0.90);
+	entt::entity newFOXHOLE = createBUILDING(pos, rot, 128, 128, -5.0f, FOXHOLE, newFIRING_POSITIONS, 0.90);
 	auto& newBUILDING_STRUCT = spriteREGISTER.get<BUILDING>(newFOXHOLE);
 
 	return newFOXHOLE;
@@ -19,12 +19,9 @@ entt::entity SPRITE_MANAGER::createDUGOUT(SDL_FPoint pos, ROTATION rot)
 	SDL_FPoint pos4 = rotatePOINT_AND_APPLY_OFFSET(pos, rot, { 40.0f, -40.0f });
 
 	std::vector<coverPOS> newFIRING_POSITIONS = { {entt::null, pos1}, {entt::null, pos2}, {entt::null, pos3}, {entt::null, pos4}, };
-	entt::entity newDUGOUT = createBUILDING(pos, rot, DUGOUT, newFIRING_POSITIONS, 1.0f);
+	entt::entity newDUGOUT = createBUILDING(pos, rot, 256.0f, 256.0f, 2.0f, DUGOUT, newFIRING_POSITIONS, 1.0f);
 	auto& newBUILDING_STRUCT = spriteREGISTER.get<BUILDING>(newDUGOUT);
 		auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(newDUGOUT);
-		spriteINFO.spriteLOCATION.z = 2.0f;
-		spriteINFO.texW = 256.0f;
-		spriteINFO.texH = 256.0f;
 
 		auto& buildingINFO = spriteREGISTER.get<BUILDING>(newDUGOUT);
 		buildingINFO.topCOVERED = true;
@@ -39,45 +36,17 @@ entt::entity SPRITE_MANAGER::createDUGOUT(SDL_FPoint pos, ROTATION rot)
 }
 
 
-entt::entity SPRITE_MANAGER::createBUILDING(SDL_FPoint pos, ROTATION rot, UV_REGION BUILDING_TEX_TYPE, std::vector<coverPOS> firingPOS, float coverVALUE)
+entt::entity SPRITE_MANAGER::createBUILDING(SDL_FPoint pos, ROTATION rot, float w, float h, float z, UV_REGION BUILDING_TEX_TYPE, std::vector<coverPOS> firingPOS, float coverVALUE)
 {
 	//IF DUGOUT soldiers cant shoot out of or be seen
 
-	entt::entity newBUILDING = createSPRITE(pos, rot, 128, 128, -10.0);
+	entt::entity newBUILDING = createSPRITE(pos, rot, w, h, z);
 	auto& newBUIDLING = spriteREGISTER.get<spriteOBJECT>(newBUILDING);
 	newBUIDLING.TYPE = BUILDING_TEX_TYPE;
 	auto& newBUILDING_STRUCT = spriteREGISTER.emplace<BUILDING>(newBUILDING); //use this shit everywhere
 	newBUILDING_STRUCT.coverVALUE = coverVALUE;
 	newBUILDING_STRUCT.soldierINSIDE = firingPOS;
 	return newBUILDING;
-}
-
-void SPRITE_MANAGER::soldierMOVE_TO_BUILDING(entt::entity soldier, entt::entity building)
-{
-	auto& soldierINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
-	auto& soldierINFO_STRUCT = spriteREGISTER.get<soldierOBJECT>(soldier);
-	auto& buildingINFO = spriteREGISTER.get<spriteOBJECT>(building);
-	auto& buildingINFO_STRUCT = spriteREGISTER.get<BUILDING>(building);
-	if (buildingINFO_STRUCT.isFULL())
-	{
-		std::cout << "Building Full!\n";
-		return;
-	}
-
-	soldierINFO_STRUCT.curBUILDING = building; //pointer to building
-	spriteREGISTER.emplace_or_replace<ORDER_TO_BUILDING>(soldier, building);
-
-	for (int i = 0; i < buildingINFO_STRUCT.soldierINSIDE.size();i++)
-	{
-		if (buildingINFO_STRUCT.soldierINSIDE[i].soldierIN_POS == entt::null)
-		{
-			buildingINFO_STRUCT.soldierINSIDE[i].soldierIN_POS = soldier;
-			ORDER_soldierMOVE_TO_POINT(soldier, buildingINFO_STRUCT.soldierINSIDE[i].globalPOS); // can change to waypoint paths for pathing inside buildings in the future
-			break;
-		}
-	}
-	//maybe remove and add when soldier enters building, but also i need to make sure we cant order two soldiers to the same building thats already full
-
 }
 
 void SPRITE_MANAGER::soldierENTERED_BUILDING(entt::entity soldier, entt::entity building)
@@ -87,19 +56,7 @@ void SPRITE_MANAGER::soldierENTERED_BUILDING(entt::entity soldier, entt::entity 
 	auto& spriteINFO = spriteREGISTER.get<spriteOBJECT>(soldier);
 
 	std::cout << "Soldier Entered Building!\n";
-	if (spriteREGISTER.all_of<MOVING>(soldier))
-	{
-		auto& movingINFO = spriteREGISTER.get<MOVING>(soldier);
-		for (int i = 0; i < buildingINFO.soldierINSIDE.size();i++)
-		{
-			if (buildingINFO.soldierINSIDE[i].soldierIN_POS == soldier)
-			{
-				spriteINFO.spriteLOCATION.POS = buildingINFO.soldierINSIDE[i].globalPOS; //snap to soldier
-				spriteREGISTER.remove<MOVING>(soldier);
-				break;
-			}
-		}
-	}
+	soldierINFO.curBUILDING = building;
 
 	//NEED BETTER WAY TO ASSIGN POSITION
 	if (buildingINFO.topCOVERED)
@@ -120,20 +77,12 @@ void SPRITE_MANAGER::soldierENTERED_BUILDING(entt::entity soldier, entt::entity 
 	spriteREGISTER.remove<ORDER_TO_BUILDING>(soldier); //remove this shit
 }
 
-void SPRITE_MANAGER::soldierMOVE_OUT_BUILDING(entt::entity soldier, SDL_FPoint globalPOS, bool movingIN_ANOTHER_BUILDING, entt::entity newBUIDLING)
+void SPRITE_MANAGER::soldierMOVE_OUT_BUILDING(entt::entity soldier, entt::entity building)
 {
 	std::cout << "Move out\n";
 	auto& soldierINFO = spriteREGISTER.get<soldierOBJECT>(soldier);
 	auto& buildingINFO_STRUCT = spriteREGISTER.get<BUILDING>(soldierINFO.curBUILDING);
 
-	for (int i = 0; i < buildingINFO_STRUCT.soldierINSIDE.size();i++)
-	{
-		if (buildingINFO_STRUCT.soldierINSIDE[i].soldierIN_POS == soldier)
-		{
-			buildingINFO_STRUCT.soldierINSIDE[i].soldierIN_POS = entt::null;
-			break;
-		}
-	}
 	//Check for topcover
 	if (buildingINFO_STRUCT.isEMPTY() && buildingINFO_STRUCT.topCOVERED)
 	{
@@ -142,23 +91,61 @@ void SPRITE_MANAGER::soldierMOVE_OUT_BUILDING(entt::entity soldier, SDL_FPoint g
 		buildingSPRITE_INFO.hidden = false;
 	}
 
-	if (movingIN_ANOTHER_BUILDING)
-	{
-		soldierMOVE_TO_BUILDING(soldier, newBUIDLING);
-		soldierINFO.curBUILDING = newBUIDLING;
-	}
-	else {
-		ORDER_soldierMOVE_TO_POINT(soldier, globalPOS);
-		soldierINFO.curBUILDING = entt::null;
-	}
-
-	soldierINFO.coverVALUE = 0.0;
-
 	if (buildingINFO_STRUCT.isDUGOUT)
 	{
 		spriteREGISTER.remove<inDUGOUT>(soldier); //remove this shit
 	}
 
 	spriteREGISTER.remove<inCOVER>(soldier); //remove this shit
+	soldierINFO.curBUILDING = entt::null;
 
+}
+
+void SPRITE_MANAGER::checkBUILDING_INSIDES()
+{
+
+	auto allBUILDINGS = spriteREGISTER.view<BUILDING>();
+	auto allSOLDIERS = spriteREGISTER.view<soldierOBJECT>();
+	std::vector<entt::entity> soldierPOS;
+	soldierPOS.reserve(allSOLDIERS.size());
+
+	for (auto& soldier : allSOLDIERS)//collect all pos, once
+	{
+		soldierPOS.push_back(soldier);
+	}
+
+
+	for (auto& building : allBUILDINGS)
+	{
+		auto& curBUILDING_SPRITE_INFO = spriteREGISTER.get<spriteOBJECT>(building);
+		int soldiersIN_BUILDING = 0;
+
+
+			for(int i = 0; i < soldierPOS.size();i++)
+			{
+				auto& curSOLDIER_POS = spriteREGISTER.get<spriteOBJECT>(soldierPOS[i]).spriteLOCATION.POS;
+				if (distanceTO_POINT(curBUILDING_SPRITE_INFO.spriteLOCATION.POS, curSOLDIER_POS) > 300) { continue; }
+				auto& curSOLDIER = spriteREGISTER.get<soldierOBJECT>(soldierPOS[i]);
+
+				if (isPOINT_WITHIN_BOUNDS(curSOLDIER_POS, curBUILDING_SPRITE_INFO.spriteLOCATION.POS, curBUILDING_SPRITE_INFO.spriteLOCATION.ROT, curBUILDING_SPRITE_INFO.texW, curBUILDING_SPRITE_INFO.texH))
+				{
+					//this soldier is in this building and not already in this building, soldier entered building
+					if (curSOLDIER.curBUILDING != building)
+					{
+						soldierENTERED_BUILDING(soldierPOS[i], building);
+					}
+					soldiersIN_BUILDING++;
+				}
+				else if (curSOLDIER.curBUILDING == building) //no longer inside building remove
+				{
+					soldierMOVE_OUT_BUILDING(soldierPOS[i], building);
+					soldiersIN_BUILDING--;
+				}
+
+			}
+
+			auto& curBUILDING_INFO = spriteREGISTER.get<BUILDING>(building);
+			curBUILDING_INFO.numOF_SOLDIERS_INSIDE = soldiersIN_BUILDING;
+
+	}
 }

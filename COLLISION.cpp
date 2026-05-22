@@ -10,7 +10,7 @@ void SPRITE_MANAGER::checkCOLLISIONS()
 	for (auto& collision : allCOLLISIONS)
 	{
 		if (spriteREGISTER.all_of<isSTATIC>(collision)) { continue; }
-		if (spriteREGISTER.all_of<inCOVER>(collision)) { continue; }
+		//if (spriteREGISTER.all_of<inCOVER>(collision)) { continue; }
 
 		auto& cur_collisionINFO = spriteREGISTER.get<hasCOLLISION>(collision);
 		auto& cur_spriteINFO = spriteREGISTER.get<spriteOBJECT>(collision);
