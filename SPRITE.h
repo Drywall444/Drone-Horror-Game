@@ -7,7 +7,6 @@
 #include "entt.hpp"
 #include "GAME_MATH.h"
 
-
 struct UV_REGION
 {
 	float uMIN;
@@ -32,7 +31,7 @@ struct isTREE
 struct GUN
 {
 	std::string name = "AK-74";
-	float weaponEFFECTIVE_RANGE = 500;
+	float weaponEFFECTIVE_RANGE = 550;
 	float weaponRPM = 900;
 	float weaponDMG = 55.0;
 	int magSIZE = 30;
@@ -173,6 +172,7 @@ struct selectedNOTHING {};
 class SPRITE_MANAGER
 {
 	public:
+
 		//SPRITE INFO
 		UV_REGION GRASS_1 = { 0.0f,  0.25f, 0.0, 1.0 };
 		UV_REGION GRASS_2 = { 0.25f,  0.50f, 0.0, 1.0 };
@@ -227,8 +227,6 @@ class SPRITE_MANAGER
 		float DT = 0.0;
 		void updateDT(float newDT);
 		void updateGAME();
-		void checkEXPLOSIONS();
-		void assignCOVER(entt::entity soldier);
 		std::vector<entt::entity> toDESTROY; //sprites to destroy at end of loop
 
 		//Collision Detection
@@ -251,7 +249,6 @@ class SPRITE_MANAGER
 		bool hasARRIVED_AT_POINT(SDL_FPoint spriteCUR_POS, MOVING& soldierMOVING_INFO);
 
 		void ORDER_soldierMOVE_TO_POINT(entt::entity soldier, SDL_FPoint globalPOS);
-		void soldiersMOVE_TOWARD_POINT();
 
 		//SOLDIER ACTIONS
 		void decideSOLDIER_ACTIONS();
@@ -266,6 +263,7 @@ class SPRITE_MANAGER
 		void fireWEAPON(entt::entity solder, hasTARGET target);
 		void soldierTAKE_DAMAGE(entt::entity soldier, float damage);
 		//GRENADE
+		void checkEXPLOSIONS();
 		void soldierTHROW_GRENADE_AT_POS(entt::entity soldier, SDL_FPoint targetPOS);
 		void soldiersAIM_GRENADE();
 		entt::entity spawnGRENADE_THROW(throwingGRENADE thrownGRENADE, float forceOF_THROW);
@@ -278,6 +276,7 @@ class SPRITE_MANAGER
 		void soldierMOVE_OUT_BUILDING(entt::entity soldier, entt::entity building);
 		void soldierENTERED_BUILDING(entt::entity soldier, entt::entity building);
 		void checkBUILDING_INSIDES();
+		void assignCOVER(entt::entity soldier);
 
 		//VFX - Include sound here
 		void spawnBULLET(entt::entity soldier, SDL_FPoint target);
@@ -286,8 +285,8 @@ class SPRITE_MANAGER
 		//WORLD MAP
 		entt::entity  tileCREATE(UV_REGION uv_type, SDL_FPoint pos, natureTYPE_TILE type);
 		float natureTEX_W = 128, natureTEX_H = 128;
-		int MAP_W = 150;
-		int MAP_H = 300;
+		int MAP_W = 75;
+		int MAP_H = 150;
 		void createMAP(SPRITE_MANAGER& sprites);
 		entt::entity spawnTREE(SDL_FPoint pos);
 		void toggleTREE_TOPS();
