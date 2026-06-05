@@ -99,8 +99,8 @@ void INPUT::handleINPUT(float dt)
 
 void INPUT::getCAM_OFFSET()
 {
-	C.offSET.x = WINDOW_CENTER_X - C.camPOS.x * C.zoom;
-	C.offSET.y = WINDOW_CENTER_Y - C.camPOS.y * C.zoom;
+	C.offSET.x = round(WINDOW_CENTER_X - C.camPOS.x * C.zoom);
+	C.offSET.y = round(WINDOW_CENTER_Y - C.camPOS.y * C.zoom);
 }
 
 void INPUT::getWINDOWSIZE(SDL_Window* window)

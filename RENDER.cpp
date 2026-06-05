@@ -42,7 +42,7 @@ void RENDER::initializeRENDER()
 
 	//PIXEL PERFECT
 	SDL_SetTextureScaleMode(groundTEXTURE, SDL_SCALEMODE_NEAREST);
-	//SDL_SetTextureScaleMode(humanTEXTURE, SDL_SCALEMODE_NEAREST);
+	SDL_SetTextureScaleMode(humanTEXTURE, SDL_SCALEMODE_NEAREST);
 
 	SDL_SetRenderDrawColor(REND, 255, 255, 255, 255);//White
 	SDL_SetWindowFullscreenMode(window, NULL); //WHY TF DOES TWO CALLS TO WINDOW FULL SCREEN WORK, FUCK MY LIFE
